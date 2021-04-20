@@ -8,8 +8,10 @@
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
 // @grant        GM_addStyle
 // @run-at       document-idle
-// @homepageURL  https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
+// @homepageURL  https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod
 // @supportURL   https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
+// @updateURL    https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.js
+// @downloadURL  https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.js
 // ==/UserScript==
 
 // TURN ON/OFF FEATURES HERE
