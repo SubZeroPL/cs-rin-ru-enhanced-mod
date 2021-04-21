@@ -30,7 +30,7 @@ GM_addStyle(`#pageheader {
     background: linear-gradient(90deg, black 26%, transparent 28%);
 }`);
 if (display_ajax_loader) {
-    $("body").prepend("<img id='ajaxload' src='http://i.imgur.com/uyDmWvn.gif' style='opacity: 0.5; position: fixed; width: 250px; height: 25px; z-index: 2147483647; right: 20px; top: 3%; left: 50%; margin-left: -125px; display: none;'></div>");
+    $("body").prepend("<img id='ajaxload' src='https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/raw/master/loading.gif' style='opacity: 0.5; position: fixed; width: 250px; height: 25px; z-index: 2147483647; right: 20px; top: 3%; left: 50%; margin-left: -125px; display: none;'></div>");
     $.ajaxSetup({
         async: true,
         beforeSend: function() {
