@@ -22,7 +22,7 @@ const dynamic_time = true;
 const display_ajax_loader = true;
 const custom_tags = true;
 const hide_scs = 3; // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
- 
+
 // DO NOT TOUCH BELOW
 GM_addStyle(`#pageheader {
     position: sticky !important;
@@ -33,10 +33,10 @@ if (display_ajax_loader) {
     $("body").prepend("<div style='margin-left: 50%;'><img id='ajaxload' src='https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/raw/master/loading.gif' style='opacity: 0.5; position: fixed; width: 40px; height: 40px; z-index: 2147483647; display: none;'/></div>");
     $.ajaxSetup({
         async: true,
-        beforeSend: function() {
+        beforeSend: function () {
             if ($("#ajaxload")) $("#ajaxload").show();
         },
-        complete: function() {
+        complete: function () {
             if ($("#ajaxload")) $("#ajaxload").hide();
         }
     });
@@ -59,10 +59,10 @@ if ($("[title='Click to jump to page…']").length > 0 && infinite_scrolling) {
     if (nextElem.length == 1) { //If there is a next page
         var nextPage = $(nextElem).attr("href");
         var ajaxDone = true;
-        $(document).scroll(function() {
+        $(document).scroll(function () {
             if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
                 ajaxDone = false;
-                $.get(nextPage, function(data) {
+                $.get(nextPage, function (data) {
                     $(selector).parent().append($(selector, data));
                     $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
                     mentionify();
@@ -80,7 +80,7 @@ if ($("[title='Click to jump to page…']").length > 0 && infinite_scrolling) {
 // CUSTOM TAGS
 tagify();
 hideScs();
- 
+
 // MENTIONING
 if (URLContains("posting.php" && "do=mention") && mentioning) {
     var p = URLParam("p");
@@ -94,23 +94,21 @@ mentionify();
 
 // DYNAMIC
 var wisCond = $("div~ .tablebg").last().length > 0 && dynamic_who_is_online;
-var timeCond =  $(".gensmall+ .gensmall").last().length > 0 && dynamic_time;
+var timeCond = $(".gensmall+ .gensmall").last().length > 0 && dynamic_time;
 if (wisCond || timeCond) {
-    setInterval(function() {
-        $.get(location.href, function(data) {
+    setInterval(function () {
+        $.get(location.href, function (data) {
             if (timeCond) $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html());
             if (wisCond) $("div~ .tablebg").last().html($("div~ .tablebg", data).last().html());
         });
     }, wisCond ? 10000 : 60000);
 }
 
-
-
 // FUNCTIONS
 function mentionify() {
     if ($(".postbody").length > 0 && URLContains("viewtopic.php") && mentioning) {
         var replyLink = $("[title='Reply to topic']").parent().attr("href");
-        $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function() {
+        $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
             var postElem = $(this).parents().eq(7);
             var postID = $(postElem).find("[title='Send private message']").parent().attr("href").split("p=")[1];
             var author = $(postElem).find(".postauthor").text();
@@ -122,11 +120,11 @@ function mentionify() {
 
 function tagify() {
     if (custom_tags) {
-        $(".titles, .topictitle").each(function() {
+        $(".titles, .topictitle").each(function () {
             var titleElem = this;
             var tags = $(titleElem).text().match(/\[([^\]]+)\]/g);
             if (tags) {
-                tags.forEach(function(tag) {
+                tags.forEach(function (tag) {
                     var color = colorize(tag);
                     titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/\[|\]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
                 });
@@ -137,23 +135,23 @@ function tagify() {
 
 // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
 function hideScs() {
-  if (hide_scs > 0 && $("a.titles").html() !== "Steam Content Sharing") {
-    var regex;
-    switch (hide_scs) {
-      case 1: regex = /topic\_tags\/scs\_/;
-        break;
-      case 2: regex = /topic\_tags\/scs\_on/;
-        break;
-      case 3: regex = /topic\_tags\/scs\_[oy][^f]/;
-        break;
+    if (hide_scs > 0 && $("a.titles").html() !== "Steam Content Sharing") {
+        var regex;
+        switch (hide_scs) {
+            case 1: regex = /topic\_tags\/scs\_/;
+                break;
+            case 2: regex = /topic\_tags\/scs\_on/;
+                break;
+            case 3: regex = /topic\_tags\/scs\_[oy][^f]/;
+                break;
+        }
+        $(".topictitle img").each(function () {
+            if (this.src.match(regex))
+                this.parentElement.parentElement.parentElement.style.display = "none";
+        });
     }
-    $(".topictitle img").each(function() {
-      if (this.src.match(regex))
-        this.parentElement.parentElement.parentElement.style.display = "none";
-    });
-  }
 }
- 
+
 function colorize(str) {
     str = str.toLowerCase();
     for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
