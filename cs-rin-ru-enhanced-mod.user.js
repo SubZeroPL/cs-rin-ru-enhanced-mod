@@ -1,37 +1,57 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.3.0
+// @version      0.4.0
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
 // @grant        GM_addStyle
-// @grant        GM_openInTab
+// @grant        GM_xmlhttpRequest
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_notification
 // @run-at       document-idle
 // @homepageURL  https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod
 // @supportURL   https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
-// @updateURL    https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.js
-// @downloadURL  https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.js
+// @updateURL    https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
+// @downloadURL  https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
 // ==/UserScript==
 
-// TURN ON/OFF FEATURES HERE
-const infinite_scrolling = true;
-const mentioning = true;
-const dynamic_who_is_online = true;
-const dynamic_time = true;
-const display_ajax_loader = true;
-const custom_tags = true;
-const hide_scs = 3; // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
+const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/docs/index.html";
 
-// DO NOT TOUCH BELOW
-GM_addStyle(`#pageheader {
+const PAGE_HEADER = `#pageheader {
     position: sticky !important;
     top: -33px;
     background: linear-gradient(90deg, black 26%, transparent 28%);
-}`);
-if (display_ajax_loader) {
-    $("body").prepend("<div style='margin-left: 50%;'><img id='ajaxload' src='https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/raw/master/loading.gif' style='opacity: 0.5; position: fixed; width: 40px; height: 40px; z-index: 2147483647; display: none;'/></div>");
+}`;
+const AJAX_LOADER = `
+<div style="margin-left: 50%;">
+    <img
+        id="ajaxload"
+        src="https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/loading.gif"
+        style="opacity: 0.5; position: fixed; width: 40px; height: 40px; z-index: 2147483647; display: none;" />
+</div>`;
+
+/**
+ * Configuration array with default values.
+ */
+var options = {
+    "infinite_scrolling": true,
+    "mentioning": true,
+    "dynamic_who_is_online": true,
+    "dynamic_time": true,
+    "display_ajax_loader": true,
+    "custom_tags": true,
+    "hide_scs": 3, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
+    "apply_in_scs": false
+};
+
+options = GM_getValue("options", options);
+
+GM_addStyle(PAGE_HEADER);
+if (options['display_ajax_loader']) {
+    $("body").prepend(AJAX_LOADER);
     $.ajaxSetup({
         async: true,
         beforeSend: function () {
@@ -44,7 +64,7 @@ if (display_ajax_loader) {
 }
 
 // INFINITE SCROLLING
-if ($("[title='Click to jump to page…']").length > 0 && infinite_scrolling) {
+if ($("[title='Click to jump to page…']").length > 0 && options['infinite_scrolling']) {
     var selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; //viewforum.php
     if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr:not(:first, :last)"; //search.php
     if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; //inbox
@@ -83,7 +103,7 @@ tagify();
 hideScs();
 
 // MENTIONING
-if (URLContains("posting.php" && "do=mention") && mentioning) {
+if (URLContains("posting.php" && "do=mention") && options['mentioning']) {
     var p = URLParam("p");
     var u = URLParam("u");
     var a = URLParam("a");
@@ -94,8 +114,8 @@ if (URLContains("posting.php" && "do=mention") && mentioning) {
 mentionify();
 
 // DYNAMIC
-var wisCond = $("div~ .tablebg").last().length > 0 && dynamic_who_is_online;
-var timeCond = $(".gensmall+ .gensmall").last().length > 0 && dynamic_time;
+var wisCond = $("div~ .tablebg").last().length > 0 && options['dynamic_who_is_online'];
+var timeCond = $(".gensmall+ .gensmall").last().length > 0 && options['dynamic_time'];
 if (wisCond || timeCond) {
     setInterval(function () {
         $.get(location.href, function (data) {
@@ -107,7 +127,7 @@ if (wisCond || timeCond) {
 
 // FUNCTIONS
 function mentionify() {
-    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && mentioning) {
+    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options['mentioning']) {
         var replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
             var postElem = $(this).parents().eq(7);
@@ -120,7 +140,7 @@ function mentionify() {
 }
 
 function tagify() {
-    if (custom_tags) {
+    if (options['custom_tags']) {
         $(".titles, .topictitle").each(function () {
             var titleElem = this;
             var tags = $(titleElem).text().match(/\[([^\]]+)\]/g);
@@ -136,9 +156,9 @@ function tagify() {
 
 // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
 function hideScs() {
-    if (hide_scs > 0 && $("a.titles").html() !== "Steam Content Sharing") {
+    if (options['hide_scs'] > 0 && (options['apply_in_scs'] || $("a.titles").html() !== "Steam Content Sharing")) {
         var regex;
-        switch (hide_scs) {
+        switch (options['hide_scs']) {
             case 1: regex = /topic_tags\/scs_/;
                 break;
             case 2: regex = /topic_tags\/scs_on/;
@@ -168,8 +188,32 @@ function URLParam(name) {
     return (location.search.split(name + '=')[1] || '').split('&')[0];
 }
 
-function openConfigPage() {
-    GM_openInTab("");
+window.addEventListener("message", receiveConfigMessage, false);
+function receiveConfigMessage(event) {
+    options = JSON.parse(event.data);
+    GM_setValue("options", options);
+    GM_notification("Configuration saved", "Info");
 }
 
-openConfigPage();
+function loadConfigButton() {
+    GM_xmlhttpRequest({
+        url: CONFIG_PAGE,
+        onerror: (r) => {
+            console.log("Error loading config page: " + r);
+            GM_notification("Error loading config page: " + r, "Error");
+        },
+        onload: (r) => {
+            $("body").append(r.responseText);
+            $("input#infinite_scrolling")[0].checked = options['infinite_scrolling'];
+            $("input#mentioning")[0].checked = options['mentioning'];
+            $("input#dynamic_who_is_online")[0].checked = options['dynamic_who_is_online'];
+            $("input#dynamic_time")[0].checked = options['dynamic_time'];
+            $("input#display_ajax_loader")[0].checked = options['display_ajax_loader'];
+            $("input#custom_tags")[0].checked = options['custom_tags'];
+            $("select#hide_scs")[0].options.selectedIndex = options['hide_scs'];
+            $("input#apply_in_scs")[0].checked = options['apply_in_scs'];
+        }
+    });
+}
+
+loadConfigButton();
