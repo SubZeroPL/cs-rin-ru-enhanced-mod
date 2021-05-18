@@ -4,7 +4,7 @@ Enhance your experience at CS.RIN.RU
 Original version created by Royalgamer06, modified by SubZeroPL.
 
 Original features:
-- enable or disable any of the features
+- enable or disable any of the features in script code
 - mention somebody when posting (mentioning)
 - dynamically load next pages when browsing the site (infinite_scrolling)
 - dynamically refresh the current time (dynamic_time)
@@ -14,5 +14,6 @@ Original features:
 
 Added features:
 - SCS topics filtering
+- filtering also in SCS section
 
 Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) on [Firefox](https://www.mozilla.org/en-US/firefox/new/).
