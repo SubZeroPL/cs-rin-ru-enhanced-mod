@@ -15,5 +15,6 @@ Original features:
 Added features:
 - SCS topics filtering
 - filtering also in SCS section
+- option to enable/disable whole script
 
 Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) on [Firefox](https://www.mozilla.org/en-US/firefox/new/).
