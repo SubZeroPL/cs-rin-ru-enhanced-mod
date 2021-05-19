@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.0
+// @version      0.4.1
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
@@ -37,6 +37,7 @@ const AJAX_LOADER = `
  * Configuration array with default values.
  */
 var options = {
+    "script_enabled": true,
     "infinite_scrolling": true,
     "mentioning": true,
     "dynamic_who_is_online": true,
@@ -48,6 +49,45 @@ var options = {
 };
 
 options = GM_getValue("options", options);
+
+window.addEventListener("message", receiveConfigMessage, false);
+function receiveConfigMessage(event) {
+    options = JSON.parse(event.data);
+    GM_setValue("options", options);
+    GM_notification("Configuration saved", "Info");
+}
+
+function loadConfigButton() {
+    GM_xmlhttpRequest({
+        url: CONFIG_PAGE,
+        onerror: (r) => {
+            console.log("Error loading config page: " + r);
+            GM_notification("Error loading config page: " + r, "Error");
+        },
+        onload: (r) => {
+            $("body").append(r.responseText);
+            $("input#script_enabled")[0].checked = options['script_enabled'];
+            $("input#infinite_scrolling")[0].checked = options['infinite_scrolling'];
+            $("input#mentioning")[0].checked = options['mentioning'];
+            $("input#dynamic_who_is_online")[0].checked = options['dynamic_who_is_online'];
+            $("input#dynamic_time")[0].checked = options['dynamic_time'];
+            $("input#display_ajax_loader")[0].checked = options['display_ajax_loader'];
+            $("input#custom_tags")[0].checked = options['custom_tags'];
+            $("select#hide_scs")[0].options.selectedIndex = options['hide_scs'];
+            $("input#apply_in_scs")[0].checked = options['apply_in_scs'];
+
+            if (!options['script_enabled']) {
+                $("fieldset#config").hide();
+            }
+        }
+    });
+}
+
+loadConfigButton();
+
+if (!options['script_enabled']) {
+    return;
+}
 
 GM_addStyle(PAGE_HEADER);
 if (options['display_ajax_loader']) {
@@ -187,33 +227,3 @@ function URLContains(match) {
 function URLParam(name) {
     return (location.search.split(name + '=')[1] || '').split('&')[0];
 }
-
-window.addEventListener("message", receiveConfigMessage, false);
-function receiveConfigMessage(event) {
-    options = JSON.parse(event.data);
-    GM_setValue("options", options);
-    GM_notification("Configuration saved", "Info");
-}
-
-function loadConfigButton() {
-    GM_xmlhttpRequest({
-        url: CONFIG_PAGE,
-        onerror: (r) => {
-            console.log("Error loading config page: " + r);
-            GM_notification("Error loading config page: " + r, "Error");
-        },
-        onload: (r) => {
-            $("body").append(r.responseText);
-            $("input#infinite_scrolling")[0].checked = options['infinite_scrolling'];
-            $("input#mentioning")[0].checked = options['mentioning'];
-            $("input#dynamic_who_is_online")[0].checked = options['dynamic_who_is_online'];
-            $("input#dynamic_time")[0].checked = options['dynamic_time'];
-            $("input#display_ajax_loader")[0].checked = options['display_ajax_loader'];
-            $("input#custom_tags")[0].checked = options['custom_tags'];
-            $("select#hide_scs")[0].options.selectedIndex = options['hide_scs'];
-            $("input#apply_in_scs")[0].checked = options['apply_in_scs'];
-        }
-    });
-}
-
-loadConfigButton();

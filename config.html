@@ -6,6 +6,7 @@
     }
     function sendConfig() {
         var data = {
+            "script_enabled": $("#script_enabled")[0].checked,
             "infinite_scrolling": $("#infinite_scrolling")[0].checked,
             "mentioning": $("#mentioning")[0].checked,
             "dynamic_who_is_online": $("#dynamic_who_is_online")[0].checked,
@@ -22,6 +23,13 @@
     function configWindowClose() {
         $("#wholeWindow").hide();
         $("#configButton").show();
+    }
+    function enableScript() {
+        if ($("input#script_enabled")[0].checked) {
+            $("fieldset#config").slideDown();
+        } else {
+            $("fieldset#config").slideUp();
+        }
     }
 </script>
 <style>
@@ -75,10 +83,12 @@
 
     fieldset {
         padding: 2px;
+        border-radius: 5px;
     }
 
     #buttons {
         margin-top: 5px;
+        text-align: right;
     }
 
     #configButton {
@@ -93,52 +103,62 @@
         <fieldset>
             <legend>CS.RIN.RU Enhanced Configuration</legend>
             <table>
-                <tr>
+                <tr colspan="2">
                     <td>
-                        <input type="checkbox" id="infinite_scrolling"></input>
-                        <label for="infinite_scrolling">Infinite scrolling</label>
-                    </td>
-                    <td>
-                        <input type="checkbox" id="mentioning"></input>
-                        <label for="mentioning">Mentioning</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="checkbox" id="dynamic_who_is_online"></input>
-                        <label for="dynamic_who_is_online">Dynamic who-is-online</label>
-                    </td>
-                    <td>
-                        <input type="checkbox" id="dynamic_time"></input>
-                        <label for="dynamic_time">Dynamic time</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="checkbox" id="display_ajax_loader"></input>
-                        <label for="display_ajax_loader">Display Ajax loader</label>
-                    </td>
-                    <td>
-                        <input type="checkbox" id="custom_tags"></input>
-                        <label for="custom_tags">Custom tags</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="hide_scs">Hide SCS</label>
-                        <select id="hide_scs">
-                            <option value="0">not hide</option>
-                            <option value="1">hide all</option>
-                            <option value="2">hide only green</option>
-                            <option value="3">show only red</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="checkbox" id="apply_in_scs"></input>
-                        <label for="apply_in_scs">Apply also in SCS</label>
+                        <input type="checkbox" id="script_enabled" onclick="enableScript();"></input>
+                        <label for="script_enabled">Enable script</label>
                     </td>
                 </tr>
             </table>
+            <fieldset id="config">
+                <table>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="infinite_scrolling"></input>
+                            <label for="infinite_scrolling">Infinite scrolling</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="mentioning"></input>
+                            <label for="mentioning">Mentioning</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="dynamic_who_is_online"></input>
+                            <label for="dynamic_who_is_online">Dynamic who-is-online</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="dynamic_time"></input>
+                            <label for="dynamic_time">Dynamic time</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="display_ajax_loader"></input>
+                            <label for="display_ajax_loader">Display Ajax loader</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="custom_tags"></input>
+                            <label for="custom_tags">Custom tags</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="hide_scs">Hide SCS</label>
+                            <select id="hide_scs">
+                                <option value="0">not hide</option>
+                                <option value="1">hide all</option>
+                                <option value="2">hide only green</option>
+                                <option value="3">show only red</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="apply_in_scs"></input>
+                            <label for="apply_in_scs">Apply also in SCS</label>
+                        </td>
+                    </tr>
+                </table>
+            </fieldset>
         </fieldset>
         <div id="buttons">
             <button onclick="sendConfig();">OK</button>
