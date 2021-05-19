@@ -1,9 +1,9 @@
 # CS RIN RU Enhanced mod
 Enhance your experience at CS.RIN.RU
 
-Original version created by Royalgamer06, modified by SubZeroPL.
+Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 
-Original features:
+## Original features:
 - enable or disable any of the features in script code
 - mention somebody when posting (mentioning)
 - dynamically load next pages when browsing the site (infinite_scrolling)
@@ -12,9 +12,15 @@ Original features:
 - see when something is dynamically loading (display_ajax_loader)
 - custom topic tags (custom_tags)
 
-Added features:
+## Added features:
 - SCS topics filtering
 - filtering also in SCS section
+- configuration window
 - option to enable/disable whole script
+
+## Installation:
+If you have extension installed then just open script url (https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js) in browser and installation window should pop-up.
+
+The script supports automatic updates.
 
 Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) on [Firefox](https://www.mozilla.org/en-US/firefox/new/).
