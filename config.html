@@ -1,34 +1,79 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+    function strToBool(s) {
+        // will match one and only one of the string 'true','1', or 'on' rerardless
+        // of capitalization and regardless off surrounding white-space.
+        //
+        regex = /^\s*(true|1|on)\s*$/i
+
+        return regex.test(s);
+    }
+
     function showConfigPage() {
+        console.log("entrypoint");
         $("#configButton").hide();
         $("#wholeWindow").show();
+
+        $("[originalValue]").each((i, e) => {
+            switch (e.localName) {
+                case 'input':
+                    e.setAttribute("originalValue", e.checked);
+                    break;
+                case 'select':
+                    e.setAttribute("originalValue", e.value);
+                    break;
+            }
+        });
+
+        $("[originalValue]").change((e) => {
+            var changed = false;
+            $("[originalValue]").each((i, e) => {
+                switch (e.localName) {
+                    case 'input':
+                        changed = changed || (e.checked != strToBool(e.getAttribute("originalValue")));
+                        break;
+                    case 'select':
+                        changed = changed || (e.value != Number(e.getAttribute("originalValue")));
+                        break;
+                }
+            });
+            if (changed) {
+                $("#warning").show();
+            } else {
+                $("#warning").hide();
+            }
+        });
     }
+
     function sendConfig() {
-        var data = {
-            "script_enabled": $("#script_enabled")[0].checked,
-            "infinite_scrolling": $("#infinite_scrolling")[0].checked,
-            "mentioning": $("#mentioning")[0].checked,
-            "dynamic_who_is_online": $("#dynamic_who_is_online")[0].checked,
-            "dynamic_time": $("#dynamic_time")[0].checked,
-            "display_ajax_loader": $("#display_ajax_loader")[0].checked,
-            "custom_tags": $("#custom_tags")[0].checked,
-            "hide_scs": Number($("#hide_scs")[0].value),
-            "apply_in_scs": $("#apply_in_scs")[0].checked
-        };
-        window.postMessage(JSON.stringify(data), "*");
+        if ($("#warning").is(":visible")) {
+            var data = {
+                "script_enabled": $("#script_enabled")[0].checked,
+                "infinite_scrolling": $("#infinite_scrolling")[0].checked,
+                "mentioning": $("#mentioning")[0].checked,
+                "dynamic_who_is_online": $("#dynamic_who_is_online")[0].checked,
+                "dynamic_time": $("#dynamic_time")[0].checked,
+                "display_ajax_loader": $("#display_ajax_loader")[0].checked,
+                "custom_tags": $("#custom_tags")[0].checked,
+                "hide_scs": Number($("#hide_scs")[0].value),
+                "apply_in_scs": $("#apply_in_scs")[0].checked
+            };
+            window.postMessage(JSON.stringify(data), "*");
+            window.location.reload();
+        }
         configWindowClose();
-        window.location.reload();
     }
+
     function configWindowClose() {
         $("#wholeWindow").hide();
         $("#configButton").show();
     }
+
     function enableScript() {
         if ($("input#script_enabled")[0].checked) {
-            $("fieldset#config").slideDown();
+            $("fieldset#config").fadeIn();
         } else {
-            $("fieldset#config").slideUp();
+            $("fieldset#config").fadeOut();
         }
     }
 </script>
@@ -97,6 +142,11 @@
         right: 5px;
         cursor: pointer;
     }
+
+    #warning {
+        display: none;
+        color: red;
+    }
 </style>
 <div id="wholeWindow">
     <div id="configWindow">
@@ -105,7 +155,7 @@
             <table>
                 <tr colspan="2">
                     <td>
-                        <input type="checkbox" id="script_enabled" onclick="enableScript();"></input>
+                        <input type="checkbox" id="script_enabled" onclick="enableScript();" originalValue=""></input>
                         <label for="script_enabled">Enable script</label>
                     </td>
                 </tr>
@@ -114,38 +164,38 @@
                 <table>
                     <tr>
                         <td>
-                            <input type="checkbox" id="infinite_scrolling"></input>
+                            <input type="checkbox" id="infinite_scrolling" originalValue=""></input>
                             <label for="infinite_scrolling">Infinite scrolling</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="mentioning"></input>
+                            <input type="checkbox" id="mentioning" originalValue=""></input>
                             <label for="mentioning">Mentioning</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" id="dynamic_who_is_online"></input>
+                            <input type="checkbox" id="dynamic_who_is_online" originalValue=""></input>
                             <label for="dynamic_who_is_online">Dynamic who-is-online</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="dynamic_time"></input>
+                            <input type="checkbox" id="dynamic_time" originalValue=""></input>
                             <label for="dynamic_time">Dynamic time</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" id="display_ajax_loader"></input>
+                            <input type="checkbox" id="display_ajax_loader" originalValue=""></input>
                             <label for="display_ajax_loader">Display Ajax loader</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="custom_tags"></input>
+                            <input type="checkbox" id="custom_tags" originalValue=""></input>
                             <label for="custom_tags">Custom tags</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
                             <label for="hide_scs">Hide SCS</label>
-                            <select id="hide_scs">
+                            <select id="hide_scs" originalValue="">
                                 <option value="0">not hide</option>
                                 <option value="1">hide all</option>
                                 <option value="2">hide only green</option>
@@ -153,7 +203,7 @@
                             </select>
                         </td>
                         <td>
-                            <input type="checkbox" id="apply_in_scs"></input>
+                            <input type="checkbox" id="apply_in_scs" originalValue=""></input>
                             <label for="apply_in_scs">Apply also in SCS</label>
                         </td>
                     </tr>
@@ -161,8 +211,10 @@
             </fieldset>
         </fieldset>
         <div id="buttons">
-            <button onclick="sendConfig();">OK</button>
-            <button onclick="configWindowClose();">Cancel</button>
+            <!-- Display a warning if something changed in configuration -->
+            <span id="warning">Clicking OK will reload current page</span>
+            <button type="button" onclick="sendConfig();">OK</button>
+            <button type="button" onclick="configWindowClose();">Cancel</button>
         </div>
     </div>
 </div>
