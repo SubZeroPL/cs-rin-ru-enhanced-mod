@@ -171,7 +171,7 @@ function mentionify() {
         var replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
             var postElem = $(this).parents().eq(7);
-            var postID = $(postElem).find("[title='Send private message']").parent().attr("href").split("p=")[1];
+            var postID = $(postElem).find("a[name]").attr("name").slice(1);
             var author = $(postElem).find(".postauthor").text();
             var authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
             $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
