@@ -15,7 +15,7 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 ## Added features:
 - SCS topics filtering
 - filtering also in SCS section
-- configuration window
+- configuration window (script adds button to open configuration window in upper-right corner of browser window)
 - option to enable/disable whole script
 
 ## Installation:
