@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.3
+// @version      0.4.4
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
