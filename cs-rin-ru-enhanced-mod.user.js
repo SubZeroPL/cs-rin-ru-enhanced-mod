@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.4
+// @version      0.4.6
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
@@ -32,11 +32,18 @@ const AJAX_LOADER = `
         src="https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/loading.gif"
         style="opacity: 0.5; position: fixed; width: 40px; height: 40px; z-index: 2147483647; display: none;" />
 </div>`;
+const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
+function getBaseUrl() {
+    let path = window.location.origin + window.location.pathname;
+    let base = path.slice(0, path.lastIndexOf('/') + 1);
+    return base ?? 'http://cs.rin.ru/forum/';
+};
+const FORUM_BASE_URL = getBaseUrl();
 
 /**
  * Configuration array with default values.
  */
-var options = {
+let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
     "mentioning": true,
@@ -45,10 +52,15 @@ var options = {
     "display_ajax_loader": true,
     "custom_tags": true,
     "hide_scs": 3, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
-    "apply_in_scs": false
+    "apply_in_scs": false,
+    "topic_title_format": "%F • View topic - %T" // %F - forum name, %T - topic title
 };
 
-options = GM_getValue("options", options);
+function loadConfig() {
+    var savedOptions = GM_getValue("options", options);
+    options = { ...options, ...savedOptions };
+}
+loadConfig();
 
 window.addEventListener("message", receiveConfigMessage, false);
 function receiveConfigMessage(event) {
@@ -75,6 +87,7 @@ function loadConfigButton() {
             $("input#custom_tags")[0].checked = options['custom_tags'];
             $("select#hide_scs")[0].options.selectedIndex = options['hide_scs'];
             $("input#apply_in_scs")[0].checked = options['apply_in_scs'];
+            $("input#topic_title_format")[0].value = options['topic_title_format'];
 
             if (!options['script_enabled']) {
                 $("fieldset#config").hide();
@@ -115,11 +128,11 @@ if ($("[title='Click to jump to page…']").length > 0 && options['infinite_scro
     } else if (!URLContains("ucp.php")) {
         $(selector).parent().prepend($(".cat:has(.btnlite)").parent());
     }
-    var navElem = $("[title='Click to jump to page…']").first().parent();
-    var nextElem = $(navElem).find("strong").next().next();
+    const navElem = $("[title='Click to jump to page…']").first().parent();
+    const nextElem = $(navElem).find("strong").next().next();
     if (nextElem.length == 1) { //If there is a next page
-        var nextPage = $(nextElem).attr("href");
-        var ajaxDone = true;
+        const nextPage = $(nextElem).attr("href");
+        let ajaxDone = true;
         $(document).scroll(function () {
             if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
                 ajaxDone = false;
@@ -144,18 +157,18 @@ hideScs();
 
 // MENTIONING
 if (URLContains("posting.php" && "do=mention") && options['mentioning']) {
-    var p = URLParam("p");
-    var u = URLParam("u");
-    var a = URLParam("a");
-    var postBody = "@[url=http://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=" + u + "]" + a + "[/url], ";
-    var ajaxDone = false;
+    const p = URLParam("p");
+    const u = URLParam("u");
+    const a = URLParam("a");
+    const postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${a}[/url], `;
+    const ajaxDone = false;
     $("[name=message]").val(postBody);
 }
 mentionify();
 
 // DYNAMIC
-var wisCond = $("div~ .tablebg").last().length > 0 && options['dynamic_who_is_online'];
-var timeCond = $(".gensmall+ .gensmall").last().length > 0 && options['dynamic_time'];
+const wisCond = $("div~ .tablebg").last().length > 0 && options['dynamic_who_is_online'];
+const timeCond = $(".gensmall+ .gensmall").last().length > 0 && options['dynamic_time'];
 if (wisCond || timeCond) {
     setInterval(function () {
         $.get(location.href, function (data) {
@@ -168,12 +181,12 @@ if (wisCond || timeCond) {
 // FUNCTIONS
 function mentionify() {
     if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options['mentioning']) {
-        var replyLink = $("[title='Reply to topic']").parent().attr("href");
+        const replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
-            var postElem = $(this).parents().eq(7);
-            var postID = $(postElem).find("a[name]").attr("name").slice(1);
-            var author = $(postElem).find(".postauthor").text();
-            var authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
+            const postElem = $(this).parents().eq(7);
+            const postID = $(postElem).find("a[name]").attr("name").slice(1);
+            const author = $(postElem).find(".postauthor").text();
+            const authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
             $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
         });
     }
@@ -182,11 +195,11 @@ function mentionify() {
 function tagify() {
     if (options['custom_tags']) {
         $(".titles, .topictitle").each(function () {
-            var titleElem = this;
-            var tags = $(titleElem).text().match(/\[([^\]]+)\]/g);
+            const titleElem = this;
+            const tags = $(titleElem).text().match(/\[([^\]]+)\]/g);
             if (tags) {
                 tags.forEach(function (tag) {
-                    var color = colorize(tag);
+                    const color = colorize(tag);
                     titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/\[|\]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
                 });
             }
@@ -197,7 +210,7 @@ function tagify() {
 // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
 function hideScs() {
     if (options['hide_scs'] > 0 && (options['apply_in_scs'] || $("a.titles").html() !== "Steam Content Sharing")) {
-        var regex;
+        let regex;
         switch (options['hide_scs']) {
             case 1: regex = /topic_tags\/scs_/;
                 break;
@@ -214,9 +227,9 @@ function hideScs() {
 }
 
 function colorize(str) {
-    str = str.toLowerCase();
-    for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
-    color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+    let lstr = str.toLowerCase();
+    for (var i = 0, hash = 0; i < lstr.length; hash = lstr.charCodeAt(i++) + ((hash << 5) - hash));
+    const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
     return '#' + Array(6 - color.length + 1).join('0') + color;
 }
 
@@ -227,3 +240,15 @@ function URLContains(match) {
 function URLParam(name) {
     return (location.search.split(name + '=')[1] || '').split('&')[0];
 }
+
+function setupPageTitle() {
+    const currentTitle = document.title;
+    // CS.RIN.RU - Steam Underground Community • View topic - Suggestion = forum setting (bookmark)
+    if (currentTitle.indexOf("View topic") > -1) { // only change titles for topic pages
+        const topicTitle = $("a.titles").text();
+        const format = options['topic_title_format'];
+        const newTitle = format.replace('%F', FORUM_NAME).replace('%T', topicTitle);
+        document.title = newTitle;
+    }
+}
+setupPageTitle();

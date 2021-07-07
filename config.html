@@ -14,11 +14,12 @@
         $("#wholeWindow").show();
 
         $("[originalValue]").each((i, e) => {
-            switch (e.localName) {
-                case 'input':
+            switch (e.type) {
+                case 'checkbox':
                     e.setAttribute("originalValue", e.checked);
                     break;
-                case 'select':
+                case 'select-one':
+                case 'text':
                     e.setAttribute("originalValue", e.value);
                     break;
             }
@@ -27,12 +28,13 @@
         $("[originalValue]").change((e) => {
             var changed = false;
             $("[originalValue]").each((i, e) => {
-                switch (e.localName) {
-                    case 'input':
+                switch (e.type) {
+                    case 'checkbox':
                         changed = changed || (e.checked != strToBool(e.getAttribute("originalValue")));
                         break;
-                    case 'select':
-                        changed = changed || (e.value != Number(e.getAttribute("originalValue")));
+                    case 'select-one':
+                    case 'text':
+                        changed = changed || (e.value != e.getAttribute("originalValue"));
                         break;
                 }
             });
@@ -55,7 +57,8 @@
                 "display_ajax_loader": $("#display_ajax_loader")[0].checked,
                 "custom_tags": $("#custom_tags")[0].checked,
                 "hide_scs": Number($("#hide_scs")[0].value),
-                "apply_in_scs": $("#apply_in_scs")[0].checked
+                "apply_in_scs": $("#apply_in_scs")[0].checked,
+                "topic_title_format": $("#topic_title_format")[0].value
             };
             window.postMessage(JSON.stringify(data), "*");
             window.location.reload();
@@ -204,6 +207,13 @@
                         <td>
                             <input type="checkbox" id="apply_in_scs" originalValue=""></input>
                             <label for="apply_in_scs">Apply also in SCS</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label for="topic_title_format">Window/tab title for topic pages</label>
+                            <input type="text" id="topic_title_format" originalValue="" value="%F • View topic - %T"
+                                title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %F - standard forum name (CS.RIN.RU - Steam Underground Community)&#10; %T - topic title"></input>
                         </td>
                     </tr>
                 </table>
