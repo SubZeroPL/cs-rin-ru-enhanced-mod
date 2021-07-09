@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.6
+// @version      0.4.7
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
@@ -129,9 +129,9 @@ if ($("[title='Click to jump to page…']").length > 0 && options['infinite_scro
         $(selector).parent().prepend($(".cat:has(.btnlite)").parent());
     }
     const navElem = $("[title='Click to jump to page…']").first().parent();
-    const nextElem = $(navElem).find("strong").next().next();
+    let nextElem = $(navElem).find("strong").next().next();
     if (nextElem.length == 1) { //If there is a next page
-        const nextPage = $(nextElem).attr("href");
+        let nextPage = $(nextElem).attr("href");
         let ajaxDone = true;
         $(document).scroll(function () {
             if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
