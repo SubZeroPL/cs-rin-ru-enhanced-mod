@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.7
+// @version      0.4.8
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
+// @match        *://csrinrutkb3tshptdctl5lyei4et35itl22qvk5ktdcat6aeavy6nhid.onion/forum/*
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
 // @grant        GM_addStyle
 // @grant        GM_xmlhttpRequest
