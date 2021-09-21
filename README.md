@@ -20,6 +20,9 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - option for custom title formatting
 - topic preview (when checked displays preview of first post from topic that mouse cursor points to with configurable delay)
 
+## TODO (planned features):
+- add Post Reply button at the end of topic when using infinite scrolling
+
 ## Installation:
 If you have extension installed then just open script url (https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js) in browser and installation window should pop-up.
 
