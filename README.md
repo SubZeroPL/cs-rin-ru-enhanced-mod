@@ -18,6 +18,7 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - configuration window (script adds button to open configuration window in upper-right corner of browser window)
 - option to enable/disable whole script
 - option for custom title formatting
+- topic preview (when checked displays preview of first post from topic that mouse cursor points to with configurable delay)
 
 ## Installation:
 If you have extension installed then just open script url (https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js) in browser and installation window should pop-up.
