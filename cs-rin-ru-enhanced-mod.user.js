@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.8
+// @version      0.4.9
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
@@ -54,7 +54,9 @@ let options = {
     "custom_tags": true,
     "hide_scs": 3, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
     "apply_in_scs": false,
-    "topic_title_format": "%F • View topic - %T" // %F - forum name, %T - topic title
+    "topic_title_format": "%F • View topic - %T", // %F - forum name, %T - topic title
+    "topic_preview": false,
+    "topic_preview_timeout": 5 // in seconds
 };
 
 function loadConfig() {
@@ -89,6 +91,8 @@ function loadConfigButton() {
             $("select#hide_scs")[0].options.selectedIndex = options['hide_scs'];
             $("input#apply_in_scs")[0].checked = options['apply_in_scs'];
             $("input#topic_title_format")[0].value = options['topic_title_format'];
+            $("input#topic_preview")[0].checked = options['topic_preview'];
+            $("input#topic_preview_timeout")[0].value = options['topic_preview_timeout'];
 
             if (!options['script_enabled']) {
                 $("fieldset#config").hide();
@@ -253,3 +257,63 @@ function setupPageTitle() {
     }
 }
 setupPageTitle();
+
+let showPreview = true;
+let tid = 0;
+
+// displays preview of first post from topic that mouse cursor points
+function setupTopicPreview() {
+    if (!options['topic_preview']) return;
+    $("a.topictitle").each((_, e) => {
+        const topic = $(e)[0];
+        $(topic).hover((m) => {
+            showPreview = true;
+            $("div#topic_preview").hide();
+            tid = setTimeout(() => {
+                if (!showPreview) return;
+                const x = m.originalEvent.clientX + window.scrollX + 20;
+                const y = m.originalEvent.clientY + window.scrollY + 20;
+                GM_xmlhttpRequest({
+                    url: topic.href,
+                    onerror: (r) => {
+                        console.log("Error loading page: " + r);
+                    },
+                    onload: (r) => {
+                        const dom = $.parseHTML(r.responseText);
+                        const body = $(dom).find("div#pagecontent table.tablebg")[1].outerHTML;
+                        const bodyObj = $.parseHTML(body)[0];
+                        if ($("div#topic_preview").length > 0) {
+                            const tip = $("div#topic_preview");
+                            tip.html(bodyObj);
+                            tip.css('left', x);
+                            tip.css('top', y);
+                            tip.show();
+                            tip.scrollTop(0);
+                        } else {
+                            const tip = document.createElement('div');
+                            tip.id = "topic_preview";
+                            tip.appendChild(bodyObj);
+                            tip.style.position = "absolute";
+                            tip.style.top = `${y}px`;
+                            tip.style.left = `${x}px`;
+                            tip.style.width = "1000px";
+                            tip.style.maxWidth = "1000px";
+                            tip.style.height = "500px";
+                            tip.style.maxHeight = "500px";
+                            tip.style.overflow = "auto";
+                            $("body").append(tip);
+                            $(tip).mouseleave(() => {
+                                $(tip).hide();
+                                clearTimeout(tid);
+                            });
+                        }
+                    }
+                });
+            }, options['topic_preview_timeout'] * 1000);
+        }, () => {
+            showPreview = false;
+            clearTimeout(tid);
+        });
+    });
+}
+setupTopicPreview();

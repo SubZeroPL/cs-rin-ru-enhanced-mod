@@ -20,6 +20,7 @@
                     break;
                 case 'select-one':
                 case 'text':
+                case 'number':
                     e.setAttribute("originalValue", e.value);
                     break;
             }
@@ -34,6 +35,7 @@
                         break;
                     case 'select-one':
                     case 'text':
+                    case 'number':
                         changed = changed || (e.value != e.getAttribute("originalValue"));
                         break;
                 }
@@ -58,7 +60,9 @@
                 "custom_tags": $("#custom_tags")[0].checked,
                 "hide_scs": Number($("#hide_scs")[0].value),
                 "apply_in_scs": $("#apply_in_scs")[0].checked,
-                "topic_title_format": $("#topic_title_format")[0].value
+                "topic_title_format": $("#topic_title_format")[0].value,
+                "topic_preview": $("#topic_preview")[0].checked,
+                "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value)
             };
             window.postMessage(JSON.stringify(data), "*");
             window.location.reload();
@@ -192,6 +196,16 @@
                         <td>
                             <input type="checkbox" id="custom_tags" originalValue=""></input>
                             <label for="custom_tags">Custom tags</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="checkbox" id="topic_preview" originalValue=""></input>
+                            <label for="topic_preview">Show topic preview on mouse hover</label>
+                            <span>after</span>
+                            <input type="number" id="topic_preview_timeout" originalValue="" value="5" min="1"
+                                maxlength="2" size="3" />
+                            <span>seconds</span>
                         </td>
                     </tr>
                     <tr>
