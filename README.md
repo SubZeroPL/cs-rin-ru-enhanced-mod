@@ -22,6 +22,7 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 
 ## TODO (planned features):
 - add Post Reply button at the end of topic when using infinite scrolling
+- topic title in unread posts list links directly to first unread post
 
 ## Installation:
 If you have extension installed then just open script url (https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js) in browser and installation window should pop-up.
