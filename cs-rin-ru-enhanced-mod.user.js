@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.10
+// @version      0.4.11
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
@@ -267,13 +267,15 @@ function setupTopicPreview() {
     if (!options['topic_preview']) return;
     $("a.topictitle").each((_, e) => {
         const topic = $(e)[0];
-        $(topic).hover((m) => {
+        $(topic).on("mouseover", (m) => {
             showPreview = true;
             $("div#topic_preview").hide();
             tid = setTimeout(() => {
                 if (!showPreview) return;
-                const x = m.originalEvent.clientX + window.scrollX + 20;
-                const y = m.originalEvent.clientY + window.scrollY + 20;
+                const previewWidth = window.innerWidth * 0.75;
+                const previewHeight = window.innerHeight * 0.75;
+                const x = (window.innerWidth / 2) - (previewWidth / 2);
+                const y = (window.innerHeight / 2) - (previewHeight / 2) + window.pageYOffset;
                 GM_xmlhttpRequest({
                     url: topic.href,
                     onerror: (r) => {
@@ -286,8 +288,10 @@ function setupTopicPreview() {
                         if ($("div#topic_preview").length > 0) {
                             const tip = $("div#topic_preview");
                             tip.html(bodyObj);
-                            tip.css('left', x);
-                            tip.css('top', y);
+                            tip.css('left', `${x}px`);
+                            tip.css('top', `${y}px`);
+                            tip.css('width', `${previewWidth}px`);
+                            tip.css('height', `${previewHeight}px`);
                             tip.show();
                             tip.scrollTop(0);
                         } else {
@@ -297,13 +301,13 @@ function setupTopicPreview() {
                             tip.style.position = "absolute";
                             tip.style.top = `${y}px`;
                             tip.style.left = `${x}px`;
-                            tip.style.width = "1000px";
-                            tip.style.maxWidth = "1000px";
-                            tip.style.height = "500px";
-                            tip.style.maxHeight = "500px";
+                            tip.style.width = `${previewWidth}px`;
+                            tip.style.maxWidth = `${previewWidth}px`;
+                            tip.style.height = `${previewHeight}px`;
+                            tip.style.maxHeight = `${previewHeight}px`;
                             tip.style.overflow = "auto";
                             $("body").append(tip);
-                            $(tip).mouseleave(() => {
+                            $(tip).on("mouseleave", () => {
                                 $(tip).hide();
                                 clearTimeout(tid);
                             });
@@ -311,7 +315,8 @@ function setupTopicPreview() {
                     }
                 });
             }, options['topic_preview_timeout'] * 1000);
-        }, () => {
+        });
+        $(topic).on("mouseleave", () => {
             showPreview = false;
             clearTimeout(tid);
         });
