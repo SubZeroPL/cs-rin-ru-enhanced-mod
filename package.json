@@ -1,0 +1,23 @@
+{
+    "name": "cs-rin-ru-enhanced-mod",
+    "version": "0.4.6",
+    "description": "Enhance your experience at CS.RIN.RU",
+    "main": "cs-rin-ru-enhanced-mod.user.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod.git"
+    },
+    "author": "SubZeroPL",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues"
+    },
+    "homepage": "https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod#readme",
+    "devDependencies": {
+        "eslint": "^7.30.0",
+        "jquery": "^3.6.0"
+    }
+}
