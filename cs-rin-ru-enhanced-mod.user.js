@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CS.RIN.RU Enhanced
 // @namespace    Royalgamer06
-// @version      0.4.11
+// @version      0.4.12
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
 // @match        *://cs.rin.ru/forum/*
@@ -48,8 +48,8 @@ let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
     "mentioning": true,
-    "dynamic_who_is_online": true,
-    "dynamic_time": true,
+    "dynamic_who_is_online": false,
+    "dynamic_time": false,
     "display_ajax_loader": true,
     "custom_tags": true,
     "hide_scs": 3, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
