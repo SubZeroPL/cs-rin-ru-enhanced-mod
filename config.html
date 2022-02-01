@@ -1,49 +1,89 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+    const RELOAD = 0;
+    const WARNING = 1;
+
+    const WARNING_MSG = `
+    This function can trigger forum ban! Use at your own risk.<br />
+    See <a href='https://cs.rin.ru/forum/viewtopic.php?f=14&t=118458' target='blank' class='forum_link'>here</a>
+    and <a href='https://cs.rin.ru/forum/viewtopic.php?p=2518823#p2518823' target='blank' class='forum_link'>here</a>.
+    `;
+
+    /**
+    * will match one and only one of the string 'true','1', or 'on' regardless
+    * of capitalization and regardless off surrounding white-space.
+    **/
     function strToBool(s) {
-        // will match one and only one of the string 'true','1', or 'on' regardless
-        // of capitalization and regardless off surrounding white-space.
-        //
         regex = /^\s*(true|1|on)\s*$/i
 
         return regex.test(s);
+    }
+
+    function showMessage(id, text) {
+        const container = $("#messages")[0];
+        if ($(`div#msg${id}`).length == 0) {
+            const msg = document.createElement('div');
+            msg.id = `msg${id}`;
+            msg.className = 'message';
+            $(msg).html(text);
+            container.appendChild(msg);
+        }
+        $(container).show();
+    }
+
+    function hideMessage(id) {
+        $(`div#msg${id}`).remove();
+        if ($(".message").length == 0) {
+            $("#messages").hide();
+        }
     }
 
     function showConfigPage() {
         $("#configButton").hide();
         $("#wholeWindow").show();
 
-        $("[originalValue]").each((i, e) => {
+        $("[data-originalValue]").each((i, e) => {
             switch (e.type) {
                 case 'checkbox':
-                    e.setAttribute("originalValue", e.checked);
+                    e.setAttribute("data-originalValue", e.checked);
                     break;
                 case 'select-one':
                 case 'text':
                 case 'number':
-                    e.setAttribute("originalValue", e.value);
+                    e.setAttribute("data-originalValue", e.value);
                     break;
             }
         });
 
-        $("[originalValue]").change((e) => {
+        $("[data-danger]").on("click", e => {
+            if (e.target.checked) {
+                showMessage(WARNING, WARNING_MSG);
+            } else {
+                if ($("[data-danger]:checked").length == 0) {
+                    hideMessage(WARNING);
+                }
+            }
+        });
+
+        $("[data-originalValue]").change((e) => {
             var changed = false;
-            $("[originalValue]").each((i, e) => {
+            $("[data-originalValue]").each((i, e) => {
                 switch (e.type) {
                     case 'checkbox':
-                        changed = changed || (e.checked != strToBool(e.getAttribute("originalValue")));
+                        changed = changed || (e.checked != strToBool(e.getAttribute("data-originalValue")));
                         break;
                     case 'select-one':
                     case 'text':
                     case 'number':
-                        changed = changed || (e.value != e.getAttribute("originalValue"));
+                        changed = changed || (e.value != e.getAttribute("data-originalValue"));
                         break;
                 }
             });
             if (changed) {
-                $("#warning").show();
+                // Display a warning if something changed in configuration
+                showMessage(RELOAD, "Clicking OK will reload current page");
             } else {
-                $("#warning").hide();
+                hideMessage(RELOAD);
             }
         });
     }
@@ -109,6 +149,18 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
+    a.forum_link {
+        color: black;
+    }
+
+    a.forum_link:hover {
+        color: darkmagenta;
+    }
+
+    a.forum_link:visited {
+        color: darkviolet;
+    }
+
     #wholeWindow {
         display: none;
         position: fixed;
@@ -137,6 +189,21 @@
         border-radius: 5px;
     }
 
+    #messages {
+        padding: 2px;
+        border: 0.1px solid white;
+        border-radius: 5px;
+        margin-top: 2px;
+        text-align: center;
+        display: none;
+    }
+
+    .message {
+        color: darkred;
+        border: 0.1px solid white;
+        border-radius: 5px;
+    }
+
     #buttons {
         margin-top: 5px;
         text-align: right;
@@ -161,7 +228,8 @@
             <table>
                 <tr colspan="2">
                     <td>
-                        <input type="checkbox" id="script_enabled" onclick="enableScript();" originalValue=""></input>
+                        <input type="checkbox" id="script_enabled" onclick="enableScript();"
+                            data-originalValue=""></input>
                         <label for="script_enabled">Enable script</label>
                     </td>
                 </tr>
@@ -170,40 +238,41 @@
                 <table>
                     <tr>
                         <td>
-                            <input type="checkbox" id="infinite_scrolling" originalValue=""></input>
+                            <input type="checkbox" id="infinite_scrolling" data-originalValue=""></input>
                             <label for="infinite_scrolling">Infinite scrolling</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="mentioning" originalValue=""></input>
+                            <input type="checkbox" id="mentioning" data-originalValue=""></input>
                             <label for="mentioning">Mentioning</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" id="dynamic_who_is_online" originalValue=""></input>
+                            <input type="checkbox" id="dynamic_who_is_online" data-originalValue=""
+                                data-danger="true"></input>
                             <label for="dynamic_who_is_online">Dynamic who-is-online</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="dynamic_time" originalValue=""></input>
+                            <input type="checkbox" id="dynamic_time" data-originalValue="" data-danger="true"></input>
                             <label for="dynamic_time">Dynamic time</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" id="display_ajax_loader" originalValue=""></input>
+                            <input type="checkbox" id="display_ajax_loader" data-originalValue=""></input>
                             <label for="display_ajax_loader">Display Ajax loader</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="custom_tags" originalValue=""></input>
+                            <input type="checkbox" id="custom_tags" data-originalValue=""></input>
                             <label for="custom_tags">Custom tags</label>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <input type="checkbox" id="topic_preview" originalValue=""></input>
+                            <input type="checkbox" id="topic_preview" data-originalValue=""></input>
                             <label for="topic_preview">Show topic preview on mouse hover</label>
                             <span>after</span>
-                            <input type="number" id="topic_preview_timeout" originalValue="" value="5" min="1"
+                            <input type="number" id="topic_preview_timeout" data-originalValue="" value="5" min="1"
                                 maxlength="2" size="3" />
                             <span>seconds</span>
                         </td>
@@ -233,9 +302,9 @@
                 </table>
             </fieldset>
         </fieldset>
+        <div id="messages">
+        </div>
         <div id="buttons">
-            <!-- Display a warning if something changed in configuration -->
-            <span id="warning">Clicking OK will reload current page</span>
             <button type="button" onclick="sendConfig();">OK</button>
             <button type="button" onclick="configWindowClose();">Cancel</button>
         </div>
