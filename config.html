@@ -122,6 +122,10 @@
             $("fieldset#config").fadeOut();
         }
     }
+
+    function openForum() {
+        window.open("https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717", "blank");
+    }
 </script>
 <style>
     /* fallback */
@@ -204,8 +208,16 @@
         border-radius: 5px;
     }
 
-    #buttons {
+    .buttons {
         margin-top: 5px;
+        width: 100%;
+    }
+
+    .buttons tr td:first-child {
+        text-align: left;
+    }
+
+    .buttons tr td:last-child {
         text-align: right;
     }
 
@@ -304,10 +316,17 @@
         </fieldset>
         <div id="messages">
         </div>
-        <div id="buttons">
-            <button type="button" onclick="sendConfig();">OK</button>
-            <button type="button" onclick="configWindowClose();">Cancel</button>
-        </div>
+        <table class="buttons">
+            <tr>
+                <td>
+                    <button class="material-icons" onclick="openForum();">help</button>
+                </td>
+                <td>
+                    <button onclick="sendConfig();">OK</button>
+                    <button onclick="configWindowClose();">Cancel</button>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <div id="configButton">
