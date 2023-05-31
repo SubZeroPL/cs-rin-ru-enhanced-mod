@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.4.15
+// @version      0.4.16
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -15,12 +15,16 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_deleteValue
 // @grant        GM_notification
 // @run-at       document-idle
 // @homepageURL  https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod
 // @supportURL   https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 // @updateURL    https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
 // @downloadURL  https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
+// @require      https://code.jquery.com/jquery-3.7.0.min.js
+// @require      https://code.jquery.com/ui/1.13.2/jquery-ui.min.js
+
 // ==/UserScript==
 
 const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
@@ -56,13 +60,14 @@ let options = {
     "dynamic_time": false,
     "display_ajax_loader": true,
     "custom_tags": true,
-    "hide_scs": 3, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
+    "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
     "apply_in_scs": false,
     "topic_title_format": "%F • View topic - %T", // %F - forum name, %T - topic title
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "steam_db_link": true,
-    "copy_link_button": true
+    "copy_link_button": true,
+    "add_small_shoutbox": false
 };
 
 function loadConfig() {
@@ -96,6 +101,7 @@ function loadConfigButton() {
             $("input#dynamic_time")[0].checked = options.dynamic_time;
             $("input#display_ajax_loader")[0].checked = options.display_ajax_loader;
             $("input#custom_tags")[0].checked = options.custom_tags;
+            $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#topic_title_format")[0].value = options.topic_title_format;
@@ -160,6 +166,19 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     steamdbLink();
                     nextElem = $(navElem).find("strong").next().next();
                     nextPage = $(nextElem).attr("href");
+                    if(nextElem.length==0&&window.location.pathname=='/forum/viewtopic.php') //if you're on the last page and on viewtopic
+                    {
+
+                        var originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
+                        var copiedElement = originalElement.cloneNode(true);
+                        document.querySelector("#pagecontent").appendChild(copiedElement);
+                        var maxPage=$(navElem).find("strong").text();
+                        var td = document.getElementsByClassName("nav")[document.getElementsByClassName("nav").length-1];
+                        let innerHTML = td.innerHTML;
+                        innerHTML = innerHTML.replace(/Page <strong>\d<\/strong>/, `Page <strong>${maxPage}</strong>`);
+                        td.innerHTML = innerHTML;
+
+                    }
                     ajaxDone = true;
                 });
             }
@@ -248,7 +267,7 @@ function colorize(str) {
     let lstr = str.toLowerCase();
     for (var i = 0, hash = 0; i < lstr.length; hash = lstr.charCodeAt(i++) + ((hash << 5) - hash));
     const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
-return '#' + Array(6 - color.length + 1).join('0') + color;
+    return '#' + Array(6 - color.length + 1).join('0') + color;
 }
 
 function URLContains(match) {
@@ -353,7 +372,7 @@ steamdbLinkSpoiler();
 
 
 function steamdbLink() {
-if(this.value=="Show") //If the text is in a spoiler
+    if(this.value=="Show") //If the text is in a spoiler
     {
         return;
     }
@@ -378,7 +397,7 @@ if(this.value=="Show") //If the text is in a spoiler
                     {
                         steamLink=steamLink.slice(0,-1);
                         slash=true;
-                    //https://store.steampowered.com/app/1916310/Remnant_Records
+                        //https://store.steampowered.com/app/1916310/Remnant_Records
                     }
                     if(steamLink.substr(steamLink.length-2).match(/[^0-9]/g)) {steamLink=steamLink.substr(0,steamLink.lastIndexOf('/'))}
                     //https://store.steampowered.com/app/1916310
@@ -389,8 +408,8 @@ if(this.value=="Show") //If the text is in a spoiler
                     {
                         for(;(document.getElementsByClassName("postlink")[i].getBoundingClientRect().y==document.getElementsByClassName("postlink")[i+1].getBoundingClientRect().y);) {i++;} //in case there are several links behind the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=10&t=97673
                         if(document.getElementsByClassName("postlink")[i+1].text.match(DBlinkWithoutSlash)==null) { //we display the SteamDB link only if it is not already displayed just below the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=22&t=59381&hilit=request+thread&start=9787 (message of Cazzarola)
-                        document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); //Write the link (right part)
-                        document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<br><span style=\"font-weight: bold\">  <svg version=\"1.1\" width=\"1.3em\" height=\"1.3em\" viewBox=\"0 0 128 128\" fill=#bbbbbb class=\"octicon octicon-steamdb\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M63.9 0C30.5 0 3.1 11.9.1 27.1l35.6 6.7c2.9-.9 6.2-1.3 9.6-1.3l16.7-10c-.2-2.5 1.3-5.1 4.7-7.2 4.8-3.1 12.3-4.8 19.9-4.8 5.2-.1 10.5.7 15 2.2 11.2 3.8 13.7 11.1 5.7 16.3-5.1 3.3-13.3 5-21.4 4.8l-22 7.9c-.2 1.6-1.3 3.1-3.4 4.5-5.9 3.8-17.4 4.7-25.6 1.9-3.6-1.2-6-3-7-4.8L2.5 38.4c2.3 3.6 6 6.9 10.8 9.8C5 53 0 59 0 65.5c0 6.4 4.8 12.3 12.9 17.1C4.8 87.3 0 93.2 0 99.6 0 115.3 28.6 128 64 128c35.3 0 64-12.7 64-28.4 0-6.4-4.8-12.3-12.9-17 8.1-4.8 12.9-10.7 12.9-17.1 0-6.5-5-12.6-13.4-17.4 8.3-5.1 13.3-11.4 13.3-18.2 0-16.5-28.7-29.9-64-29.9zm22.8 14.2c-5.2.1-10.2 1.2-13.4 3.3-5.5 3.6-3.8 8.5 3.8 11.1 7.6 2.6 18.1 1.8 23.6-1.8s3.8-8.5-3.8-11c-3.1-1-6.7-1.5-10.2-1.5zm.3 1.7c7.4 0 13.3 2.8 13.3 6.2 0 3.4-5.9 6.2-13.3 6.2s-13.3-2.8-13.3-6.2c0-3.4 5.9-6.2 13.3-6.2zM45.3 34.4c-1.6.1-3.1.2-4.6.4l9.1 1.7a10.8 5 0 1 1-8.1 9.3l-8.9-1.7c1 .9 2.4 1.7 4.3 2.4 6.4 2.2 15.4 1.5 20-1.5s3.2-7.2-3.2-9.3c-2.6-.9-5.7-1.3-8.6-1.3zM109 51v9.3c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-9.2c11.5 5.3 27.4 8.6 44.9 8.6 17.6 0 33.6-3.3 45.2-8.7zm0 34.6v8.8c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-8.8c11.6 5.1 27.4 8.2 45 8.2s33.5-3.1 45-8.2z\"></path></svg> SteamDB:</span> "); //write left part
+                            document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); //Write the link (right part)
+                            document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<br><span style=\"font-weight: bold\">  <svg version=\"1.1\" width=\"1.3em\" height=\"1.3em\" viewBox=\"0 0 128 128\" fill=#bbbbbb class=\"octicon octicon-steamdb\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M63.9 0C30.5 0 3.1 11.9.1 27.1l35.6 6.7c2.9-.9 6.2-1.3 9.6-1.3l16.7-10c-.2-2.5 1.3-5.1 4.7-7.2 4.8-3.1 12.3-4.8 19.9-4.8 5.2-.1 10.5.7 15 2.2 11.2 3.8 13.7 11.1 5.7 16.3-5.1 3.3-13.3 5-21.4 4.8l-22 7.9c-.2 1.6-1.3 3.1-3.4 4.5-5.9 3.8-17.4 4.7-25.6 1.9-3.6-1.2-6-3-7-4.8L2.5 38.4c2.3 3.6 6 6.9 10.8 9.8C5 53 0 59 0 65.5c0 6.4 4.8 12.3 12.9 17.1C4.8 87.3 0 93.2 0 99.6 0 115.3 28.6 128 64 128c35.3 0 64-12.7 64-28.4 0-6.4-4.8-12.3-12.9-17 8.1-4.8 12.9-10.7 12.9-17.1 0-6.5-5-12.6-13.4-17.4 8.3-5.1 13.3-11.4 13.3-18.2 0-16.5-28.7-29.9-64-29.9zm22.8 14.2c-5.2.1-10.2 1.2-13.4 3.3-5.5 3.6-3.8 8.5 3.8 11.1 7.6 2.6 18.1 1.8 23.6-1.8s3.8-8.5-3.8-11c-3.1-1-6.7-1.5-10.2-1.5zm.3 1.7c7.4 0 13.3 2.8 13.3 6.2 0 3.4-5.9 6.2-13.3 6.2s-13.3-2.8-13.3-6.2c0-3.4 5.9-6.2 13.3-6.2zM45.3 34.4c-1.6.1-3.1.2-4.6.4l9.1 1.7a10.8 5 0 1 1-8.1 9.3l-8.9-1.7c1 .9 2.4 1.7 4.3 2.4 6.4 2.2 15.4 1.5 20-1.5s3.2-7.2-3.2-9.3c-2.6-.9-5.7-1.3-8.6-1.3zM109 51v9.3c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-9.2c11.5 5.3 27.4 8.6 44.9 8.6 17.6 0 33.6-3.3 45.2-8.7zm0 34.6v8.8c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-8.8c11.6 5.1 27.4 8.2 45 8.2s33.5-3.1 45-8.2z\"></path></svg> SteamDB:</span> "); //write left part
                         }
                     }
                     else
@@ -429,3 +448,131 @@ function addLink()
     }
 }
 addLink();
+
+/*
+Made by Altansar
+W.I.P.
+- messages not updated, send message button not working (delete message button for moderators not working either, I guess)
+- The image of the button to display the window is temporary
+- Not responsive and not very elegant
+- Changing the window's position works, but is not adapted when scrolling on the page because of its coordinates.
+*/
+function AddButtonShoutbox()
+{
+    if(options.add_small_shoutbox&&window.location.pathname!='/forum/chat.php')
+    {
+        //var element = document.querySelector('body');
+        //element.insertAdjacentHTML("afterend", "<script type=\"text/javascript\">\n<!--\nvar fieldname = 'chat';\nvar last_time = 0;\nvar xmlHttp = http_object();\nvar last_id = 87407;\nvar type = 'receive';\nvar post_time = 1685505762;\nvar read_interval = 15000;\nvar interval = setInterval('handle_send(\"read\", last_id);', read_interval);\n\nfunction handle_send(mode, f)\n{\n\tif (xmlHttp.readyState == 4 || xmlHttp.readyState == 0)\n\t{\n\t\tindicator_switch('on');\n\t\ttype = 'receive';\n\t\tparam = 'mode=' + mode;\t\n\t\tparam += '&last_id=' + last_id;\n\t\tparam += '&last_time=' + last_time;\t\t\t\n\t\tparam += '&last_post=' + post_time;\t\t\t\n\t\tparam += '&read_interval=' + read_interval;\t\t\t\n\n\t\tif (mode == 'add' && document.text.message.value != '')\n\t\t{\n\t\t\ttype = 'send';\n\t\t\tfor(var i = 0; i < f.elements.length; i++)\n\t\t\t{\n\t\t\t\telem = f.elements[i]; \n\t\t\t\tparam += '&' + elem.name + '=' + encodeURIComponent(elem.value); \n\t\t\t}\n\t\t\tdocument.text.message.value = '';\n\t\t}\n\t\telse if (mode == 'delete')\n\t\t{\n\t\t\ttype = 'delete';\n\t\t\tparam += '&chat_id=' + f;\n\t\t}\n\t\txmlHttp.open(\"POST\", './chat.php', true);\n\t\txmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');\n\t\txmlHttp.onreadystatechange = handle_return;\n\t\txmlHttp.send(param);\n\t}\n}\n\nfunction handle_return()\n{\n\tif (xmlHttp.readyState == 4)\n\t{\n\t\tif (type != 'delete')\n\t\t{\n\t\t\tresults = xmlHttp.responseText.split('---');\n\t\t\tif (results[1])\n\t\t\t{\n\t\t\t\tif (last_id == 0)\n\t\t\t\t{\n\t\t\t\t\tdocument.getElementById(fieldname).innerHTML = results[0];\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\tdocument.getElementById(fieldname).innerHTML = results[0] + document.getElementById(fieldname).innerHTML;\n\t\t\t\t}\n\t\t\t\tlast_id = results[1];\n\t\t\t\tif (results[2])\n\t\t\t\t{\n\t\t\t\t\tdocument.getElementById('whois_online').innerHTML = results[2];\n\t\t\t\t\tlast_time = results[3];\n\t\t\t\t\tif (results[4] != read_interval * 1000)\n\t\t\t\t\t{\n\t\t\t\t\t\twindow.clearInterval(interval);\n\t\t\t\t\t\tread_interval = results[4] * 1000;\n\t\t\t\t\t\tinterval = setInterval('handle_send(\"read\", last_id);', read_interval);\n\t\t\t\t\t\tdocument.getElementById('update_seconds').innerHTML = results[4];\n\t\t\t\t\t}\n\t\t\t\t\tpost_time = results[5];\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tindicator_switch('off');\n\t}\n}\n\nfunction delete_post(chatid)\n{\n\tdocument.getElementById('p' + chatid).style.display = 'none';\n\thandle_send('delete', chatid);\n}\n\nfunction indicator_switch(mode)\n{\n\tif(document.getElementById(\"act_indicator\"))\n\t{\n\t\tvar img = document.getElementById(\"act_indicator\");\t\n\t\tif(img.style.visibility == \"hidden\" && mode == 'on') \n\t\t{\n\t\t\timg.style.visibility = \"visible\";\n\t\t}\n\t\telse if (mode == 'off')\n\t\t{\n\t\t\timg.style.visibility = \"hidden\"\n\t\t}\t\n\t}\n}\n\nfunction http_object()\n{\n\tif (window.XMLHttpRequest)\n\t{\n\t\treturn new XMLHttpRequest();\n\t}\n\telse if(window.ActiveXObject)\n\t{\n\t\treturn new ActiveXObject(\"Microsoft.XMLHTTP\");\n\t}\n\telse\n\t{\n\t\tdocument.getElementById('p_status').innerHTML = 'Status: Cound not create XmlHttpRequest Object.  Consider upgrading your browser.';\n\t}\n}\n-->\n</script>");
+        //I thought that adding this would make it possible to send messages and receive them in real time.
+
+        let img = document.createElement('img');
+        img.src = 'https://i.ibb.co/k4hyD42/chat.png';
+        img.style.width = '100px';
+        img.style.position = 'fixed';
+        img.style.right = '10px';
+        img.style.bottom = '10px';
+
+        var divActive = false;
+        //Add a "click" event listener for the button
+        img.addEventListener("click", function() {
+            //If the div is active
+            if (divActive) {
+                //Remove div
+                document.body.removeChild(document.getElementById('chatDiv'));
+                divActive = false;
+                GM_setValue ("divActive", false)
+            } else {
+                /*
+                //To test the default value
+                GM_deleteValue("topPosition");
+                GM_deleteValue("leftPosition");
+                */
+                //Create a div
+                var div = document.createElement("div");
+                div.style.position = "fixed";
+                var topPosition = GM_getValue ("topPosition", 500);
+                var leftPosition = GM_getValue ("leftPosition", 500);
+                div.style.left = leftPosition+"px";
+                div.style.top = topPosition+"px";
+
+                div.style.width = "400px";
+                div.style.height = "400px";
+                div.style.overflowY = "scroll";
+                div.style.backgroundColor = "#1c1c1c";
+                div.style.border = '2px solid red';
+                //define div id
+                div.id = "chatDiv";
+
+                document.body.appendChild(div);
+                //Apply the move function to the div
+                $( "#chatDiv" ).draggable({
+                    cursor: "move",
+                    containment: "parent",
+                    handle:"th:nth-child(1)",
+                    drag: function( event, ui ) {
+                        //stores the position of each window movement
+                        var position = $("#chatDiv").position();
+                        GM_setValue ("topPosition", position.top);
+                        GM_setValue ("leftPosition", position.left);
+                    }
+                });
+                var loading = document.createTextNode("Loading...");
+
+                // Create a new paragraph element to insert in the div
+                var p = document.createElement("p");
+
+                // Insert text in paragraph
+                p.appendChild(loading);
+
+                // Add paragraph to div
+                document.getElementById("chatDiv").appendChild(p);
+
+                //Change paragraph style
+                p.style.position = "absolute";
+                p.style.left = "0";
+                p.style.right = "0";
+                p.style.top = "20%";
+                p.style.transform = "translateY(-50%)";
+
+                //Change text style
+                p.style.textAlign = "center";
+                p.style.color = "white";
+                p.style.fontSize = "20px";
+                AddSmallShoutbox();
+                divActive = true;
+                GM_setValue ("divActive", true)
+            }
+        });
+        //Add the button to the page
+        document.body.appendChild(img);
+
+        var isOpen = GM_getValue ("divActive", false)
+        if(isOpen) //open the chat if it was open when last used
+        {
+            img.click();
+        }
+    }
+}
+AddButtonShoutbox();
+
+function AddSmallShoutbox()
+{
+    // Retrieves the contents of the shoutbox
+    fetch('https://cs.rin.ru/forum/chat.php')
+        .then(function(response) {
+        // Convert answer to plain text
+        return response.text();
+    })
+        .then(function(data) {
+        //Display messages in the div
+        const parser = new DOMParser();
+        const htmlDoc = parser.parseFromString(data, 'text/html');
+        const div = htmlDoc.querySelector("#wrapcentre > div > table").parentNode;
+        document.getElementById('chatDiv').innerHTML = div.innerHTML;
+    })
+        .catch(function(error) {
+        // Displays an error message if the page cannot be displayed correctly
+        console.log(error);
+        document.getElementById('wrapfooter').innerHTML = 'An error occurred: ' + error;
+    });
+}
