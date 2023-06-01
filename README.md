@@ -21,7 +21,7 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - topic preview (when checked displays preview of first post from topic that mouse cursor points to with configurable delay)
 - steamdb link added below each steam link (steam_db_link)
 - copy the link of a message (copy_link_button)
-- adding a small shoutbox (add_small_shoutbox) (W.I.P)
+- adding a small shoutbox (add_small_shoutbox)
 
 ## TODO (planned features):
 see: [issues](https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues)
