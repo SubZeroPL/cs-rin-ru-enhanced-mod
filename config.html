@@ -101,6 +101,8 @@
                 "display_ajax_loader": $("#display_ajax_loader")[0].checked,
                 "custom_tags": $("#custom_tags")[0].checked,
                 "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
+                "add_users_tag": $("#add_users_tag")[0].checked,
+                "go_to_unread_posts": $("#go_to_unread_posts")[0].checked,
                 "hide_scs": Number($("#hide_scs")[0].value),
                 "apply_in_scs": $("#apply_in_scs")[0].checked,
                 "topic_title_format": $("#topic_title_format")[0].value,
@@ -296,6 +298,16 @@
                         <td>
                             <input type="checkbox" id="add_small_shoutbox" data-originalValue=""></input>
                             <label for="add_small_shoutbox">Add small shoutbox</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="add_users_tag" data-originalValue=""></input>
+                            <label for="add_users_tag">Add users tag</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="go_to_unread_posts" data-originalValue=""></input>
+                            <label for="go_to_unread_posts">Go to unread posts</label>
                         </td>
                     </tr>
                     <tr>
