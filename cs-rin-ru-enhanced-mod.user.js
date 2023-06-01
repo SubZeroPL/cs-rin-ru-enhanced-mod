@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.4.18
+// @version      0.5.0
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -73,7 +73,9 @@ let options = {
     "topic_preview_timeout": 5, // in seconds
     "steam_db_link": true,
     "copy_link_button": true,
-    "add_small_shoutbox": true
+    "add_small_shoutbox": true,
+    "add_users_tag": true,
+    "go_to_unread_posts": true
 };
 
 function loadConfig() {
@@ -108,6 +110,8 @@ function loadConfigButton() {
             $("input#display_ajax_loader")[0].checked = options.display_ajax_loader;
             $("input#custom_tags")[0].checked = options.custom_tags;
             $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
+            $("input#add_users_tag")[0].checked = options.add_users_tag;
+            $("input#go_to_unread_posts")[0].checked = options.go_to_unread_posts;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#topic_title_format")[0].value = options.topic_title_format;
@@ -170,6 +174,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     setupTopicPreview();
                     addLink();
                     steamdbLink();
+                    goToUnreadPosts();
                     nextElem = $(navElem).find("strong").next().next();
                     nextPage = $(nextElem).attr("href");
                     if(nextElem.length==0&&window.location.pathname=='/forum/viewtopic.php') //if you're on the last page and on viewtopic
@@ -183,7 +188,6 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                         let innerHTML = td.innerHTML;
                         innerHTML = innerHTML.replace(/Page <strong>\d<\/strong>/, `Page <strong>${maxPage}</strong>`);
                         td.innerHTML = innerHTML;
-
                     }
                     ajaxDone = true;
                 });
@@ -237,12 +241,16 @@ function tagify() {
     if (options.custom_tags) {
         $(".titles, .topictitle").each(function () {
             const titleElem = this;
-            const tags = $(titleElem).text().match(/\[([^\]]+)\]/g);
-            if (tags) {
-                tags.forEach(function (tag) {
-                    const color = colorize(tag);
-                    titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/\[|\]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
-                });
+            if(titleElem.id!="colorize")
+            {
+                titleElem.id="colorize";
+                const tags = $(titleElem).text().match(/\[([^\]]+)\]/g);
+                if (tags) {
+                    tags.forEach(function (tag) {
+                        const color = colorize(tag);
+                        titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/\[|\]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
+                    });
+                }
             }
         });
     }
@@ -534,3 +542,69 @@ function fetchChat() {
         document.body.appendChild(script);
     });
 }
+
+/*
+Made by Redpoint
+And adapted for cs.rin.ru enhanced by Altansar
+*/
+function addUsersTag()
+{
+    if(options.add_users_tag)
+    {
+        if(document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)")!=null)
+        {
+            if(document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='Genre(s):'
+               ||document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='   SteamDB:')
+            {//if we are on the game presentation page
+
+                // Get the link to the Steam game page
+                var link = document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
+
+                // Send a request to the Steam game page and bypass CSP
+                GM_xmlhttpRequest({
+                    method: "GET",
+                    url: link,
+                    onload: function(response) {
+                        // Parse the response as HTML
+                        var parser = new DOMParser();
+                        var doc = parser.parseFromString(response.responseText, "text/html");
+
+                        // Get the genre tags from the response
+                        var tags = doc.querySelectorAll("#glanceCtnResponsiveRight > div.glance_tags_ctn.popular_tags_ctn > div.glance_tags.popular_tags > a.app_tag");
+
+                        // Extract the text content of each tag and join them with a comma and a space
+                        var genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
+
+                        // Modify the original page by adding a new line with the genres
+                        var br = document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
+                        var span = document.createElement("span");
+                        span.style.fontWeight = "bold";
+                        span.textContent = "User-defined Tag(s): ";
+                        var text = document.createTextNode(genres);
+                        br.parentNode.insertBefore(document.createElement("br"), br);
+                        br.parentNode.insertBefore(span, br);
+                        br.parentNode.insertBefore(text, br);
+                    }
+                });
+            }
+        }
+    }
+}
+addUsersTag();
+
+/*
+Made by Altansar
+*/
+function goToUnreadPosts()
+{
+    if(options.go_to_unread_posts&&window.location.pathname=="/forum/viewforum.php")
+    {
+        document.querySelectorAll("#pagecontent > table.tablebg > tbody > tr > td:nth-child(1 of .row1) > a.topictitle").forEach(element => {
+            if(element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') {
+                element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
+            }
+        });
+
+    }
+}
+goToUnreadPosts();
