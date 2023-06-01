@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.4.17
+// @version      0.4.18
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -68,12 +68,12 @@ let options = {
     "custom_tags": true,
     "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
     "apply_in_scs": false,
-    "topic_title_format": "%F • View topic - %T", // %F - forum name, %T - topic title
+    "topic_title_format": "%F • View topic - %T", // %F - forum name, %T - topic title, %RT - topic title without tags in square brackets
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "steam_db_link": true,
     "copy_link_button": true,
-    "add_small_shoutbox": false
+    "add_small_shoutbox": true
 };
 
 function loadConfig() {
@@ -289,8 +289,9 @@ function setupPageTitle() {
     // CS.RIN.RU - Steam Underground Community • View topic - Suggestion = forum setting (bookmark)
     if (currentTitle.indexOf("View topic") > -1) { // only change titles for topic pages
         const topicTitle = $("a.titles").text();
+        const topicTitleWithoutTag = topicTitle.replace(/\[.*?\]/g, '').trim();
         const format = options.topic_title_format;
-        const newTitle = format.replace('%F', FORUM_NAME).replace('%T', topicTitle);
+        const newTitle = format.replace('%F', FORUM_NAME).replace('%T', topicTitle).replace('%RT', topicTitleWithoutTag);
         document.title = newTitle;
     }
 }
