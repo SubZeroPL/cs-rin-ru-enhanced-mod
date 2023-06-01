@@ -22,6 +22,8 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - steamdb link added below each steam link (steam_db_link)
 - copy the link of a message (copy_link_button)
 - adding a small shoutbox (add_small_shoutbox)
+- adds popular user tags below the official steam tags under a game presentation (add_users_tag)
+- goes to unread posts directly by clicking on a topic title (go_to_unread_posts)
 
 ## TODO (planned features):
 see: [issues](https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues)
@@ -31,4 +33,5 @@ If you have extension installed then just open script url (https://raw.githubuse
 
 The script supports automatic updates.
 
-Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) on [Firefox](https://www.mozilla.org/en-US/firefox/new/).
+Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) on [Firefox](https://www.mozilla.org/).
+Test also with [Tampermonkey](https://www.tampermonkey.net/) under Chromium ([Brave](https://brave.com/))
