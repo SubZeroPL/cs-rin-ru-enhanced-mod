@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.5.0
+// @version      0.5.1
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -551,14 +551,18 @@ function addUsersTag()
 {
     if(options.add_users_tag)
     {
-        if(document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)")!=null)
+        let child = 3;
+        if(options.infinite_scrolling)
         {
-            if(document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='Genre(s):'
-               ||document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='   SteamDB:')
+            child++;
+        }
+        if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)")!=null)
+        {
+            if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='Genre(s):'
+               ||document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='   SteamDB:')
             {//if we are on the game presentation page
-
                 // Get the link to the Steam game page
-                var link = document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
+                var link = document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
 
                 // Send a request to the Steam game page and bypass CSP
                 GM_xmlhttpRequest({
@@ -576,7 +580,7 @@ function addUsersTag()
                         var genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
 
                         // Modify the original page by adding a new line with the genres
-                        var br = document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
+                        var br = document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
                         var span = document.createElement("span");
                         span.style.fontWeight = "bold";
                         span.textContent = "User-defined Tag(s): ";
