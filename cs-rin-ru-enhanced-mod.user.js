@@ -33,7 +33,7 @@ Contributor: Redpoint (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/Altansar69/cs-rin-ru-enhanced-mod/master/config.html"
+const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
 
 const PAGE_HEADER = `#pageheader {
     position: sticky !important;
