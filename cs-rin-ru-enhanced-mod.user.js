@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.4.16
+// @version      0.4.17
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -22,12 +22,18 @@
 // @supportURL   https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 // @updateURL    https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
 // @downloadURL  https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
-// @require      https://code.jquery.com/jquery-3.7.0.min.js
-// @require      https://code.jquery.com/ui/1.13.2/jquery-ui.min.js
 
 // ==/UserScript==
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
+/*
+Creator: Royalgamer06 (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=477885)
+Contributor: SubZeroPL (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=505897) now maintains this project
+Contributor: Altansar (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1280185) has created some functionality
+Contributor: Redpoint (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1365721) has created the chat
+Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
+*/
+
+const CONFIG_PAGE = "https://raw.githubusercontent.com/Altansar69/cs-rin-ru-enhanced-mod/master/config.html"
 
 const PAGE_HEADER = `#pageheader {
     position: sticky !important;
@@ -357,7 +363,6 @@ setupTopicPreview();
 
 /*
 Made by Altansar
-don't ask me how it works, I don't know anymore and I didn't comment like an idiot
 */
 function steamdbLinkSpoiler() { //Calls the function every time a spoiler is unfolded
     if(options.steam_db_link) {
@@ -370,7 +375,9 @@ function steamdbLinkSpoiler() { //Calls the function every time a spoiler is unf
 }
 steamdbLinkSpoiler();
 
-
+/*
+Made by Altansar
+*/
 function steamdbLink() {
     if(this.value=="Show") //If the text is in a spoiler
     {
@@ -427,9 +434,8 @@ function steamdbLink() {
 steamdbLink();
 
 /*
-Originally made by mandus:
-original made bymandus: https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447
-modified by Altansar based on his and Royalgamer06 code
+Originally made by mandus
+Modified and adapted for cs.rin.ru enhanced by Altansar based on mandus and Royalgamer06 code
 */
 
 function addLink()
@@ -450,129 +456,80 @@ function addLink()
 addLink();
 
 /*
-Made by Altansar
-W.I.P.
-- messages not updated, send message button not working (delete message button for moderators not working either, I guess)
-- The image of the button to display the window is temporary
-- Not responsive and not very elegant
-- Changing the window's position works, but is not adapted when scrolling on the page because of its coordinates.
+Originally made by Redpoint
+And adapted for cs.rin.ru enhanced by Altansar
 */
-function AddButtonShoutbox()
+function AddShoutbox()
 {
     if(options.add_small_shoutbox&&window.location.pathname!='/forum/chat.php')
     {
-        //var element = document.querySelector('body');
-        //element.insertAdjacentHTML("afterend", "<script type=\"text/javascript\">\n<!--\nvar fieldname = 'chat';\nvar last_time = 0;\nvar xmlHttp = http_object();\nvar last_id = 87407;\nvar type = 'receive';\nvar post_time = 1685505762;\nvar read_interval = 15000;\nvar interval = setInterval('handle_send(\"read\", last_id);', read_interval);\n\nfunction handle_send(mode, f)\n{\n\tif (xmlHttp.readyState == 4 || xmlHttp.readyState == 0)\n\t{\n\t\tindicator_switch('on');\n\t\ttype = 'receive';\n\t\tparam = 'mode=' + mode;\t\n\t\tparam += '&last_id=' + last_id;\n\t\tparam += '&last_time=' + last_time;\t\t\t\n\t\tparam += '&last_post=' + post_time;\t\t\t\n\t\tparam += '&read_interval=' + read_interval;\t\t\t\n\n\t\tif (mode == 'add' && document.text.message.value != '')\n\t\t{\n\t\t\ttype = 'send';\n\t\t\tfor(var i = 0; i < f.elements.length; i++)\n\t\t\t{\n\t\t\t\telem = f.elements[i]; \n\t\t\t\tparam += '&' + elem.name + '=' + encodeURIComponent(elem.value); \n\t\t\t}\n\t\t\tdocument.text.message.value = '';\n\t\t}\n\t\telse if (mode == 'delete')\n\t\t{\n\t\t\ttype = 'delete';\n\t\t\tparam += '&chat_id=' + f;\n\t\t}\n\t\txmlHttp.open(\"POST\", './chat.php', true);\n\t\txmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');\n\t\txmlHttp.onreadystatechange = handle_return;\n\t\txmlHttp.send(param);\n\t}\n}\n\nfunction handle_return()\n{\n\tif (xmlHttp.readyState == 4)\n\t{\n\t\tif (type != 'delete')\n\t\t{\n\t\t\tresults = xmlHttp.responseText.split('---');\n\t\t\tif (results[1])\n\t\t\t{\n\t\t\t\tif (last_id == 0)\n\t\t\t\t{\n\t\t\t\t\tdocument.getElementById(fieldname).innerHTML = results[0];\n\t\t\t\t}\n\t\t\t\telse\n\t\t\t\t{\n\t\t\t\t\tdocument.getElementById(fieldname).innerHTML = results[0] + document.getElementById(fieldname).innerHTML;\n\t\t\t\t}\n\t\t\t\tlast_id = results[1];\n\t\t\t\tif (results[2])\n\t\t\t\t{\n\t\t\t\t\tdocument.getElementById('whois_online').innerHTML = results[2];\n\t\t\t\t\tlast_time = results[3];\n\t\t\t\t\tif (results[4] != read_interval * 1000)\n\t\t\t\t\t{\n\t\t\t\t\t\twindow.clearInterval(interval);\n\t\t\t\t\t\tread_interval = results[4] * 1000;\n\t\t\t\t\t\tinterval = setInterval('handle_send(\"read\", last_id);', read_interval);\n\t\t\t\t\t\tdocument.getElementById('update_seconds').innerHTML = results[4];\n\t\t\t\t\t}\n\t\t\t\t\tpost_time = results[5];\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tindicator_switch('off');\n\t}\n}\n\nfunction delete_post(chatid)\n{\n\tdocument.getElementById('p' + chatid).style.display = 'none';\n\thandle_send('delete', chatid);\n}\n\nfunction indicator_switch(mode)\n{\n\tif(document.getElementById(\"act_indicator\"))\n\t{\n\t\tvar img = document.getElementById(\"act_indicator\");\t\n\t\tif(img.style.visibility == \"hidden\" && mode == 'on') \n\t\t{\n\t\t\timg.style.visibility = \"visible\";\n\t\t}\n\t\telse if (mode == 'off')\n\t\t{\n\t\t\timg.style.visibility = \"hidden\"\n\t\t}\t\n\t}\n}\n\nfunction http_object()\n{\n\tif (window.XMLHttpRequest)\n\t{\n\t\treturn new XMLHttpRequest();\n\t}\n\telse if(window.ActiveXObject)\n\t{\n\t\treturn new ActiveXObject(\"Microsoft.XMLHTTP\");\n\t}\n\telse\n\t{\n\t\tdocument.getElementById('p_status').innerHTML = 'Status: Cound not create XmlHttpRequest Object.  Consider upgrading your browser.';\n\t}\n}\n-->\n</script>");
-        //I thought that adding this would make it possible to send messages and receive them in real time.
+        // Create a container for the chat
+        let chatContainer = document.createElement("div");
+        chatContainer.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 25%; height: 70%; overflow-y: scroll; display: none; background-color:#1c1c1c; border:0.5em solid black";
+        chatContainer.id="chatDiv";
+        document.body.appendChild(chatContainer);
 
-        let img = document.createElement('img');
-        img.src = 'https://i.ibb.co/k4hyD42/chat.png';
-        img.style.width = '100px';
-        img.style.position = 'fixed';
-        img.style.right = '10px';
-        img.style.bottom = '10px';
+        //Loading text
+        var loading = document.createTextNode("Loading...");
+        var p = document.createElement("p");
+        p.appendChild(loading);
+        chatContainer.appendChild(p);
+        p.style.position = "absolute";
+        p.style.left = "0";
+        p.style.right = "0";
+        p.style.top = "20%";
+        p.style.transform = "translateY(-50%)";
+        p.style.textAlign = "center";
+        p.style.color = "white";
+        p.style.fontSize = "500%";
 
-        var divActive = false;
-        //Add a "click" event listener for the button
-        img.addEventListener("click", function() {
-            //If the div is active
-            if (divActive) {
-                //Remove div
-                document.body.removeChild(document.getElementById('chatDiv'));
-                divActive = false;
-                GM_setValue ("divActive", false)
+        // Create a button to show/hide chat
+        let button = document.createElement("button");
+        button.innerHTML = "Show Chat";
+        button.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 5%; height: 3%;";
+        button.addEventListener("click", function()
+                                {
+            if (chatContainer.style.display === "none") {
+                chatContainer.style.display = "block";
+                button.innerHTML = "Hide Chat";
+                GM_setValue ("chatActive", true)
             } else {
-                /*
-                //To test the default value
-                GM_deleteValue("topPosition");
-                GM_deleteValue("leftPosition");
-                */
-                //Create a div
-                var div = document.createElement("div");
-                div.style.position = "fixed";
-                var topPosition = GM_getValue ("topPosition", 500);
-                var leftPosition = GM_getValue ("leftPosition", 500);
-                div.style.left = leftPosition+"px";
-                div.style.top = topPosition+"px";
-
-                div.style.width = "400px";
-                div.style.height = "400px";
-                div.style.overflowY = "scroll";
-                div.style.backgroundColor = "#1c1c1c";
-                div.style.border = '2px solid red';
-                //define div id
-                div.id = "chatDiv";
-
-                document.body.appendChild(div);
-                //Apply the move function to the div
-                $( "#chatDiv" ).draggable({
-                    cursor: "move",
-                    containment: "parent",
-                    handle:"th:nth-child(1)",
-                    drag: function( event, ui ) {
-                        //stores the position of each window movement
-                        var position = $("#chatDiv").position();
-                        GM_setValue ("topPosition", position.top);
-                        GM_setValue ("leftPosition", position.left);
-                    }
-                });
-                var loading = document.createTextNode("Loading...");
-
-                // Create a new paragraph element to insert in the div
-                var p = document.createElement("p");
-
-                // Insert text in paragraph
-                p.appendChild(loading);
-
-                // Add paragraph to div
-                document.getElementById("chatDiv").appendChild(p);
-
-                //Change paragraph style
-                p.style.position = "absolute";
-                p.style.left = "0";
-                p.style.right = "0";
-                p.style.top = "20%";
-                p.style.transform = "translateY(-50%)";
-
-                //Change text style
-                p.style.textAlign = "center";
-                p.style.color = "white";
-                p.style.fontSize = "20px";
-                AddSmallShoutbox();
-                divActive = true;
-                GM_setValue ("divActive", true)
+                chatContainer.style.display = "none";
+                button.innerHTML = "Show Chat";
+                GM_setValue ("chatActive", false)
             }
         });
-        //Add the button to the page
-        document.body.appendChild(img);
-
-        var isOpen = GM_getValue ("divActive", false)
-        if(isOpen) //open the chat if it was open when last used
+        document.body.appendChild(button);
+        var isChatActive = GM_getValue ("chatActive", false)
+        if(isChatActive) //open the chat if it was open when last used
         {
-            img.click();
+            button.click();
         }
+        fetchChat();
     }
 }
-AddButtonShoutbox();
+AddShoutbox();
 
-function AddSmallShoutbox()
-{
-    // Retrieves the contents of the shoutbox
-    fetch('https://cs.rin.ru/forum/chat.php')
-        .then(function(response) {
-        // Convert answer to plain text
-        return response.text();
-    })
-        .then(function(data) {
-        //Display messages in the div
-        const parser = new DOMParser();
-        const htmlDoc = parser.parseFromString(data, 'text/html');
-        const div = htmlDoc.querySelector("#wrapcentre > div > table").parentNode;
-        document.getElementById('chatDiv').innerHTML = div.innerHTML;
-    })
-        .catch(function(error) {
-        // Displays an error message if the page cannot be displayed correctly
-        console.log(error);
-        document.getElementById('wrapfooter').innerHTML = 'An error occurred: ' + error;
+/*
+Made by Redpoint
+*/
+function fetchChat() {
+    fetch("https://cs.rin.ru/forum/chat.php")
+        .then(response => response.text())
+        .then(text => {
+        let chatContainer = document.getElementById("chatDiv");
+        console.log("Refreshed");
+        chatContainer.innerHTML = "";
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(text, "text/html");
+        let originalScript = doc.querySelector("#wrapcentre > script");
+        let chatElement = doc.querySelector("#wrapcentre > div > table > tbody");
+        if (chatElement) {
+            chatContainer.appendChild(chatElement);
+        }
+        chatContainer.style.backgroundColor = "#1c1c1c";
+        let script = document.createElement("script");
+        script.innerHTML = originalScript.innerHTML;
+        document.body.appendChild(script);
     });
 }
