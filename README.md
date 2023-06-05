@@ -7,8 +7,8 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - enable or disable any of the features in script code
 - mention somebody when posting (mentioning)
 - dynamically load next pages when browsing the site (infinite_scrolling)
-- dynamically refresh the current time (dynamic_time)
-- dynamically refresh Who Is Online (dynamic_who_is_online)
+~~- dynamically refresh the current time (dynamic_time)~~
+~~- dynamically refresh Who Is Online (dynamic_who_is_online)
 - see when something is dynamically loading (display_ajax_loader)
 - custom topic tags (custom_tags)
 
@@ -24,6 +24,7 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - adding a small shoutbox (add_small_shoutbox)
 - adds popular user tags below the official steam tags under a game presentation (add_users_tag)
 - goes to unread posts directly by clicking on a topic title (go_to_unread_posts)
+- dynamically refresh: the current time, who is online, received messages (dynamic_function)
 
 ## TODO (planned features):
 see: [issues](https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues)
