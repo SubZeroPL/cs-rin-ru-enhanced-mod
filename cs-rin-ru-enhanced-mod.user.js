@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.2
+// @version      0.6.3
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -297,6 +297,7 @@ function allDynamicFunction() {
         // set up event listener for visibility change
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === "visible") { //If the page becomes visible
+                dynamicFunctionWithoutData();
                 startUpdating();
             } else { //If the page is not visible
                 clearInterval(intervalID); //We stop the counter for the update
@@ -312,9 +313,7 @@ allDynamicFunction();
 
 function startUpdating() {
     intervalID = setInterval(function () {
-        $.get(location.href, function (data) { //Every 60 seconds we update time and user list
-            dynamicFunction(data);
-        });
+        dynamicFunctionWithoutData();
     }, 60000);
 }
 
@@ -322,6 +321,21 @@ function dynamicFunction(data) { //Call every 60seconds as well as when using in
     $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong", data).html()); //Message
+    if(URLContains("viewtopic.php")) { //Dynamics posts
+        /*
+        var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
+        var postsOnThePageAfterActualisation = $("#pagecontent > .tablebg:not(:first, :last)", data).length;
+        var differenceBetweenBoth=postsOnThePageAfterActualisation-actualPostsOnThePage;
+        //W.I.P
+        */
+        //I don't know what I tried to do, but I don't think it's a good solution.
+    }
+}
+
+function dynamicFunctionWithoutData() {
+    $.get(location.href, function (data) { //Every 60 seconds we update time and user list
+            dynamicFunction(data);
+        });
 }
 
 // FUNCTIONS
