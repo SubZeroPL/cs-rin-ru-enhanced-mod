@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.1
+// @version      0.6.2
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -62,8 +62,7 @@ let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
     "mentioning": true,
-    "dynamic_who_is_online": false,
-    "dynamic_time": false,
+    "dynamic_function": true,
     "display_ajax_loader": true,
     "custom_tags": true,
     "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
@@ -105,8 +104,7 @@ function loadConfigButton() {
             $("input#mentioning")[0].checked = options.mentioning;
             $("input#steam_db_link")[0].checked = options.steam_db_link;
             $("input#copy_link_button")[0].checked = options.copy_link_button;
-            $("input#dynamic_who_is_online")[0].checked = options.dynamic_who_is_online;
-            $("input#dynamic_time")[0].checked = options.dynamic_time;
+            $("input#dynamic_function")[0].checked = options.dynamic_function;
             $("input#display_ajax_loader")[0].checked = options.display_ajax_loader;
             $("input#custom_tags")[0].checked = options.custom_tags;
             $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
@@ -178,6 +176,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     $(page[0]).find("tbody:first").find("tr:first").remove();
                     $(selector).last().after(page);
                     $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
+                    dynamicFunction(data);
                     mentionify();
                     tagify();
                     hideScs();
@@ -238,6 +237,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                                 var scrollPosition = $(element[1]).offset().top - $(window).height();
                                 $('html, body').animate({scrollTop: scrollPosition}, 0);
                                 $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
+                                dynamicFunction(data);
                                 mentionify();
                                 tagify();
                                 hideScs();
@@ -292,10 +292,8 @@ Originally made by RoyalGamer06.
 Changes made by Altansar to avoid ban ip
 */
 var intervalID;
-let wisCond = $(".tablebg").last().length > 0 && options.dynamic_who_is_online;
-let timeCond = $(".gensmall+ .gensmall").last().length > 0 && options.dynamic_time;
 function allDynamicFunction() {
-    if(options.dynamic_who_is_online||options.dynamic_time) { //If at least one dynamic function is active
+    if(options.dynamic_function) { //If at least one dynamic function is active
         // set up event listener for visibility change
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === "visible") { //If the page becomes visible
@@ -315,10 +313,15 @@ allDynamicFunction();
 function startUpdating() {
     intervalID = setInterval(function () {
         $.get(location.href, function (data) { //Every 60 seconds we update time and user list
-            if (timeCond) $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html());
-            if (wisCond) $(".tablebg").last().html($(".tablebg", data).last().html());
+            dynamicFunction(data);
         });
     }, 60000);
+}
+
+function dynamicFunction(data) { //Call every 60seconds as well as when using infinite scroll
+    $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
+    $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
+    $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong", data).html()); //Message
 }
 
 // FUNCTIONS
