@@ -1,14 +1,7 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
     const RELOAD = 0;
-    const WARNING = 1;
-
-    const WARNING_MSG = `
-    This function can trigger forum ban! Use at your own risk.<br />
-    See <a href='https://cs.rin.ru/forum/viewtopic.php?f=14&t=118458' target='blank' class='forum_link'>here</a>
-    and <a href='https://cs.rin.ru/forum/viewtopic.php?p=2518823#p2518823' target='blank' class='forum_link'>here</a>.
-    `;
-
+    
     /**
     * will match one and only one of the string 'true','1', or 'on' regardless
     * of capitalization and regardless off surrounding white-space.
@@ -52,16 +45,6 @@
                 case 'number':
                     e.setAttribute("data-originalValue", e.value);
                     break;
-            }
-        });
-
-        $("[data-danger]").on("click", e => {
-            if (e.target.checked) {
-                showMessage(WARNING, WARNING_MSG);
-            } else {
-                if ($("[data-danger]:checked").length == 0) {
-                    hideMessage(WARNING);
-                }
             }
         });
 
