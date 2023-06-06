@@ -1,14 +1,7 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
     const RELOAD = 0;
-    const WARNING = 1;
-
-    const WARNING_MSG = `
-    This function can trigger forum ban! Use at your own risk.<br />
-    See <a href='https://cs.rin.ru/forum/viewtopic.php?f=14&t=118458' target='blank' class='forum_link'>here</a>
-    and <a href='https://cs.rin.ru/forum/viewtopic.php?p=2518823#p2518823' target='blank' class='forum_link'>here</a>.
-    `;
-
+    
     /**
     * will match one and only one of the string 'true','1', or 'on' regardless
     * of capitalization and regardless off surrounding white-space.
@@ -55,16 +48,6 @@
             }
         });
 
-        $("[data-danger]").on("click", e => {
-            if (e.target.checked) {
-                showMessage(WARNING, WARNING_MSG);
-            } else {
-                if ($("[data-danger]:checked").length == 0) {
-                    hideMessage(WARNING);
-                }
-            }
-        });
-
         $("[data-originalValue]").change((e) => {
             var changed = false;
             $("[data-originalValue]").each((i, e) => {
@@ -96,10 +79,12 @@
                 "mentioning": $("#mentioning")[0].checked,
                 "steam_db_link": $("#steam_db_link")[0].checked,
                 "copy_link_button": $("#copy_link_button")[0].checked,
-                "dynamic_who_is_online": $("#dynamic_who_is_online")[0].checked,
-                "dynamic_time": $("#dynamic_time")[0].checked,
+                "dynamic_function": $("#dynamic_function")[0].checked,
                 "display_ajax_loader": $("#display_ajax_loader")[0].checked,
                 "custom_tags": $("#custom_tags")[0].checked,
+                "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
+                "add_users_tag": $("#add_users_tag")[0].checked,
+                "go_to_unread_posts": $("#go_to_unread_posts")[0].checked,
                 "hide_scs": Number($("#hide_scs")[0].value),
                 "apply_in_scs": $("#apply_in_scs")[0].checked,
                 "topic_title_format": $("#topic_title_format")[0].value,
@@ -271,14 +256,10 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
-                            <input type="checkbox" id="dynamic_who_is_online" data-originalValue=""
+                        <td title="Many things will be dynamic on the page, meaning that you don't need to reload the page for them to update, as they're updated every minute.&#10;- The messages you receive.&#10;- Online users.&#10;- Current time">
+                            <input type="checkbox" id="dynamic_function" data-originalValue=""
                                 data-danger="true"></input>
-                            <label for="dynamic_who_is_online">Dynamic who-is-online</label>
-                        </td>
-                        <td>
-                            <input type="checkbox" id="dynamic_time" data-originalValue="" data-danger="true"></input>
-                            <label for="dynamic_time">Dynamic time</label>
+                            <label for="dynamic_function">Dynamic functions</label>
                         </td>
                     </tr>
                     <tr>
@@ -292,6 +273,22 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>
+                            <input type="checkbox" id="add_small_shoutbox" data-originalValue=""></input>
+                            <label for="add_small_shoutbox">Add small shoutbox</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="add_users_tag" data-originalValue=""></input>
+                            <label for="add_users_tag">Add users tag</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="go_to_unread_posts" data-originalValue=""></input>
+                            <label for="go_to_unread_posts">Go to unread posts</label>
+                        </td>
+                    </tr>
+                    <tr>
                         <td colspan="2">
                             <input type="checkbox" id="topic_preview" data-originalValue=""></input>
                             <label for="topic_preview">Show topic preview on mouse hover</label>
@@ -301,7 +298,7 @@
                             <span>seconds</span>
                         </td>
                     </tr>
-                    <tr>
+                    <tr title="• Green means that all games in the respective topic are available for download&#10;• Yellow means that some, but not all titles (of a series) are available for download&#10;• Red means that no game is available for download.">
                         <td>
                             <label for="hide_scs">Hide SCS</label>
                             <select id="hide_scs" data-originalValue="">
@@ -320,7 +317,7 @@
                         <td colspan="2">
                             <label for="topic_title_format">Window/tab title for topic pages</label>
                             <input type="text" id="topic_title_format" data-originalValue="" value="%F • View topic - %T"
-                                title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %F - standard forum name (CS.RIN.RU - Steam Underground Community)&#10; %T - topic title"></input>
+                                title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %F - standard forum name (CS.RIN.RU - Steam Underground Community)&#10; %T - topic title&#10; %RT - topic title topic title without tags in square brackets"></input>
                         </td>
                     </tr>
                 </table>
