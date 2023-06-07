@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.3
+// @version      0.6.4
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -234,7 +234,8 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                                 let element = $(selector);
                                 $(element[0]).find("tbody:first").find("tr:first").remove();
                                 $($(selector)[0]).before($(selector, data));
-                                var scrollPosition = $(element[1]).offset().top - $(window).height();
+                                let top = $(element[0]).offset().top + $(element[0]).height();
+                                var scrollPosition = top - $(window).height();
                                 $('html, body').animate({scrollTop: scrollPosition}, 0);
                                 $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
                                 dynamicFunction(data);
