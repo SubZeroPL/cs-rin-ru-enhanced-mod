@@ -543,7 +543,7 @@ function steamdbLink() {
                         slash=true;
                         //https://store.steampowered.com/app/1916310/Remnant_Records
                     }
-                    if(steamLink.substr(steamLink.length-2).match(/[^0-9]/g)) {steamLink=steamLink.substr(0,steamLink.lastIndexOf('/'))}
+                    if(steamLink.substring(steamLink.length-2).match(/[^0-9]/g)) {steamLink=steamLink.substring(0,steamLink.lastIndexOf('/'))}
                     //https://store.steampowered.com/app/1916310
                     var DBlink= "https://steamdb.info/app/" + steamLink.substring(steamLink.lastIndexOf('/')+1);
                     var DBlinkWithoutSlash=DBlink;
