@@ -287,7 +287,7 @@ hideScs();
 
 // MENTIONING
 if (URLContains("posting.php" && "do=mention") && options.mentioning) {
-    const p = URLParam("p");
+    // const p = URLParam("p");
     const u = URLParam("u");
     const a = URLParam("a");
     const postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${a}[/url], `;
@@ -445,7 +445,7 @@ function setupTopicPreview() {
     if (!options.topic_preview) return;
     $("a.topictitle").each((_, e) => {
         const topic = $(e)[0];
-        $(topic).on("mouseover", (m) => {
+        $(topic).on("mouseover", () => {
             showPreview = true;
             $("div#topic_preview").hide();
             tid = setTimeout(() => {
@@ -545,9 +545,9 @@ function steamdbLink() {
                     }
                     if(steamLink.substring(steamLink.length-2).match(/[^0-9]/g)) {steamLink=steamLink.substring(0,steamLink.lastIndexOf('/'))}
                     //https://store.steampowered.com/app/1916310
-                    var DBlink= "https://steamdb.info/app/" + steamLink.substring(steamLink.lastIndexOf('/')+1);
-                    var DBlinkWithoutSlash=DBlink;
-                    if(slash === true) {DBlink+='/'} //add the '/' at the end of the link only if it was present in the Steam link. Sorry I'm a maniac, it stresses me to see 2 links close and 1 with the / and the other not)
+                    let DBlink = "https://steamdb.info/app/" + steamLink.substring(steamLink.lastIndexOf('/') + 1);
+                    const DBlinkWithoutSlash = DBlink;
+                    if(slash === true) {DBlink+='/'} // Add the '/' at the end of the link only if it was present in the Steam link. Sorry I'm a maniac, it stresses me to see 2 links close and 1 with the / and the other not
                     if(document.getElementsByClassName("postlink")[i+1] !== undefined) {
                         for(;(document.getElementsByClassName("postlink")[i].getBoundingClientRect().y === document.getElementsByClassName("postlink")[i+1].getBoundingClientRect().y);) {i++;} //in case there are several links behind the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=10&t=97673
                         if(document.getElementsByClassName("postlink")[i+1].text.match(DBlinkWithoutSlash)==null) { //we display the SteamDB link only if it is not already displayed just below the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=22&t=59381&hilit=request+thread&start=9787 (message of Cazzarola)
@@ -626,7 +626,7 @@ function AddShoutbox() {
             }
         });
         document.body.appendChild(button);
-        var isChatActive = GM_getValue ("chatActive", false)
+        const isChatActive = GM_getValue("chatActive", false);
         if(isChatActive) { //open the chat if it was open when last used
             button.click();
         }
@@ -644,8 +644,8 @@ function createChatContainer() {
     chatContainer.id="chatDiv";
     document.body.appendChild(chatContainer);
     //Loading text
-    var loading = document.createTextNode("Loading...");
-    var p = document.createElement("p");
+    const loading = document.createTextNode("Loading...");
+    const p = document.createElement("p");
     p.appendChild(loading);
     chatContainer.appendChild(p);
     p.style.position = "absolute";
@@ -696,25 +696,25 @@ function addUsersTag()
             if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent==='Genre(s):'
                ||document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent==='   SteamDB:') { //if we are on the game presentation page
                 // Get the link to the Steam game page
-                var link = document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
+                const link = document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
                 // Send a request to the Steam game page and bypass CSP
                 GM_xmlhttpRequest({
                     method: "GET",
                     url: link,
                     onload: function(response) {
                         // Parse the response as HTML
-                        var parser = new DOMParser();
-                        var doc = parser.parseFromString(response.responseText, "text/html");
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(response.responseText, "text/html");
                         // Get the genre tags from the response
-                        var tags = doc.querySelectorAll("#glanceCtnResponsiveRight > div.glance_tags_ctn.popular_tags_ctn > div.glance_tags.popular_tags > a.app_tag");
+                        const tags = doc.querySelectorAll("#glanceCtnResponsiveRight > div.glance_tags_ctn.popular_tags_ctn > div.glance_tags.popular_tags > a.app_tag");
                         // Extract the text content of each tag and join them with a comma and a space
-                        var genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
+                        const genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
                         // Modify the original page by adding a new line with the genres
-                        var br = document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
-                        var span = document.createElement("span");
+                        const br = document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
+                        const span = document.createElement("span");
                         span.style.fontWeight = "bold";
                         span.textContent = "User-defined Tag(s): ";
-                        var text = document.createTextNode(genres);
+                        const text = document.createTextNode(genres);
                         br.parentNode.insertBefore(document.createElement("br"), br);
                         br.parentNode.insertBefore(span, br);
                         br.parentNode.insertBefore(text, br);
