@@ -42,12 +42,15 @@ const AJAX_LOADER = `
         src="https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/loading.gif"
         style="opacity: 0.5; position: fixed; width: 40px; height: 40px; z-index: 2147483647; display: none;"  alt="Loading"/>
 </div>`;
+
 const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
+
 function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
     let base = path.slice(0, path.lastIndexOf('/') + 1);
     return base ?? 'https://cs.rin.ru/forum/';
 }
+
 const FORUM_BASE_URL = getBaseUrl();
 
 /*
@@ -73,12 +76,14 @@ let options = {
 };
 
 function loadConfig() {
-    var savedOptions = GM_getValue("options", options);
-    options = { ...options, ...savedOptions };
+    const savedOptions = GM_getValue("options", options);
+    options = {...options, ...savedOptions};
 }
+
 loadConfig();
 
 window.addEventListener("message", receiveConfigMessage, false);
+
 function receiveConfigMessage(event) {
     options = JSON.parse(event.data);
     GM_setValue("options", options);
@@ -87,12 +92,10 @@ function receiveConfigMessage(event) {
 
 function loadConfigButton() {
     GM_xmlhttpRequest({
-        url: CONFIG_PAGE,
-        onerror: (r) => {
+        url: CONFIG_PAGE, onerror: (r) => {
             console.log("Error loading config page: " + r);
             GM_notification("Error loading config page: " + r, "Error");
-        },
-        onload: (r) => {
+        }, onload: (r) => {
             $("body").append(r.responseText);
             $("input#script_enabled")[0].checked = options.script_enabled;
             $("input#infinite_scrolling")[0].checked = options.infinite_scrolling;
@@ -149,11 +152,9 @@ if (navBar) {
 if (options.display_ajax_loader) {
     $("body").prepend(AJAX_LOADER);
     $.ajaxSetup({
-        async: true,
-        beforeSend: function () {
+        async: true, beforeSend: function () {
             if ($("#ajaxload")) $("#ajaxload").show();
-        },
-        complete: function () {
+        }, complete: function () {
             if ($("#ajaxload")) $("#ajaxload").hide();
         }
     });
@@ -173,7 +174,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
     const navElem = $("[title='Click to jump to page…']").first().parent();
     let nextElem = $(navElem).find("strong").next().next();
     if (URLContains("viewtopic.php")) {
-        if(nextElem.length!==0) //If we're not on the last page
+        if (nextElem.length !== 0) //If we're not on the last page
         {
             $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").parent().parent().parent());
             $("[title='Reply to topic']").last().parents().eq(4).remove();
@@ -201,7 +202,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     steamdbLink();
                     nextElem = $(navElem).find("strong").next().next();
                     nextPage = $(nextElem).attr("href");
-                    if(nextElem.length===0&&URLContains("viewtopic.php")) { //if you're on the last page and on viewtopic
+                    if (nextElem.length === 0 && URLContains("viewtopic.php")) { //if you're on the last page and on viewtopic
                         const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
                         const copiedElement = originalElement.cloneNode(true);
                         document.querySelector("#pagecontent").appendChild(copiedElement);
@@ -227,7 +228,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
         // set a variable to store the threshold for logging
         const scrollThresh = 1000; // in milliseconds
         // add an event listener for the wheel event
-        window.addEventListener("wheel", function(e) {
+        window.addEventListener("wheel", function (e) {
             // get the current scroll position
             const currPos = window.scrollY || window.document.documentElement.scrollTop;
             // check if the user is at the top of the page
@@ -256,7 +257,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                             steamdbLink();
                             prevElem = $(navElem).find("strong").prev().prev();
                             prevPage = $(prevElem).attr("href");
-                            if(URLContains("viewtopic.php")) {
+                            if (URLContains("viewtopic.php")) {
                                 //Retrieve the correct nav
                                 const element = document.getElementsByClassName("nav")[0];
                                 element.querySelector('strong:nth-child(1)').innerHTML = $(navElem).find("strong").text();
@@ -265,13 +266,11 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                         });
                         scrollDur = 0;
                     }
-                }
-                else {
+                } else {
                     // reset the scroll duration
                     scrollDur = 0;
                 }
-            }
-            else {
+            } else {
                 // reset the scroll duration
                 scrollDur = 0;
             }
@@ -300,8 +299,9 @@ Originally made by RoyalGamer06.
 Changes made by Altansar to avoid ban ip
 */
 let intervalID;
+
 function allDynamicFunction() {
-    if(options.dynamic_function) { //If at least one dynamic function is active
+    if (options.dynamic_function) { //If at least one dynamic function is active
         // set up event listener for visibility change
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === "visible") { //If the page becomes visible
@@ -317,6 +317,7 @@ function allDynamicFunction() {
         }
     }
 }
+
 allDynamicFunction();
 
 function startUpdating() {
@@ -329,7 +330,7 @@ function dynamicFunction(data) { //Call every 60seconds as well as when using in
     $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong", data).html()); //Message
-    if(URLContains("viewtopic.php")) { //Dynamics posts
+    if (URLContains("viewtopic.php")) { //Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
         var postsOnThePageAfterActualisation = $("#pagecontent > .tablebg:not(:first, :last)", data).length;
@@ -342,8 +343,8 @@ function dynamicFunction(data) { //Call every 60seconds as well as when using in
 
 function dynamicFunctionWithoutData() {
     $.get(location.href, function (data) { //Every 60 seconds we update time and user list
-            dynamicFunction(data);
-        });
+        dynamicFunction(data);
+    });
 }
 
 // FUNCTIONS
@@ -364,8 +365,7 @@ function tagify() {
     if (options.custom_tags) {
         $(".titles, .topictitle").each(function () {
             const titleElem = this;
-            if(titleElem.id !== "colorize")
-            {
+            if (titleElem.id !== "colorize") {
                 titleElem.id = "colorize";
                 const tags = $(titleElem).text().match(/\[([^\]]+)]/g);
                 if (tags) {
@@ -384,16 +384,18 @@ function hideScs() {
     if (options.hide_scs > 0 && (options.apply_in_scs || $("a.titles").html() !== "Steam Content Sharing")) {
         let regex;
         switch (options.hide_scs) {
-            case 1: regex = /topic_tags\/scs_/;
+            case 1:
+                regex = /topic_tags\/scs_/;
                 break;
-            case 2: regex = /topic_tags\/scs_on/;
+            case 2:
+                regex = /topic_tags\/scs_on/;
                 break;
-            case 3: regex = /topic_tags\/scs_[oy][^f]/;
+            case 3:
+                regex = /topic_tags\/scs_[oy][^f]/;
                 break;
         }
         $(".topictitle img").each(function () {
-            if (this.src.match(regex))
-            {
+            if (this.src.match(regex)) {
                 this.parentElement.parentElement.parentElement.style.display = "none";
             }
         });
@@ -432,6 +434,7 @@ function setupPageTitle() {
         document.title = format.replace('%F', FORUM_NAME).replace('%T', topicTitle).replace('%RT', topicTitleWithoutTag);
     }
 }
+
 setupPageTitle();
 
 let showPreview = true;
@@ -455,11 +458,9 @@ function setupTopicPreview() {
                 const x = (window.innerWidth / 2) - (previewWidth / 2);
                 const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
                 GM_xmlhttpRequest({
-                    url: topic.href,
-                    onerror: (r) => {
+                    url: topic.href, onerror: (r) => {
                         console.log("Error loading page: " + r);
-                    },
-                    onload: (r) => {
+                    }, onload: (r) => {
                         const dom = $.parseHTML(r.responseText);
                         const body = $(dom).find("div#pagecontent table.tablebg")[1].outerHTML;
                         const bodyObj = $.parseHTML(body)[0];
@@ -500,19 +501,21 @@ function setupTopicPreview() {
         });
     });
 }
+
 setupTopicPreview();
 
 /*
 Made by Altansar
 */
 function steamdbLinkSpoiler() { //Calls the function every time a spoiler is unfolded
-    if(options.steam_db_link) {
+    if (options.steam_db_link) {
         const elements = document.querySelectorAll('button[type="button"],input[type="submit"], input[type="button"], input[value="show"]');
-        for(let elementNumber = 0; elementNumber < elements.length; ++elementNumber) {
+        for (let elementNumber = 0; elementNumber < elements.length; ++elementNumber) {
             elements[elementNumber].addEventListener("click", steamdbLink);
         }
     }
 }
+
 steamdbLinkSpoiler();
 
 /*
@@ -520,44 +523,48 @@ Made by Altansar
 in urgent need of a makeover
 */
 function steamdbLink() {
-    if(this.value === "Show") { //If the text is in a spoiler
+    if (this.value === "Show") { //If the text is in a spoiler
         return;
     }
     if (options.steam_db_link) {
         let allLinkOnPage = false;
-        if(document.getElementsByClassName("postlink").length !== 0) {
-            for(let i=-1; allLinkOnPage === false; i++) { //crosses all the links of the page
+        if (document.getElementsByClassName("postlink").length !== 0) {
+            for (let i = -1; allLinkOnPage === false; i++) { //crosses all the links of the page
                 do {
                     i++;
-                    if(i === document.getElementsByClassName("postlink").length) {
-                        allLinkOnPage=true;
+                    if (i === document.getElementsByClassName("postlink").length) {
+                        allLinkOnPage = true;
                     }
-                }
-                while(!allLinkOnPage&&(document.getElementsByClassName("postlink")[i].text.match("://store.steampowered.com/app")==null)); //until you find a steam link or until you have made all the links
-                if(!allLinkOnPage) {
+                } while (!allLinkOnPage && (document.getElementsByClassName("postlink")[i].text.match("://store.steampowered.com/app") == null)); //until you find a steam link or until you have made all the links
+                if (!allLinkOnPage) {
                     let slash = false;
                     let steamLink = document.getElementsByClassName("postlink")[i].href;
                     // https://store.steampowered.com/app/1916310/Remnant_Records/
-                    if(steamLink.endsWith('/')) {
-                        steamLink=steamLink.slice(0,-1);
-                        slash=true;
+                    if (steamLink.endsWith('/')) {
+                        steamLink = steamLink.slice(0, -1);
+                        slash = true;
                         //https://store.steampowered.com/app/1916310/Remnant_Records
                     }
-                    if(steamLink.substring(steamLink.length-2).match(/[^0-9]/g)) {steamLink=steamLink.substring(0,steamLink.lastIndexOf('/'))}
+                    if (steamLink.substring(steamLink.length - 2).match(/[^0-9]/g)) {
+                        steamLink = steamLink.substring(0, steamLink.lastIndexOf('/'))
+                    }
                     //https://store.steampowered.com/app/1916310
                     let DBlink = "https://steamdb.info/app/" + steamLink.substring(steamLink.lastIndexOf('/') + 1);
                     const DBlinkWithoutSlash = DBlink;
-                    if(slash === true) {DBlink+='/'} // Add the '/' at the end of the link only if it was present in the Steam link. Sorry I'm a maniac, it stresses me to see 2 links close and 1 with the / and the other not
-                    if(document.getElementsByClassName("postlink")[i+1] !== undefined) {
-                        for(;(document.getElementsByClassName("postlink")[i].getBoundingClientRect().y === document.getElementsByClassName("postlink")[i+1].getBoundingClientRect().y);) {i++;} //in case there are several links behind the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=10&t=97673
-                        if(document.getElementsByClassName("postlink")[i+1].text.match(DBlinkWithoutSlash)==null) { //we display the SteamDB link only if it is not already displayed just below the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=22&t=59381&hilit=request+thread&start=9787 (message of Cazzarola)
-                            document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); //Write the link (right part)
-                            document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<br><span style=\"font-weight: bold\">  <svg version=\"1.1\" width=\"1.3em\" height=\"1.3em\" viewBox=\"0 0 128 128\" fill=#bbbbbb class=\"octicon octicon-steamdb\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M63.9 0C30.5 0 3.1 11.9.1 27.1l35.6 6.7c2.9-.9 6.2-1.3 9.6-1.3l16.7-10c-.2-2.5 1.3-5.1 4.7-7.2 4.8-3.1 12.3-4.8 19.9-4.8 5.2-.1 10.5.7 15 2.2 11.2 3.8 13.7 11.1 5.7 16.3-5.1 3.3-13.3 5-21.4 4.8l-22 7.9c-.2 1.6-1.3 3.1-3.4 4.5-5.9 3.8-17.4 4.7-25.6 1.9-3.6-1.2-6-3-7-4.8L2.5 38.4c2.3 3.6 6 6.9 10.8 9.8C5 53 0 59 0 65.5c0 6.4 4.8 12.3 12.9 17.1C4.8 87.3 0 93.2 0 99.6 0 115.3 28.6 128 64 128c35.3 0 64-12.7 64-28.4 0-6.4-4.8-12.3-12.9-17 8.1-4.8 12.9-10.7 12.9-17.1 0-6.5-5-12.6-13.4-17.4 8.3-5.1 13.3-11.4 13.3-18.2 0-16.5-28.7-29.9-64-29.9zm22.8 14.2c-5.2.1-10.2 1.2-13.4 3.3-5.5 3.6-3.8 8.5 3.8 11.1 7.6 2.6 18.1 1.8 23.6-1.8s3.8-8.5-3.8-11c-3.1-1-6.7-1.5-10.2-1.5zm.3 1.7c7.4 0 13.3 2.8 13.3 6.2 0 3.4-5.9 6.2-13.3 6.2s-13.3-2.8-13.3-6.2c0-3.4 5.9-6.2 13.3-6.2zM45.3 34.4c-1.6.1-3.1.2-4.6.4l9.1 1.7a10.8 5 0 1 1-8.1 9.3l-8.9-1.7c1 .9 2.4 1.7 4.3 2.4 6.4 2.2 15.4 1.5 20-1.5s3.2-7.2-3.2-9.3c-2.6-.9-5.7-1.3-8.6-1.3zM109 51v9.3c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-9.2c11.5 5.3 27.4 8.6 44.9 8.6 17.6 0 33.6-3.3 45.2-8.7zm0 34.6v8.8c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-8.8c11.6 5.1 27.4 8.2 45 8.2s33.5-3.1 45-8.2z\"></path></svg> SteamDB:</span> "); //write left part
+                    if (slash === true) {
+                        DBlink += '/'
+                    } // Add the '/' at the end of the link only if it was present in the Steam link. Sorry I'm a maniac, it stresses me to see 2 links close and 1 with the / and the other not
+                    if (document.getElementsByClassName("postlink")[i + 1] !== undefined) {
+                        for (; (document.getElementsByClassName("postlink")[i].getBoundingClientRect().y === document.getElementsByClassName("postlink")[i + 1].getBoundingClientRect().y);) {
+                            i++;
+                        } //in case there are several links behind the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=10&t=97673
+                        if (document.getElementsByClassName("postlink")[i + 1].text.match(DBlinkWithoutSlash) == null) { //we display the SteamDB link only if it is not already displayed just below the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=22&t=59381&hilit=request+thread&start=9787 (message of Cazzarola)
+                            document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend", "<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); //Write the link (right part)
+                            document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend", "<br><span style=\"font-weight: bold\">  <svg version=\"1.1\" width=\"1.3em\" height=\"1.3em\" viewBox=\"0 0 128 128\" fill=#bbbbbb class=\"octicon octicon-steamdb\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M63.9 0C30.5 0 3.1 11.9.1 27.1l35.6 6.7c2.9-.9 6.2-1.3 9.6-1.3l16.7-10c-.2-2.5 1.3-5.1 4.7-7.2 4.8-3.1 12.3-4.8 19.9-4.8 5.2-.1 10.5.7 15 2.2 11.2 3.8 13.7 11.1 5.7 16.3-5.1 3.3-13.3 5-21.4 4.8l-22 7.9c-.2 1.6-1.3 3.1-3.4 4.5-5.9 3.8-17.4 4.7-25.6 1.9-3.6-1.2-6-3-7-4.8L2.5 38.4c2.3 3.6 6 6.9 10.8 9.8C5 53 0 59 0 65.5c0 6.4 4.8 12.3 12.9 17.1C4.8 87.3 0 93.2 0 99.6 0 115.3 28.6 128 64 128c35.3 0 64-12.7 64-28.4 0-6.4-4.8-12.3-12.9-17 8.1-4.8 12.9-10.7 12.9-17.1 0-6.5-5-12.6-13.4-17.4 8.3-5.1 13.3-11.4 13.3-18.2 0-16.5-28.7-29.9-64-29.9zm22.8 14.2c-5.2.1-10.2 1.2-13.4 3.3-5.5 3.6-3.8 8.5 3.8 11.1 7.6 2.6 18.1 1.8 23.6-1.8s3.8-8.5-3.8-11c-3.1-1-6.7-1.5-10.2-1.5zm.3 1.7c7.4 0 13.3 2.8 13.3 6.2 0 3.4-5.9 6.2-13.3 6.2s-13.3-2.8-13.3-6.2c0-3.4 5.9-6.2 13.3-6.2zM45.3 34.4c-1.6.1-3.1.2-4.6.4l9.1 1.7a10.8 5 0 1 1-8.1 9.3l-8.9-1.7c1 .9 2.4 1.7 4.3 2.4 6.4 2.2 15.4 1.5 20-1.5s3.2-7.2-3.2-9.3c-2.6-.9-5.7-1.3-8.6-1.3zM109 51v9.3c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-9.2c11.5 5.3 27.4 8.6 44.9 8.6 17.6 0 33.6-3.3 45.2-8.7zm0 34.6v8.8c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-8.8c11.6 5.1 27.4 8.2 45 8.2s33.5-3.1 45-8.2z\"></path></svg> SteamDB:</span> "); //write left part
                         }
-                    }
-                    else {
-                        document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); //Write the link (right part)
-                        document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<br><span style=\"font-weight: bold\">  <svg version=\"1.1\" width=\"1.3em\" height=\"1.3em\" viewBox=\"0 0 128 128\" fill=#bbbbbb class=\"octicon octicon-steamdb\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M63.9 0C30.5 0 3.1 11.9.1 27.1l35.6 6.7c2.9-.9 6.2-1.3 9.6-1.3l16.7-10c-.2-2.5 1.3-5.1 4.7-7.2 4.8-3.1 12.3-4.8 19.9-4.8 5.2-.1 10.5.7 15 2.2 11.2 3.8 13.7 11.1 5.7 16.3-5.1 3.3-13.3 5-21.4 4.8l-22 7.9c-.2 1.6-1.3 3.1-3.4 4.5-5.9 3.8-17.4 4.7-25.6 1.9-3.6-1.2-6-3-7-4.8L2.5 38.4c2.3 3.6 6 6.9 10.8 9.8C5 53 0 59 0 65.5c0 6.4 4.8 12.3 12.9 17.1C4.8 87.3 0 93.2 0 99.6 0 115.3 28.6 128 64 128c35.3 0 64-12.7 64-28.4 0-6.4-4.8-12.3-12.9-17 8.1-4.8 12.9-10.7 12.9-17.1 0-6.5-5-12.6-13.4-17.4 8.3-5.1 13.3-11.4 13.3-18.2 0-16.5-28.7-29.9-64-29.9zm22.8 14.2c-5.2.1-10.2 1.2-13.4 3.3-5.5 3.6-3.8 8.5 3.8 11.1 7.6 2.6 18.1 1.8 23.6-1.8s3.8-8.5-3.8-11c-3.1-1-6.7-1.5-10.2-1.5zm.3 1.7c7.4 0 13.3 2.8 13.3 6.2 0 3.4-5.9 6.2-13.3 6.2s-13.3-2.8-13.3-6.2c0-3.4 5.9-6.2 13.3-6.2zM45.3 34.4c-1.6.1-3.1.2-4.6.4l9.1 1.7a10.8 5 0 1 1-8.1 9.3l-8.9-1.7c1 .9 2.4 1.7 4.3 2.4 6.4 2.2 15.4 1.5 20-1.5s3.2-7.2-3.2-9.3c-2.6-.9-5.7-1.3-8.6-1.3zM109 51v9.3c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-9.2c11.5 5.3 27.4 8.6 44.9 8.6 17.6 0 33.6-3.3 45.2-8.7zm0 34.6v8.8c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-8.8c11.6 5.1 27.4 8.2 45 8.2s33.5-3.1 45-8.2z\"></path></svg> SteamDB:</span> "); //write left part
+                    } else {
+                        document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend", "<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); //Write the link (right part)
+                        document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend", "<br><span style=\"font-weight: bold\">  <svg version=\"1.1\" width=\"1.3em\" height=\"1.3em\" viewBox=\"0 0 128 128\" fill=#bbbbbb class=\"octicon octicon-steamdb\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M63.9 0C30.5 0 3.1 11.9.1 27.1l35.6 6.7c2.9-.9 6.2-1.3 9.6-1.3l16.7-10c-.2-2.5 1.3-5.1 4.7-7.2 4.8-3.1 12.3-4.8 19.9-4.8 5.2-.1 10.5.7 15 2.2 11.2 3.8 13.7 11.1 5.7 16.3-5.1 3.3-13.3 5-21.4 4.8l-22 7.9c-.2 1.6-1.3 3.1-3.4 4.5-5.9 3.8-17.4 4.7-25.6 1.9-3.6-1.2-6-3-7-4.8L2.5 38.4c2.3 3.6 6 6.9 10.8 9.8C5 53 0 59 0 65.5c0 6.4 4.8 12.3 12.9 17.1C4.8 87.3 0 93.2 0 99.6 0 115.3 28.6 128 64 128c35.3 0 64-12.7 64-28.4 0-6.4-4.8-12.3-12.9-17 8.1-4.8 12.9-10.7 12.9-17.1 0-6.5-5-12.6-13.4-17.4 8.3-5.1 13.3-11.4 13.3-18.2 0-16.5-28.7-29.9-64-29.9zm22.8 14.2c-5.2.1-10.2 1.2-13.4 3.3-5.5 3.6-3.8 8.5 3.8 11.1 7.6 2.6 18.1 1.8 23.6-1.8s3.8-8.5-3.8-11c-3.1-1-6.7-1.5-10.2-1.5zm.3 1.7c7.4 0 13.3 2.8 13.3 6.2 0 3.4-5.9 6.2-13.3 6.2s-13.3-2.8-13.3-6.2c0-3.4 5.9-6.2 13.3-6.2zM45.3 34.4c-1.6.1-3.1.2-4.6.4l9.1 1.7a10.8 5 0 1 1-8.1 9.3l-8.9-1.7c1 .9 2.4 1.7 4.3 2.4 6.4 2.2 15.4 1.5 20-1.5s3.2-7.2-3.2-9.3c-2.6-.9-5.7-1.3-8.6-1.3zM109 51v9.3c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-9.2c11.5 5.3 27.4 8.6 44.9 8.6 17.6 0 33.6-3.3 45.2-8.7zm0 34.6v8.8c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-8.8c11.6 5.1 27.4 8.2 45 8.2s33.5-3.1 45-8.2z\"></path></svg> SteamDB:</span> "); //write left part
                     }
 
                 }
@@ -565,21 +572,21 @@ function steamdbLink() {
         }
     }
 }
+
 steamdbLink();
 
 /*
 Originally made by mandus
 Modified and adapted for cs.rin.ru enhanced by Altansar based on mandus and Royalgamer06 code
 */
-function addLink()
-{
+function addLink() {
     if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.copy_link_button) {
         // const replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Copy the link into the clipboard']))").each(function () {
             const postElem = $(this).parents().eq(7);
             const postId = $(postElem).find("a[name]").attr("name").slice(1);
             $(this).append("<a href='javascript:void(0);'><img src='https://i.imgur.com/WlKpJzR.png' alt='Copy the link into the clipboard' title='Copy the link into the clipboard'>");
-            $(this).on("click", function() {
+            $(this).on("click", function () {
                 const url = FORUM_BASE_URL + `viewtopic.php?p=${postId}#p${postId}`;
                 navigator.clipboard.writeText(url);
                 const copied = $('<span class="copied">Copied!</span>');
@@ -590,16 +597,16 @@ function addLink()
                     'left': child.offset().left + (child.outerWidth() / 2) - (copied.outerWidth() / 2) - 12
                 });
                 $('body').append(copied);
-                setTimeout(function() {
+                setTimeout(function () {
                     copied.fadeOut();
                 }, 2000);
-
 
 
             });
         });
     }
 }
+
 addLink();
 
 /*
@@ -607,23 +614,23 @@ Originally made by Redpoint
 And adapted for cs.rin.ru enhanced by Altansar
 */
 function AddShoutbox() {
-    if(options.add_small_shoutbox&&!URLContains("chat.php")) {
+    if (options.add_small_shoutbox && !URLContains("chat.php")) {
         // Create a button to show/hide chat
         let button = document.createElement("button");
         button.innerHTML = "Show Chat";
         //button.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 5%; height: 3%;";
-        button.style.cssText ="position: fixed; bottom: 0%; right: 0%; width: 5%; height: 3%; z-index: 9999;";
-        button.addEventListener("click", function() {
-            if (document.getElementById("chatDiv")===null) {
+        button.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 5%; height: 3%; z-index: 9999;";
+        button.addEventListener("click", function () {
+            if (document.getElementById("chatDiv") === null) {
                 button.innerHTML = "Hide Chat";
                 createChatContainer();
                 fetchChat();
-                GM_setValue ("chatActive", true)
+                GM_setValue("chatActive", true)
 
             } else {
                 document.getElementById("chatDiv").remove();
                 button.innerHTML = "Show Chat";
-                GM_setValue ("chatActive", false)
+                GM_setValue("chatActive", false)
             }
         });
 
@@ -641,11 +648,12 @@ function AddShoutbox() {
         });
         document.body.appendChild(button);
         const isChatActive = GM_getValue("chatActive", false);
-        if(isChatActive) { //open the chat if it was open when last used
+        if (isChatActive) { //open the chat if it was open when last used
             button.click();
         }
     }
 }
+
 AddShoutbox();
 
 /*
@@ -655,7 +663,7 @@ function createChatContainer() {
     // Create a container for the chat
     let chatContainer = document.createElement("div");
     chatContainer.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 25%; height: 70%; overflow-y: scroll; background-color:#1c1c1c; border:0.5em solid black";
-    chatContainer.id="chatDiv";
+    chatContainer.id = "chatDiv";
     document.body.appendChild(chatContainer);
     //Loading text
     const loading = document.createTextNode("Loading...");
@@ -676,46 +684,42 @@ function createChatContainer() {
 Made by Redpoint
 */
 function fetchChat() {
-    fetch(FORUM_BASE_URL+"chat.php")
+    fetch(FORUM_BASE_URL + "chat.php")
         .then(response => response.text())
         .then(text => {
-        let chatContainer = document.getElementById("chatDiv");
-        chatContainer.innerHTML = "";
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(text, "text/html");
-        let originalScript = doc.querySelector("#wrapcentre > script");
-        let chatElement = doc.querySelector("#wrapcentre > div > table > tbody");
-        if (chatElement) {
-            chatContainer.appendChild(chatElement);
-        }
-        chatContainer.style.backgroundColor = "#1c1c1c";
-        let script = document.createElement("script");
-        script.innerHTML = originalScript.innerHTML;
-        chatContainer.appendChild(script);
-    });
+            let chatContainer = document.getElementById("chatDiv");
+            chatContainer.innerHTML = "";
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(text, "text/html");
+            let originalScript = doc.querySelector("#wrapcentre > script");
+            let chatElement = doc.querySelector("#wrapcentre > div > table > tbody");
+            if (chatElement) {
+                chatContainer.appendChild(chatElement);
+            }
+            chatContainer.style.backgroundColor = "#1c1c1c";
+            let script = document.createElement("script");
+            script.innerHTML = originalScript.innerHTML;
+            chatContainer.appendChild(script);
+        });
 }
 
 /*
 Made by Redpoint
 And adapted for cs.rin.ru enhanced by Altansar
 */
-function addUsersTag()
-{
-    if(options.add_users_tag) {
+function addUsersTag() {
+    if (options.add_users_tag) {
         let child = 3;
-        if(options.infinite_scrolling) {
+        if (options.infinite_scrolling) {
             child++;
         }
-        if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)")!=null) {
-            if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent==='Genre(s):'
-               ||document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent==='   SteamDB:') { //if we are on the game presentation page
+        if (document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)") != null) {
+            if (document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent === 'Genre(s):' || document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent === '   SteamDB:') { //if we are on the game presentation page
                 // Get the link to the Steam game page
                 const link = document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
                 // Send a request to the Steam game page and bypass CSP
                 GM_xmlhttpRequest({
-                    method: "GET",
-                    url: link,
-                    onload: function(response) {
+                    method: "GET", url: link, onload: function (response) {
                         // Parse the response as HTML
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(response.responseText, "text/html");
@@ -738,19 +742,21 @@ function addUsersTag()
         }
     }
 }
+
 addUsersTag();
 
 /*
 Made by Altansar
 */
 function goToUnreadPosts() {
-    if(options.go_to_unread_posts&&URLContains("viewforum.php")) {
+    if (options.go_to_unread_posts && URLContains("viewforum.php")) {
         document.querySelectorAll("#pagecontent > table.tablebg > tbody > tr > td:nth-child(1 of .row1) > a.topictitle").forEach(element => {
-            if(element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') {
+            if (element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') {
                 element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
             }
         });
 
     }
 }
+
 goToUnreadPosts();
