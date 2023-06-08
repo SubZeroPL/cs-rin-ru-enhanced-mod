@@ -1,7 +1,7 @@
 /* eslint-env jquery */
 
 // ==UserScript==
-// @name         CS.RIN.RU Enhanced
+// @name         CS.RIN.RU Enhanced (Reddiepoint)
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
 // @version      0.6.4
@@ -40,7 +40,7 @@ const AJAX_LOADER = `
     <img
         id="ajaxload"
         src="https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/loading.gif"
-        style="opacity: 0.5; position: fixed; width: 40px; height: 40px; z-index: 2147483647; display: none;" />
+        style="opacity: 0.5; position: fixed; width: 40px; height: 40px; z-index: 2147483647; display: none;"  alt="Loading"/>
 </div>`;
 const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
 function getBaseUrl() {
