@@ -1,7 +1,7 @@
 /* eslint-env jquery */
 
 // ==UserScript==
-// @name         CS.RIN.RU Enhanced (Reddiepoint)
+// @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
 // @version      0.6.4
