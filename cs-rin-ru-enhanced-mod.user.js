@@ -574,7 +574,7 @@ Modified and adapted for cs.rin.ru enhanced by Altansar based on mandus and Roya
 function addLink()
 {
     if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.copy_link_button) {
-        const replyLink = $("[title='Reply to topic']").parent().attr("href");
+        // const replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Copy the link into the clipboard']))").each(function () {
             const postElem = $(this).parents().eq(7);
             const postId = $(postElem).find("a[name]").attr("name").slice(1);
@@ -582,6 +582,20 @@ function addLink()
             $(this).on("click", function() {
                 const url = FORUM_BASE_URL + `viewtopic.php?p=${postId}#p${postId}`;
                 navigator.clipboard.writeText(url);
+                const copied = $('<span class="copied">Copied!</span>');
+                const child = $(this).find("[href='javascript:void(0);']");
+                copied.css({
+                    'position': 'absolute',
+                    'top': child.offset().top - copied.outerHeight() - 20,
+                    'left': child.offset().left + (child.outerWidth() / 2) - (copied.outerWidth() / 2) - 12
+                });
+                $('body').append(copied);
+                setTimeout(function() {
+                    copied.fadeOut();
+                }, 2000);
+
+
+
             });
         });
     }
