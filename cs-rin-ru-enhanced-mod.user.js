@@ -710,13 +710,16 @@ And adapted for cs.rin.ru enhanced by Altansar
 function addUsersTag() {
     if (options.add_users_tag) {
         let child = 3;
-        if (options.infinite_scrolling) {
+        if (document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr > td > form")) {
             child++;
+            console.log(child);
         }
-        if (document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)") != null) {
-            if (document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent === 'Genre(s):' || document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent === '   SteamDB:') { //if we are on the game presentation page
+        const steamLink = document.querySelector(`#pagecontent > table:nth-child(${child}) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)`);
+        if (steamLink != null) {
+            let textContent = $(steamLink).nextAll('br').first().next().text();
+            if (textContent === "Genre(s):" || textContent === "   SteamDB:") { //if we are on the game presentation page
                 // Get the link to the Steam game page
-                const link = document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
+                const link = steamLink.href;
                 // Send a request to the Steam game page and bypass CSP
                 GM_xmlhttpRequest({
                     method: "GET", url: link, onload: function (response) {
@@ -728,7 +731,8 @@ function addUsersTag() {
                         // Extract the text content of each tag and join them with a comma and a space
                         const genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
                         // Modify the original page by adding a new line with the genres
-                        const br = document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
+                        // const br = document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
+                        const br = $('span[style="font-weight: bold"]:contains("Genre(s):")').next()[0];
                         const span = document.createElement("span");
                         span.style.fontWeight = "bold";
                         span.textContent = "User-defined Tag(s): ";
@@ -742,8 +746,7 @@ function addUsersTag() {
         }
     }
 }
-
-addUsersTag();
+addUsersTag()
 
 /*
 Made by Altansar
