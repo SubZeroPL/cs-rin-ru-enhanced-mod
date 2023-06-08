@@ -47,7 +47,7 @@ function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
     let base = path.slice(0, path.lastIndexOf('/') + 1);
     return base ?? 'http://cs.rin.ru/forum/';
-};
+}
 const FORUM_BASE_URL = getBaseUrl();
 
 /*
@@ -120,20 +120,18 @@ function loadConfigButton() {
 
 loadConfigButton();
 
-if (!options.script_enabled) {
-    return;
-}
+if (!options.script_enabled) return;
 
 // Navigation bar
-var navBar = $("[title='Click to jump to page…']").parent().parent().first()[0]; // Gets the first navigation bar
+let navBar = $("[title='Click to jump to page…']").parent().parent().first()[0]; // Gets the first navigation bar
 if (navBar) {
-    var td = document.createElement("td"); // Necessary for search.php
+    const td = document.createElement("td"); // Necessary for search.php
     td.setAttribute("class", "gensmall"); // Necessary for search.php
     td.setAttribute("name", "page_nav"); // Makes it easier for the GM_addStyle function
     td.setAttribute("width", "500"); // Standardised width
     td.innerHTML = navBar.innerHTML; // Copy the navigation bar
     navBar.parentNode.replaceChild(td, navBar); // Replace the existing navigation bar with the modified one
-    var ancestor = $(td).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
+    const ancestor = $(td).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
     if (ancestor.length) {
         $("#pageheader").after(td);
     } else {
@@ -168,7 +166,7 @@ Reply button added by Altansar
 INFINITE SCROLLING
 */
 if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrolling) {
-    var selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; //viewforum.php
+    let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; //viewforum.php
     if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; //search.php
     if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; //inbox
     if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; //viewtopic.php
@@ -183,7 +181,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
     } else if (!URLContains("ucp.php")) {
         $(selector).parent().prepend($(".cat:has(.btnlite)").parent());
     }
-    if (nextElem.length == 1) { //If there is a next page
+    if (nextElem.length === 1) { //If there is a next page
         let nextPage = $(nextElem).attr("href");
         let ajaxDone = true;
         $(document).scroll(function () {
@@ -209,38 +207,32 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                         document.querySelector("#pagecontent").appendChild(copiedElement);
                         //Retrieve the correct nav
                         const element = document.getElementsByClassName("nav")[3];
-                        // Retrieve the value of the first number
-                        const firstNumber = element.querySelector('strong:nth-child(1)').textContent;
-                        // Retrieve the value of the second number
-                        const secondNumber = element.querySelector('strong:nth-child(2)').textContent;
                         // Replace the first number with the second in the HTML code
-                        element.querySelector('strong:nth-child(1)').innerHTML = secondNumber;
+                        element.querySelector('strong:nth-child(1)').innerHTML = element.querySelector('strong:nth-child(2)').textContent;
                     }
                     ajaxDone = true;
                 });
             }
         });
-    };
+    }
 
-    let prevElem = $(navElem).find("strong").prev().prev();
-    if (prevElem.length == 1) { //If there is a prev page
+    const prevElem = $(navElem).find("strong").prev().prev();
+    if (prevElem.length === 1) { //If there is a prev page
         let prevPage = $(prevElem).attr("href");
         let ajaxDone = true;
         $(document).scroll(function () {
-            // get the window object
-            var win = window;
             // set a variable to store the scroll position
             var scrollPos = 0;
             // set a variable to store the scroll duration
             var scrollDur = 0;
             // set a variable to store the threshold for logging
-            var scrollThresh = 1000; // in milliseconds
+            var scrollThresh = 1000; // 10 clicks of the scroll wheel - each scroll is 100
             // add an event listener for the wheel event
-            win.addEventListener("wheel", function(e) {
+            window.addEventListener("wheel", function(e) {
                 // get the current scroll position
-                var currPos = win.pageYOffset || win.document.documentElement.scrollTop;
+                var currPos = window.pageYOffset || window.document.documentElement.scrollTop;
                 // check if the user is at the top of the page
-                if (currPos == 0) {
+                if (currPos === 0) {
                     // check if the user tries to scroll upwards
                     if (e.deltaY < 0) {
                         // increase the scroll duration
@@ -287,7 +279,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                 scrollPos = currPos;
             });
         });
-    };
+    }
 }
 
 // CUSTOM TAGS
@@ -300,7 +292,6 @@ if (URLContains("posting.php" && "do=mention") && options.mentioning) {
     const u = URLParam("u");
     const a = URLParam("a");
     const postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${a}[/url], `;
-    const ajaxDone = false;
     $("[name=message]").val(postBody);
 }
 mentionify();
@@ -374,14 +365,14 @@ function tagify() {
     if (options.custom_tags) {
         $(".titles, .topictitle").each(function () {
             const titleElem = this;
-            if(titleElem.id!="colorize")
+            if(titleElem.id !== "colorize")
             {
-                titleElem.id="colorize";
-                const tags = $(titleElem).text().match(/\[([^\]]+)\]/g);
+                titleElem.id = "colorize";
+                const tags = $(titleElem).text().match(/\[([^\]]+)]/g);
                 if (tags) {
                     tags.forEach(function (tag) {
                         const color = colorize(tag);
-                        titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/\[|\]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
+                        titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/[\[\]]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
                     });
                 }
             }
@@ -412,9 +403,12 @@ function hideScs() {
 
 function colorize(str) {
     let lstr = str.toLowerCase();
-    for (var i = 0, hash = 0; i < lstr.length; hash = lstr.charCodeAt(i++) + ((hash << 5) - hash));
+    let hash = 0;
+    for (let i = 0; i < lstr.length; i++) {
+        hash = lstr.charCodeAt(i) + ((hash << 5) - hash);
+    }
     const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
-    return '#' + Array(6 - color.length + 1).join('0') + color;
+    return '#' + color.padStart(6, '0');
 }
 
 function URLContains(match) {
@@ -434,10 +428,9 @@ function setupPageTitle() {
     // CS.RIN.RU - Steam Underground Community • View topic - Suggestion = forum setting (bookmark)
     if (currentTitle.indexOf("View topic") > -1) { // only change titles for topic pages
         const topicTitle = $("a.titles").text();
-        const topicTitleWithoutTag = topicTitle.replace(/\[.*?\]/g, '').trim();
+        const topicTitleWithoutTag = topicTitle.replace(/\[.*?]/g, '').trim();
         const format = options.topic_title_format;
-        const newTitle = format.replace('%F', FORUM_NAME).replace('%T', topicTitle).replace('%RT', topicTitleWithoutTag);
-        document.title = newTitle;
+        document.title = format.replace('%F', FORUM_NAME).replace('%T', topicTitle).replace('%RT', topicTitleWithoutTag);
     }
 }
 setupPageTitle();
@@ -528,16 +521,16 @@ Made by Altansar
 in urgent need of a makeover
 */
 function steamdbLink() {
-    if(this.value=="Show") { //If the text is in a spoiler
+    if(this.value === "Show") { //If the text is in a spoiler
         return;
     }
     if (options.steam_db_link) {
         var allLinkOnPage=false;
-        if(document.getElementsByClassName("postlink").length!=0) {
-            for(var i=-1;allLinkOnPage==false;i++) { //crosses all the links of the page
+        if(document.getElementsByClassName("postlink").length !== 0) {
+            for(let i=-1; allLinkOnPage === false; i++) { //crosses all the links of the page
                 do {
                     i++;
-                    if(i==document.getElementsByClassName("postlink").length) {
+                    if(i === document.getElementsByClassName("postlink").length) {
                         allLinkOnPage=true;
                     }
                 }
@@ -555,9 +548,9 @@ function steamdbLink() {
                     //https://store.steampowered.com/app/1916310
                     var DBlink= "https://steamdb.info/app/" + steamLink.substring(steamLink.lastIndexOf('/')+1);
                     var DBlinkWithoutSlash=DBlink;
-                    if(slash==true) {DBlink+='/'} //add the '/' at the end of the link only if it was present in the Steam link. Sorry I'm a maniac, it stresses me to see 2 links close and 1 with the / and the other not)
-                    if(document.getElementsByClassName("postlink")[i+1]!=undefined) {
-                        for(;(document.getElementsByClassName("postlink")[i].getBoundingClientRect().y==document.getElementsByClassName("postlink")[i+1].getBoundingClientRect().y);) {i++;} //in case there are several links behind the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=10&t=97673
+                    if(slash === true) {DBlink+='/'} //add the '/' at the end of the link only if it was present in the Steam link. Sorry I'm a maniac, it stresses me to see 2 links close and 1 with the / and the other not)
+                    if(document.getElementsByClassName("postlink")[i+1] !== undefined) {
+                        for(;(document.getElementsByClassName("postlink")[i].getBoundingClientRect().y === document.getElementsByClassName("postlink")[i+1].getBoundingClientRect().y);) {i++;} //in case there are several links behind the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=10&t=97673
                         if(document.getElementsByClassName("postlink")[i+1].text.match(DBlinkWithoutSlash)==null) { //we display the SteamDB link only if it is not already displayed just below the steam link exemple: https://cs.rin.ru/forum/viewtopic.php?f=22&t=59381&hilit=request+thread&start=9787 (message of Cazzarola)
                             document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); //Write the link (right part)
                             document.getElementsByClassName("postlink")[i].insertAdjacentHTML("afterend","<br><span style=\"font-weight: bold\">  <svg version=\"1.1\" width=\"1.3em\" height=\"1.3em\" viewBox=\"0 0 128 128\" fill=#bbbbbb class=\"octicon octicon-steamdb\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M63.9 0C30.5 0 3.1 11.9.1 27.1l35.6 6.7c2.9-.9 6.2-1.3 9.6-1.3l16.7-10c-.2-2.5 1.3-5.1 4.7-7.2 4.8-3.1 12.3-4.8 19.9-4.8 5.2-.1 10.5.7 15 2.2 11.2 3.8 13.7 11.1 5.7 16.3-5.1 3.3-13.3 5-21.4 4.8l-22 7.9c-.2 1.6-1.3 3.1-3.4 4.5-5.9 3.8-17.4 4.7-25.6 1.9-3.6-1.2-6-3-7-4.8L2.5 38.4c2.3 3.6 6 6.9 10.8 9.8C5 53 0 59 0 65.5c0 6.4 4.8 12.3 12.9 17.1C4.8 87.3 0 93.2 0 99.6 0 115.3 28.6 128 64 128c35.3 0 64-12.7 64-28.4 0-6.4-4.8-12.3-12.9-17 8.1-4.8 12.9-10.7 12.9-17.1 0-6.5-5-12.6-13.4-17.4 8.3-5.1 13.3-11.4 13.3-18.2 0-16.5-28.7-29.9-64-29.9zm22.8 14.2c-5.2.1-10.2 1.2-13.4 3.3-5.5 3.6-3.8 8.5 3.8 11.1 7.6 2.6 18.1 1.8 23.6-1.8s3.8-8.5-3.8-11c-3.1-1-6.7-1.5-10.2-1.5zm.3 1.7c7.4 0 13.3 2.8 13.3 6.2 0 3.4-5.9 6.2-13.3 6.2s-13.3-2.8-13.3-6.2c0-3.4 5.9-6.2 13.3-6.2zM45.3 34.4c-1.6.1-3.1.2-4.6.4l9.1 1.7a10.8 5 0 1 1-8.1 9.3l-8.9-1.7c1 .9 2.4 1.7 4.3 2.4 6.4 2.2 15.4 1.5 20-1.5s3.2-7.2-3.2-9.3c-2.6-.9-5.7-1.3-8.6-1.3zM109 51v9.3c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-9.2c11.5 5.3 27.4 8.6 44.9 8.6 17.6 0 33.6-3.3 45.2-8.7zm0 34.6v8.8c0 11-20.2 19.9-45 19.9-24.9 0-45-8.9-45-19.9v-8.8c11.6 5.1 27.4 8.2 45 8.2s33.5-3.1 45-8.2z\"></path></svg> SteamDB:</span> "); //write left part
@@ -701,8 +694,8 @@ function addUsersTag()
             child++;
         }
         if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)")!=null) {
-            if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='Genre(s):'
-               ||document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent=='   SteamDB:') { //if we are on the game presentation page
+            if(document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent==='Genre(s):'
+               ||document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").nextElementSibling.nextElementSibling.textContent==='   SteamDB:') { //if we are on the game presentation page
                 // Get the link to the Steam game page
                 var link = document.querySelector("#pagecontent > table:nth-child("+child+") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)").href;
                 // Send a request to the Steam game page and bypass CSP
