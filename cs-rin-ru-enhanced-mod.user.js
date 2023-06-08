@@ -46,7 +46,7 @@ const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
 function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
     let base = path.slice(0, path.lastIndexOf('/') + 1);
-    return base ?? 'http://cs.rin.ru/forum/';
+    return base ?? 'https://cs.rin.ru/forum/';
 }
 const FORUM_BASE_URL = getBaseUrl();
 
@@ -202,8 +202,8 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     nextElem = $(navElem).find("strong").next().next();
                     nextPage = $(nextElem).attr("href");
                     if(nextElem.length===0&&URLContains("viewtopic.php")) { //if you're on the last page and on viewtopic
-                        var originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
-                        var copiedElement = originalElement.cloneNode(true);
+                        const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
+                        const copiedElement = originalElement.cloneNode(true);
                         document.querySelector("#pagecontent").appendChild(copiedElement);
                         //Retrieve the correct nav
                         const element = document.getElementsByClassName("nav")[3];
@@ -216,58 +216,53 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
         });
     }
 
-    const prevElem = $(navElem).find("strong").prev().prev();
+    let prevElem = $(navElem).find("strong").prev().prev();
     if (prevElem.length === 1) { //If there is a prev page
         let prevPage = $(prevElem).attr("href");
         let ajaxDone = true;
-        $(document).scroll(function () {
-            // set a variable to store the scroll position
-            var scrollPos = 0;
-            // set a variable to store the scroll duration
-            var scrollDur = 0;
-            // set a variable to store the threshold for logging
-            var scrollThresh = 1000; // 10 clicks of the scroll wheel - each scroll is 100
-            // add an event listener for the wheel event
-            window.addEventListener("wheel", function(e) {
-                // get the current scroll position
-                var currPos = window.pageYOffset || window.document.documentElement.scrollTop;
-                // check if the user is at the top of the page
-                if (currPos === 0) {
-                    // check if the user tries to scroll upwards
-                    if (e.deltaY < 0) {
-                        // increase the scroll duration
-                        scrollDur += Math.abs(e.deltaY);
-                        // check if the scroll duration exceeds the threshold
-                        if (scrollDur >= scrollThresh && prevElem.length > 0 && ajaxDone) {
-                            ajaxDone = false;
-                            $.get(prevPage, function (data) {
-                                let element = $(selector);
-                                $(element[0]).find("tbody:first").find("tr:first").remove();
-                                $($(selector)[0]).before($(selector, data));
-                                var scrollPosition = $(element[1]).offset().top - $(window).height();
-                                $('html, body').animate({scrollTop: scrollPosition}, 0);
-                                $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
-                                dynamicFunction(data);
-                                mentionify();
-                                tagify();
-                                hideScs();
-                                setupTopicPreview();
-                                addLink();
-                                steamdbLink();
-                                prevElem = $(navElem).find("strong").prev().prev();
-                                prevPage = $(prevElem).attr("href");
-                                if(URLContains("viewtopic.php")) {
-                                    //Retrieve the correct nav
-                                    const element = document.getElementsByClassName("nav")[0];
-                                    element.querySelector('strong:nth-child(1)').innerHTML = $(navElem).find("strong").text();
-                                }
-                                ajaxDone = true;
-                            });
-                            scrollDur = 0;
-                        }
-                    }
-                    else {
-                        // reset the scroll duration
+        // set a variable to store the scroll position
+        let scrollPos = 0;
+        // set a variable to store the scroll duration
+        let scrollDur = 0;
+        // set a variable to store the threshold for logging
+        const scrollThresh = 1000; // in milliseconds
+        // add an event listener for the wheel event
+        window.addEventListener("wheel", function(e) {
+            // get the current scroll position
+            const currPos = window.scrollY || window.document.documentElement.scrollTop;
+            // check if the user is at the top of the page
+            if (currPos === 0) {
+                // check if the user tries to scroll upwards
+                if (e.deltaY < 0) {
+                    // increase the scroll duration
+                    scrollDur += Math.abs(e.deltaY);
+                    // check if the scroll duration exceeds the threshold
+                    if (scrollDur >= scrollThresh && prevElem.length > 0 && ajaxDone) {
+                        ajaxDone = false;
+                        $.get(prevPage, function (data) {
+                            let element = $(selector);
+                            $(element[0]).find("tbody:first").find("tr:first").remove();
+                            $($(selector)[0]).before($(selector, data));
+                            let top = $(element[0]).offset().top + $(element[0]).height();
+                            const scrollPosition = top - $(window).height();
+                            $('html, body').animate({scrollTop: scrollPosition}, 0);
+                            $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
+                            dynamicFunction(data);
+                            mentionify();
+                            tagify();
+                            hideScs();
+                            setupTopicPreview();
+                            addLink();
+                            steamdbLink();
+                            prevElem = $(navElem).find("strong").prev().prev();
+                            prevPage = $(prevElem).attr("href");
+                            if(URLContains("viewtopic.php")) {
+                                //Retrieve the correct nav
+                                const element = document.getElementsByClassName("nav")[0];
+                                element.querySelector('strong:nth-child(1)').innerHTML = $(navElem).find("strong").text();
+                            }
+                            ajaxDone = true;
+                        });
                         scrollDur = 0;
                     }
                 }
@@ -275,9 +270,13 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     // reset the scroll duration
                     scrollDur = 0;
                 }
-                // update the scroll position
-                scrollPos = currPos;
-            });
+            }
+            else {
+                // reset the scroll duration
+                scrollDur = 0;
+            }
+            // update the scroll position
+            scrollPos = currPos;
         });
     }
 }
@@ -300,7 +299,7 @@ mentionify();
 Originally made by RoyalGamer06.
 Changes made by Altansar to avoid ban ip
 */
-var intervalID;
+let intervalID;
 function allDynamicFunction() {
     if(options.dynamic_function) { //If at least one dynamic function is active
         // set up event listener for visibility change
@@ -454,7 +453,7 @@ function setupTopicPreview() {
                 const previewWidth = window.innerWidth * 0.75;
                 const previewHeight = window.innerHeight * 0.75;
                 const x = (window.innerWidth / 2) - (previewWidth / 2);
-                const y = (window.innerHeight / 2) - (previewHeight / 2) + window.pageYOffset;
+                const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
                 GM_xmlhttpRequest({
                     url: topic.href,
                     onerror: (r) => {
@@ -508,8 +507,8 @@ Made by Altansar
 */
 function steamdbLinkSpoiler() { //Calls the function every time a spoiler is unfolded
     if(options.steam_db_link) {
-        var elements = document.querySelectorAll('button[type="button"],input[type="submit"], input[type="button"], input[value="show"]');
-        for(var elementNumber = 0 ;elementNumber < elements.length; ++elementNumber) {
+        const elements = document.querySelectorAll('button[type="button"],input[type="submit"], input[type="button"], input[value="show"]');
+        for(let elementNumber = 0; elementNumber < elements.length; ++elementNumber) {
             elements[elementNumber].addEventListener("click", steamdbLink);
         }
     }
@@ -525,7 +524,7 @@ function steamdbLink() {
         return;
     }
     if (options.steam_db_link) {
-        var allLinkOnPage=false;
+        let allLinkOnPage = false;
         if(document.getElementsByClassName("postlink").length !== 0) {
             for(let i=-1; allLinkOnPage === false; i++) { //crosses all the links of the page
                 do {
@@ -536,8 +535,8 @@ function steamdbLink() {
                 }
                 while(!allLinkOnPage&&(document.getElementsByClassName("postlink")[i].text.match("://store.steampowered.com/app")==null)); //until you find a steam link or until you have made all the links
                 if(!allLinkOnPage) {
-                    var slash=false;
-                    var steamLink = document.getElementsByClassName("postlink")[i].href;
+                    let slash = false;
+                    let steamLink = document.getElementsByClassName("postlink")[i].href;
                     // https://store.steampowered.com/app/1916310/Remnant_Records/
                     if(steamLink.endsWith('/')) {
                         steamLink=steamLink.slice(0,-1);
