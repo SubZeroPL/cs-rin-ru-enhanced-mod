@@ -35,11 +35,6 @@ Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1
 
 const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
 
-const PAGE_HEADER = `#pageheader {
-    position: sticky !important;
-    top: -33px;
-    background: linear-gradient(90deg, black 26%, transparent 28%);
-}`;
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
     <img
@@ -129,7 +124,30 @@ if (!options.script_enabled) {
     return;
 }
 
-GM_addStyle(PAGE_HEADER);
+// Navigation bar
+var navBar = $("[title='Click to jump to page…']").parent().parent().first()[0]; // Gets the first navigation bar
+if (navBar) {
+    var td = document.createElement("td"); // Necessary for search.php
+    td.setAttribute("class", "gensmall"); // Necessary for search.php
+    td.setAttribute("name", "page_nav"); // Makes it easier for the GM_addStyle function
+    td.setAttribute("width", "500"); // Standardised width
+    td.innerHTML = navBar.innerHTML; // Copy the navigation bar
+    navBar.parentNode.replaceChild(td, navBar); // Replace the existing navigation bar with the modified one
+    var ancestor = $(td).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
+    if (ancestor.length) {
+        $("#pageheader").after(td);
+    } else {
+        $("[method='post']").get(1).before(td); // For search.php and memberlist.php
+    }
+
+    GM_addStyle(`[name="page_nav"] {
+        position: sticky !important;
+        top: 0px;
+        width: 500px;
+        background: linear-gradient(90deg, black 90%, transparent 95%);
+    }`);
+}
+
 if (options.display_ajax_loader) {
     $("body").prepend(AJAX_LOADER);
     $.ajaxSetup({
