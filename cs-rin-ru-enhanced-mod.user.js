@@ -744,6 +744,7 @@ function addUsersTag() {
         }
     }
 }
+
 addUsersTag()
 
 /*
@@ -765,15 +766,13 @@ goToUnreadPosts();
 /*
 Made by Altansar
 */
-function changeColorOfNewMessage()
-{
-    if(!document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").text.startsWith(" 0 new messages")) //If we have a new messages
-    {
-            document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = options.colorize_new_messages; //we colorize in the color wanted by users
-    }
-    else
-    {
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#AAAAAA"; //we colorize in the color wanted by users
+function changeColorOfNewMessage() {
+    const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)");
+    if (!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
+        menuBar.style.color = options.colorize_new_messages; // We colorize in the color wanted by users
+    } else {
+        menuBar.style.color = "#AAAAAA"; //we colorize in the color wanted by users
     }
 }
+
 changeColorOfNewMessage();
