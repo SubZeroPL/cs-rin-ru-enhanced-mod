@@ -712,10 +712,6 @@ And adapted for cs.rin.ru enhanced by Altansar
 */
 function addUsersTag() {
     if (options.add_users_tag) {
-        let child = 3;
-        if (document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr > td > form")) {
-            child++;
-        }
         const steamLink = $('a[href^="https://store.steampowered.com/app/"], a[href^="http://store.steampowered.com/app/"]').first()[0];
         if (steamLink != null) {
             let textContent = $(steamLink).nextAll('br').first().next().text();
