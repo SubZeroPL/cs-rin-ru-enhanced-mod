@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.10
+// @version      0.6.12
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -782,15 +782,15 @@ changeColorOfNewMessage();
 
 function colorizeThePages() {
     if(options.colorize_the_page) {
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color="yellow" // Donate
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#00ff00e0" // Forum Rules
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#00ecff" // FAQ
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#00a5ff" // User Control Panel
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color="#39b328" // Members
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#a01515" // Logout
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="violet" // Search
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="#ff8888" // Chat
-        document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color=getRandomColor(); //Random colorize the title
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color="#FFC200" // Donate
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#FFA07A" // Forum Rules
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#90EE90" // FAQ
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#87CEEB" // User Control Panel
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color="#4169E1" // Members
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#FF0000" // Logout
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="#87CEFA" // Search
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="#98FB98" // Chat
+        document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color=getRandomColor(); // Random colour for the title
     }
 }
 colorizeThePages();
