@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.5
+// @version      0.6.6
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -66,6 +66,7 @@ let options = {
     "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
     "apply_in_scs": false,
     "topic_title_format": "%F • View topic - %T", // %F - forum name, %T - topic title, %RT - topic title without tags in square brackets
+    "colorize_new_messages": "#ff0000", //Color in hex
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "steam_db_link": true,
@@ -111,6 +112,7 @@ function loadConfigButton() {
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#topic_title_format")[0].value = options.topic_title_format;
+            $("input#colorize_new_messages")[0].value = options.colorize_new_messages;
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
 
@@ -136,9 +138,9 @@ if (navBar) {
     navBar.parentNode.replaceChild(td, navBar); // Replace the existing navigation bar with the modified one
     const ancestor = $(td).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
     if (ancestor.length) {
-        $("#pageheader").after(td);
+        $("#pagecontent").before(td);
     } else {
-        $("[method='post']").get(1).before(td); // For search.php and memberlist.php
+        $("[method='post']:not(#search)").get(0).before(td); // For search.php, memberlist.php
     }
 
     GM_addStyle(`[name="page_nav"] {
@@ -763,3 +765,15 @@ function goToUnreadPosts() {
 }
 
 goToUnreadPosts();
+
+/*
+Made by Altansar
+*/
+
+function changeColorOfNewMessage()
+{
+    if(document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").text===" 0 new messages") //If we have a new messages
+    {
+            document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = options.colorize_new_messages; //we colorize in the color wanted by users
+    }
+}
