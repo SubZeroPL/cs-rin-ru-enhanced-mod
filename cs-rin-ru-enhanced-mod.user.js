@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.6
+// @version      0.6.7
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -33,7 +33,7 @@ Contributor: Redpoint (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
+const CONFIG_PAGE = "https://raw.githubusercontent.com/Altansar69/cs-rin-ru-enhanced-mod/master/config.html"
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
@@ -331,7 +331,8 @@ function startUpdating() {
 function dynamicFunction(data) { //Call every 60seconds as well as when using infinite scroll
     $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
-    $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2) > strong", data).html()); //Message
+    $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html()); //Message
+    changeColorOfNewMessage();//Colorize messages
     if (URLContains("viewtopic.php")) { //Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
@@ -714,9 +715,8 @@ function addUsersTag() {
         let child = 3;
         if (document.querySelector("#pagecontent > table:nth-child(3) > tbody > tr > td > form")) {
             child++;
-            console.log(child);
         }
-        const steamLink = document.querySelector(`#pagecontent > table:nth-child(${child}) > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > a:nth-child(10)`);
+        const steamLink = $('a[href^="https://store.steampowered.com/app/"], a[href^="http://store.steampowered.com/app/"]').first()[0];
         if (steamLink != null) {
             let textContent = $(steamLink).nextAll('br').first().next().text();
             if (textContent === "Genre(s):" || textContent === "   SteamDB:") { //if we are on the game presentation page
@@ -769,11 +769,11 @@ goToUnreadPosts();
 /*
 Made by Altansar
 */
-
 function changeColorOfNewMessage()
 {
-    if(document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").text===" 0 new messages") //If we have a new messages
+    if(!document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").text.startsWith(" 0 new messages")) //If we have a new messages
     {
             document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = options.colorize_new_messages; //we colorize in the color wanted by users
     }
 }
+changeColorOfNewMessage();
