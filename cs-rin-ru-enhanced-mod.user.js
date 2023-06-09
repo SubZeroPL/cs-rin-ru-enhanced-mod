@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.8
+// @version      0.6.9
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -770,6 +770,10 @@ function changeColorOfNewMessage()
     if(!document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").text.startsWith(" 0 new messages")) //If we have a new messages
     {
             document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = options.colorize_new_messages; //we colorize in the color wanted by users
+    }
+    else
+    {
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#AAAAAA"; //we colorize in the color wanted by users
     }
 }
 changeColorOfNewMessage();
