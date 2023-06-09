@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.12
+// @version      0.6.13
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -303,13 +303,12 @@ Originally made by RoyalGamer06.
 Changes made by Altansar to avoid ban ip
 */
 let intervalID;
-
 function allDynamicFunction() {
     if (options.dynamic_function) { //If at least one dynamic function is active
         // set up event listener for visibility change
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === "visible") { //If the page becomes visible
-                dynamicFunctionWithoutData();
+                dynamicFunction();
                 startUpdating();
             } else { //If the page is not visible
                 clearInterval(intervalID); //We stop the counter for the update
@@ -326,11 +325,16 @@ allDynamicFunction();
 
 function startUpdating() {
     intervalID = setInterval(function () {
-        dynamicFunctionWithoutData();
+        dynamicFunction();
     }, 60000);
 }
 
 function dynamicFunction(data) { //Call every 60seconds as well as when using infinite scroll
+    if (data == null) {
+        $.get(location.href, function (data) { //Every 60 seconds we update time and user list
+            dynamicFunction(data);
+        });
+    }
     $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html()); //Message
@@ -344,12 +348,6 @@ function dynamicFunction(data) { //Call every 60seconds as well as when using in
         */
         //I don't know what I tried to do, but I don't think it's a good solution.
     }
-}
-
-function dynamicFunctionWithoutData() {
-    $.get(location.href, function (data) { //Every 60 seconds we update time and user list
-        dynamicFunction(data);
-    });
 }
 
 // FUNCTIONS
