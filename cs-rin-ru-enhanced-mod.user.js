@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.9
+// @version      0.6.10
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -28,8 +28,8 @@
 /*
 Creator: Royalgamer06 (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=477885)
 Contributor: SubZeroPL (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=505897) who has now taken over the project
-Contributor: Altansar (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1280185) has created some functionality
 Contributor: Redpoint (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1365721) has created some functionality
+Contributor: Altansar (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1280185) has created some functionality
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
@@ -61,12 +61,13 @@ let options = {
     "infinite_scrolling": true,
     "mentioning": true,
     "dynamic_function": true,
+    "colorize_new_messages": true,
+    "colorize_the_page": true,
     "display_ajax_loader": true,
     "custom_tags": true,
     "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
     "apply_in_scs": false,
     "topic_title_format": "%F • View topic - %T", // %F - forum name, %T - topic title, %RT - topic title without tags in square brackets
-    "colorize_new_messages": "#ff0000", //Color in hex
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "steam_db_link": true,
@@ -104,6 +105,8 @@ function loadConfigButton() {
             $("input#steam_db_link")[0].checked = options.steam_db_link;
             $("input#copy_link_button")[0].checked = options.copy_link_button;
             $("input#dynamic_function")[0].checked = options.dynamic_function;
+            $("input#colorize_new_messages")[0].checked = options.colorize_new_messages;
+            $("input#colorize_the_page")[0].checked = options.colorize_the_page;
             $("input#display_ajax_loader")[0].checked = options.display_ajax_loader;
             $("input#custom_tags")[0].checked = options.custom_tags;
             $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
@@ -112,7 +115,6 @@ function loadConfigButton() {
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#topic_title_format")[0].value = options.topic_title_format;
-            $("input#colorize_new_messages")[0].value = options.colorize_new_messages;
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
 
@@ -744,7 +746,6 @@ function addUsersTag() {
         }
     }
 }
-
 addUsersTag()
 
 /*
@@ -767,12 +768,38 @@ goToUnreadPosts();
 Made by Altansar
 */
 function changeColorOfNewMessage() {
-    const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)");
-    if (!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
-        menuBar.style.color = options.colorize_new_messages; // We colorize in the color wanted by users
-    } else {
-        menuBar.style.color = "#AAAAAA"; //we colorize in the color wanted by users
+    if(options.colorize_new_messages) {
+        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)");
+        if(!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
+            menuBar.style.color = "red"; //we colorize in the color wanted by users
+        }
+        else {
+            menuBar.style.color = "#AAAAAA"; //we decolorize the messages
+        }
     }
 }
-
 changeColorOfNewMessage();
+
+function colorizeThePages() {
+    if(options.colorize_the_page) {
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color="yellow" //Donate
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#00ff00e0" //Forum Rules
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#00ecff" //Members
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#00a5ff" //User Control Panel
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color="#39b328" //Members
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#a01515" //Logout
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="violet" //Search
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="#ff8888" //Chat
+        document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color=getRandomColor(); //Random colorize the title
+    }
+}
+colorizeThePages();
+
+function getRandomColor() {
+    let letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
