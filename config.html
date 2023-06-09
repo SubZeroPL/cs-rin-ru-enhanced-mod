@@ -80,6 +80,8 @@
                 "steam_db_link": $("#steam_db_link")[0].checked,
                 "copy_link_button": $("#copy_link_button")[0].checked,
                 "dynamic_function": $("#dynamic_function")[0].checked,
+                "colorize_new_messages": $("#colorize_new_messages")[0].checked,
+                "colorize_the_page": $("colorize_the_page")[0].checked,
                 "display_ajax_loader": $("#display_ajax_loader")[0].checked,
                 "custom_tags": $("#custom_tags")[0].checked,
                 "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
@@ -88,7 +90,6 @@
                 "hide_scs": Number($("#hide_scs")[0].value),
                 "apply_in_scs": $("#apply_in_scs")[0].checked,
                 "topic_title_format": $("#topic_title_format")[0].value,
-                "colorize_new_messages": $("#colorize_new_messages")[0].checked,
                 "topic_preview": $("#topic_preview")[0].checked,
                 "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value)
             };
@@ -264,6 +265,16 @@
                         </td>
                     </tr>
                     <tr>
+                        <td title="Activate to change the color of messages (if any) to red">
+                            <input type="checkbox" id="colorize_new_messages" data-originalValue=""></input>
+                            <label for="colorize_new_messages">Colorize new messages received in red</label>
+                        </td>
+                        <td title="Activate to add a bit of color to the page">
+                            <input type="checkbox" id="colorize_the_page" data-originalValue=""></input>
+                            <label for="colorize_the_page">Adds a bit of color to the page</label>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>
                             <input type="checkbox" id="display_ajax_loader" data-originalValue=""></input>
                             <label for="display_ajax_loader">Display Ajax loader</label>
@@ -321,10 +332,6 @@
                                 title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %F - standard forum name (CS.RIN.RU - Steam Underground Community)&#10; %T - topic title&#10; %RT - topic title topic title without tags in square brackets"></input>
                         </td>
                     </tr>
-                         <td title="Activate to change the color of messages (if any) to red">
-                            <input type="checkbox" id="colorize_new_messages" data-originalValue=""></input>
-                            <label for="colorize_new_messages">Colorize new messages received in red</label>
-                        </td>
                 </table>
             </fieldset>
         </fieldset>
