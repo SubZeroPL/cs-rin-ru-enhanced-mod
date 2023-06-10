@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.15
+// @version      0.6.16
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -790,11 +790,14 @@ function colorizeThePages() {
 
 colorizeThePages();
 
+//function getRandomColor() {
+//    let letters = '0123456789ABCDEF';
+//    let color = '#';
+//    for (let i = 0; i < 6; i++) {
+//        color += letters[Math.floor(Math.random() * 16)];
+//    }
+//    return color;
+//}
 function getRandomColor() {
-    let letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+    return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
