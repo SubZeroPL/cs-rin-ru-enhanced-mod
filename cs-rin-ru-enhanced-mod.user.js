@@ -784,20 +784,8 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB" // User Control Panel
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA" // Search
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#FF0000" // Logout
-        document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = getRandomColor(); // Random colour for the title
+        document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = '#' + Math.floor(Math.random() * 16777215).toString(16); // Random colour for the title
     }
 }
 
 colorizeThePages();
-
-//function getRandomColor() {
-//    let letters = '0123456789ABCDEF';
-//    let color = '#';
-//    for (let i = 0; i < 6; i++) {
-//        color += letters[Math.floor(Math.random() * 16)];
-//    }
-//    return color;
-//}
-function getRandomColor() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16);
-}
