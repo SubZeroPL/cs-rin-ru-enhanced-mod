@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.17
+// @version      0.6.18
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -601,7 +601,7 @@ function AddShoutbox() {
         let button = document.createElement("button");
         button.innerHTML = "Show Chat";
         //button.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 5%; height: 3%;";
-        button.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 5%; height: 3%; z-index: 9999;";
+        button.style.cssText = "position: fixed; bottom: 0%; right: 0%; min-height: 40px; min-width: 50px; width: 5%; height: 3%; z-index: 9999;";
         button.addEventListener("click", function () {
             if (document.getElementById("chatDiv") === null) {
                 button.innerHTML = "Hide Chat";
@@ -644,7 +644,7 @@ Made by Altansar
 function createChatContainer() {
     // Create a container for the chat
     let chatContainer = document.createElement("div");
-    chatContainer.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 25%; height: 70%; overflow-y: scroll; background-color:#1c1c1c; border:0.5em solid black";
+    chatContainer.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 25%; min-width: 400px; height: 70%; overflow-y: scroll; background-color:#1c1c1c; border:0.5em solid black";
     chatContainer.id = "chatDiv";
     document.body.appendChild(chatContainer);
     //Loading text
