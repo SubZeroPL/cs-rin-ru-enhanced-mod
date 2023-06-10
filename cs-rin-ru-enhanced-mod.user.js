@@ -1,27 +1,30 @@
 /* eslint-env jquery */
 
 // ==UserScript==
-// @name         CS.RIN.RU Enhanced
-// @name:fr      CS.RIN.RU Amélioré
-// @namespace    Royalgamer06
-// @version      0.7.1
-// @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
+// @name            CS.RIN.RU Enhanced
+// @name:fr         CS.RIN.RU Amélioré
+// @name:pt         CS.RIN.RU Melhorado
+// @namespace       Royalgamer06
+// @version         0.7.2
+// @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
-// @author       Royalgamer06 (modified by SubZeroPL)
-// @match        *://cs.rin.ru/forum/*
-// @match        *://csrinrutkb3tshptdctl5lyei4et35itl22qvk5ktdcat6aeavy6nhid.onion/forum/*
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
-// @grant        GM_addStyle
-// @grant        GM_xmlhttpRequest
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// @grant        GM_notification
-// @run-at       document-idle
-// @homepageURL  https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod
-// @supportURL   https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
-// @updateURL    https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
-// @downloadURL  https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
+// @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
+// @author          Royalgamer06 (modified by SubZeroPL)
+// @match           *://cs.rin.ru/forum/*
+// @match           *://csrinrutkb3tshptdctl5lyei4et35itl22qvk5ktdcat6aeavy6nhid.onion/forum/*
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
+// @icon            https://i.ibb.co/p1k6cq6/image.png
+// @grant           GM_addStyle
+// @grant           GM_xmlhttpRequest
+// @grant           GM_setValue
+// @grant           GM_getValue
+// @grant           GM_deleteValue
+// @grant           GM_notification
+// @run-at          document-idle
+// @homepageURL     https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod
+// @supportURL      https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
+// @updateURL       https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
+// @downloadURL     https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js
 
 // ==/UserScript==
 
