@@ -197,7 +197,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     $(page[0]).find("tbody:first").find("tr:first").remove();
                     $(selector).last().after(page);
                     $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
-                    functionsCalledByUnfiniteScrolls(data);
+                    functionsCalledByInfiniteScrolls(data);
                     nextElem = $(navElem).find("strong").next().next();
                     nextPage = $(nextElem).attr("href");
                     if (nextElem.length === 0 && URLContains("viewtopic.php")) { //if you're on the last page and on viewtopic
@@ -246,7 +246,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                             const scrollPosition = top - $(window).height();
                             $('html, body').animate({scrollTop: scrollPosition}, 0);
                             $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
-                            functionsCalledByUnfiniteScrolls(data);
+                            functionsCalledByInfiniteScrolls(data);
                             prevElem = $(navElem).find("strong").prev().prev();
                             prevPage = $(prevElem).attr("href");
                             if (URLContains("viewtopic.php")) {
@@ -272,8 +272,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
     }
 }
 
-function functionsCalledByUnfiniteScrolls(data)
-{
+function functionsCalledByInfiniteScrolls(data) {
     dynamicFunction(data);
     mentionify();
     tagify();
@@ -658,6 +657,7 @@ function AddShoutbox() {
         }
     }
 }
+
 AddShoutbox();
 
 /*
@@ -745,6 +745,7 @@ function addUsersTag() {
         }
     }
 }
+
 addUsersTag()
 
 /*
@@ -759,37 +760,39 @@ function goToUnreadPosts() {
         });
     }
 }
+
 goToUnreadPosts();
 
 /*
 Made by Altansar
 */
 function changeColorOfNewMessage() {
-    if(options.colorize_new_messages) {
+    if (options.colorize_new_messages) {
         const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)");
-        if(!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
+        if (!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
             menuBar.style.color = "red"; // We colorize in the color wanted by users
-        }
-        else {
+        } else {
             menuBar.style.color = "#AAAAAA"; // We decolorize the messages
         }
     }
 }
+
 changeColorOfNewMessage();
 
 function colorizeThePages() {
-    if(options.colorize_the_page) {
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color="#FFC200" // Donate
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#FFA07A" // Forum Rules
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#90EE90" // FAQ
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color="#87CEEB" // User Control Panel
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color="#4169E1" // Members
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color="#FF0000" // Logout
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="#87CEFA" // Search
-        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color="#98FB98" // Chat
-        document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color=getRandomColor(); // Random colour for the title
+    if (options.colorize_the_page) {
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#FFC200" // Donate
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#FFA07A" // Forum Rules
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90" // FAQ
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB" // User Control Panel
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1" // Members
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#FF0000" // Logout
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA" // Search
+        document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#98FB98" // Chat
+        document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = getRandomColor(); // Random colour for the title
     }
 }
+
 colorizeThePages();
 
 function getRandomColor() {
