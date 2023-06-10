@@ -674,15 +674,10 @@ function createChatContainer() {
     const p = document.createElement("p");
     p.appendChild(loading);
     chatContainer.appendChild(p);
-    p.style.position = "absolute";
-    p.style.left = "0";
-    p.style.right = "0";
-    p.style.top = "20%";
-    p.style.transform = "translateY(-50%)";
-    p.style.textAlign = "center";
-    p.style.color = "white";
-    p.style.fontSize = "500%";
+    p.style.cssText = "position: absolute; left: 0; right: 0; top: 20%; transform: translateY(-50%); text-align: center; color: white; font-size: 500%;";
 }
+
+
 
 /*
 Made by Redpoint
