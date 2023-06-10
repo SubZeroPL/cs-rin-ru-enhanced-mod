@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.7.0
+// @version      0.7.1
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -439,10 +439,11 @@ function setupPageTitle() {
     let pageTitle;
     if (fullTitle.length === 1) {
         sectionTitle = "";
-        pageTitle = fullTitle[0].trim();
+        pageTitle = $("a.titles").length > 0 ? $("a.titles").text() : fullTitle[0].trim();
+
     } else {
         sectionTitle = fullTitle[0].trim();
-        pageTitle = fullTitle[1].trim();
+        pageTitle = $("a.titles").length > 0 ? $("a.titles").text() : fullTitle[1].trim();
     }
     const pageTitleWithoutTags = pageTitle.replace(/\[[^\]]*]/g, '');
     document.title = options.title_format
