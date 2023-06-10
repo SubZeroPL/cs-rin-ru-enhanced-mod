@@ -4,7 +4,7 @@
 // @name         CS.RIN.RU Enhanced
 // @name:fr      CS.RIN.RU Amélioré
 // @namespace    Royalgamer06
-// @version      0.6.18
+// @version      0.7.0
 // @description  Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @author       Royalgamer06 (modified by SubZeroPL)
@@ -67,7 +67,7 @@ let options = {
     "custom_tags": true,
     "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
     "apply_in_scs": false,
-    "topic_title_format": "%F • View topic - %T", // %F - forum name, %T - topic title, %RT - topic title without tags in square brackets
+    "title_format": "%C %S - %T", // %C: CS.RIN.RU - Steam Underground Community •, %S: Section title (e.g. View topic), %T: Page title, %RT Page title without tags
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "steam_db_link": true,
@@ -114,7 +114,7 @@ function loadConfigButton() {
             $("input#go_to_unread_posts")[0].checked = options.go_to_unread_posts;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
-            $("input#topic_title_format")[0].value = options.topic_title_format;
+            $("input#title_format")[0].value = options.title_format;
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
 
@@ -428,16 +428,28 @@ function URLParam(name) {
 /*
 Made by SubZeroPL
 %RT added by Altansar
+Remade to apply to all pages by Redpoint
 */
 function setupPageTitle() {
     const currentTitle = document.title;
-    // CS.RIN.RU - Steam Underground Community • View topic - Suggestion = forum setting (bookmark)
-    if (currentTitle.indexOf("View topic") > -1) { // only change titles for topic pages
-        const topicTitle = $("a.titles").text();
-        const topicTitleWithoutTag = topicTitle.replace(/\[.*?]/g, '').trim();
-        const format = options.topic_title_format;
-        document.title = format.replace('%F', FORUM_NAME).replace('%T', topicTitle).replace('%RT', topicTitleWithoutTag);
+    const cs = currentTitle.split("•")[0] + " •";
+    const remainder = currentTitle.substring(currentTitle.indexOf("•") + 1);
+    const fullTitle = remainder.split(/[-•]/);
+    let sectionTitle;
+    let pageTitle;
+    if (fullTitle.length === 1) {
+        sectionTitle = "";
+        pageTitle = fullTitle[0].trim();
+    } else {
+        sectionTitle = fullTitle[0].trim();
+        pageTitle = fullTitle[1].trim();
     }
+    const pageTitleWithoutTags = pageTitle.replace(/\[[^\]]*]/g, '');
+    document.title = options.title_format
+        .replace("%C", cs)
+        .replace("%S", sectionTitle)
+        .replace("%T", pageTitle)
+        .replace("%RT", pageTitleWithoutTags);
 }
 
 setupPageTitle();

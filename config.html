@@ -89,7 +89,7 @@
                 "go_to_unread_posts": $("#go_to_unread_posts")[0].checked,
                 "hide_scs": Number($("#hide_scs")[0].value),
                 "apply_in_scs": $("#apply_in_scs")[0].checked,
-                "topic_title_format": $("#topic_title_format")[0].value,
+                "title_format": $("#title_format")[0].value,
                 "topic_preview": $("#topic_preview")[0].checked,
                 "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value)
             };
@@ -327,9 +327,9 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <label for="topic_title_format">Window/tab title for topic pages</label>
-                            <input type="text" id="topic_title_format" data-originalValue="" value="%F • View topic - %T"
-                                title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %F - standard forum name (CS.RIN.RU - Steam Underground Community)&#10; %T - topic title&#10; %RT - topic title topic title without tags in square brackets"></input>
+                            <label for="title_format">Window/tab title for topic pages</label>
+                            <input type="text" id="title_format" data-originalValue="" value="%C %S - %T"
+                                title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %C - standard forum name (CS.RIN.RU - Steam Underground Community •)&#10; %S - Section title&#10; %T - Page title &#10;%RT - Page title without tags"></input>
                         </td>
                     </tr>
                 </table>
