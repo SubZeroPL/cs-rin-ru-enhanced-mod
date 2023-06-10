@@ -555,6 +555,7 @@ function steamdbLink() {
         }
     }
 }
+
 steamdbLink();
 
 /*
@@ -582,8 +583,6 @@ function addLink() {
                 setTimeout(function () {
                     copied.fadeOut();
                 }, 2000);
-
-
             });
         });
     }
