@@ -595,7 +595,7 @@ function steamDBLink() {
             let DBlink = `https://steamdb.info/app/${steamLink}${slash ? '/' : ''}`;
             let j = i;
             console.log($(postlinks[j]).next().prop("tagName") !== "BR");
-            while ((j + 1 < postlinks.length) && (postlinks[j].getBoundingClientRect().y === postlinks[j + 1].getBoundingClientRect().y) && (postlinks[j].nextSibling !== null && $(postlinks[j]).next().prop("tagName") !== "BR")) {
+            while ((j + 1 < postlinks.length) && (postlinks[j].getBoundingClientRect().y === postlinks[j + 1].getBoundingClientRect().y) && (postlinks[j].nextSibling !== null && postlinks[j].nextSibling.tagName !== "BR")) {
                 j++;
             }
 
