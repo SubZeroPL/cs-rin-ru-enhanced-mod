@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.2
+// @version         0.7.3
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -557,10 +557,13 @@ function steamdbLink() {
         if (steamLink.match("://store.steampowered.com/app")) {
             let slash = steamLink.endsWith('/');
             steamLink = slash ? steamLink.slice(0, -1) : steamLink;
-            if (steamLink.substring(steamLink.length - 2).match(/[^0-9]/g)) {
-                steamLink = steamLink.substring(0, steamLink.lastIndexOf('/'))
+            let splits = steamLink.split("/");
+            if (splits[splits.length - 1].match(/^[0-9]+$/)) {
+                steamLink = splits[splits.length - 1];
+            } else if (splits[splits.length - 2].match(/^[0-9]+$/)) {
+                steamLink = splits[splits.length - 2];
             }
-            let DBlink = `https://steamdb.info/app/${steamLink.substring(steamLink.lastIndexOf('/') + 1)}${slash ? '/' : ''}`;
+            let DBlink = `https://steamdb.info/app/${steamLink}${slash ? '/' : ''}`;
             while ((i + 1 < postlinks.length) && (postlinks[i].getBoundingClientRect().y === postlinks[i + 1].getBoundingClientRect().y)) {
                 i++;
             }
