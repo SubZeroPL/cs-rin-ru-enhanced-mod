@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.5
+// @version         0.7.6
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -595,7 +595,7 @@ function steamDBLink() {
             let DBlink = `https://steamdb.info/app/${steamLink}${slash ? '/' : ''}`;
             let j = i;
             console.log($(postlinks[j]).next().prop("tagName") !== "BR");
-            while ((j + 1 < postlinks.length) && (postlinks[j].getBoundingClientRect().y === postlinks[j + 1].getBoundingClientRect().y) && postlinks[j].nextSibling !== null) {
+            while ((j + 1 < postlinks.length) && (postlinks[j].getBoundingClientRect().y === postlinks[j + 1].getBoundingClientRect().y) && (postlinks[j].nextSibling !== null && postlinks[j].nextSibling.tagName === "BR")) {
                 j++;
             }
             console.log("i: " + i + " j: " + j);
