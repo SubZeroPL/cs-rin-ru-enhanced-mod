@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.7
+// @version         0.7.8
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -695,7 +695,7 @@ Made by Altansar
 function createChatContainer() {
     // Create a container for the chat
     let chatContainer = document.createElement("div");
-    chatContainer.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 25%; min-width: 400px; height: 70%; overflow-y: scroll; background-color:#1c1c1c; border:0.5em solid black";
+    chatContainer.style.cssText = "position: fixed; bottom: 0%; right: 0%; width: 25%; min-width: 425px; height: 70%; overflow-y: scroll; background-color:#1c1c1c; border:0.5em solid black";
     chatContainer.id = "chatDiv";
     document.body.appendChild(chatContainer);
     //Loading text
