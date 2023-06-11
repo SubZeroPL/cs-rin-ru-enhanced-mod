@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.6
+// @version         0.7.7
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -595,9 +595,10 @@ function steamDBLink() {
             let DBlink = `https://steamdb.info/app/${steamLink}${slash ? '/' : ''}`;
             let j = i;
             console.log($(postlinks[j]).next().prop("tagName") !== "BR");
-            while ((j + 1 < postlinks.length) && (postlinks[j].getBoundingClientRect().y === postlinks[j + 1].getBoundingClientRect().y) && (postlinks[j].nextSibling !== null && postlinks[j].nextSibling.tagName === "BR")) {
+            while ((j + 1 < postlinks.length) && (postlinks[j].getBoundingClientRect().y === postlinks[j + 1].getBoundingClientRect().y) && (postlinks[j].nextSibling !== null && $(postlinks[j]).next().prop("tagName") !== "BR")) {
                 j++;
             }
+
             console.log("i: " + i + " j: " + j);
             if ((j + 1 === postlinks.length) || !postlinks[j + 1].text.match(DBlink)) {
                 postlinks[j].insertAdjacentHTML("afterend", "<a href=" + DBlink + " class=\"postlink\" rel=\"nofollow\">" + DBlink + "</a>"); // Write the link (right part)
