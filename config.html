@@ -86,7 +86,7 @@
                 "custom_tags": $("#custom_tags")[0].checked,
                 "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
                 "add_users_tag": $("#add_users_tag")[0].checked,
-                "go_to_unread_posts": $("#go_to_unread_posts")[0].checked,
+                "go_to_unread_posts": $("#go_to_unread_posts")[0].value,
                 "hide_scs": Number($("#hide_scs")[0].value),
                 "apply_in_scs": $("#apply_in_scs")[0].checked,
                 "title_format": $("#title_format")[0].value,
@@ -294,10 +294,14 @@
                             <label for="add_users_tag">Add users tag</label>
                         </td>
                     </tr>
-                    <tr>
+                    <tr title="•Don't go -> means that clicking on a topic title will take you to the first page.&#10;• Go to -> means that clicking on a topic title will lead to unread posts.&#10;• Go to + preview -> means that clicking on a topic title will lead to the unread posts and that moving the mouse over it with the 'show topic preview' option will display the unread posts.">
                         <td>
-                            <input type="checkbox" id="go_to_unread_posts" data-originalValue=""></input>
-                            <label for="go_to_unread_posts">Go to unread posts</label>
+                            <label for="go_to_unread_posts">Go to unread post</label>
+                            <select id="go_to_unread_posts" data-originalValue="">
+                                <option value="0">Don't go</option>
+                                <option value="1">Go to</option>
+                                <option value="2">Go to + preview</option>
+                            </select>
                         </td>
                     </tr>
                     <tr>
