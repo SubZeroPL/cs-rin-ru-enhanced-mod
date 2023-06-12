@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.9
+// @version         0.7.10
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -459,16 +459,25 @@ function setupPageTitle() {
 setupPageTitle();
 
 let showPreview = true;
-let tid = 0;
+let preview = 0;
 
 /*
 Made by SubZeroPL
 displays preview of first post from topic that mouse cursor points
 */
+
+// Custom parseHTML function that does not use innerHTML
+function parseHTML(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    return doc.body.children;
+}
+
 function setupTopicPreview() {
     if (!options.topic_preview) return;
     $("a.topictitle").each((_, e) => {
         const topic = $(e)[0];
+        let tid;
         $(topic).on("mouseover", () => {
             showPreview = true;
             $("div#topic_preview").hide();
@@ -482,9 +491,11 @@ function setupTopicPreview() {
                     url: topic.href, onerror: (r) => {
                         console.log("Error loading page: " + r);
                     }, onload: (r) => {
-                        const dom = $.parseHTML(r.responseText);
+                        // Use custom parseHTML function instead of $.parseHTML
+                        const dom = parseHTML(r.responseText);
                         const body = $(dom).find("div#pagecontent table.tablebg")[1].outerHTML;
-                        const bodyObj = $.parseHTML(body)[0];
+                        // Use custom parseHTML function instead of $.parseHTML
+                        const bodyObj = parseHTML(body)[0];
                         if ($("div#topic_preview").length > 0) {
                             const tip = $("div#topic_preview");
                             tip.html(bodyObj);
@@ -513,6 +524,7 @@ function setupTopicPreview() {
                             });
                         }
                         addUsersTag();
+                        steamDBLink();
                     }
                 });
             }, options.topic_preview_timeout * 1000);
@@ -534,8 +546,7 @@ function addUsersTag() {
     if (options.add_users_tag) {
         const steamLink = $('a[href^="https://store.steampowered.com/app/"], a[href^="http://store.steampowered.com/app/"]').first()[0];
         if (steamLink != null) {
-            let textContent = $(steamLink).nextAll('br').first().next().text();
-            if (textContent === "Genre(s):") { //if we are on the game presentation page
+            if ($(":contains('Genre(s):')").filter((i, e) => $(e).text() === "Genre(s):").length > 0) { // If we are on the game presentation page
                 // Get the link to the Steam game page
                 const link = steamLink.href;
                 // Send a request to the Steam game page and bypass CSP
