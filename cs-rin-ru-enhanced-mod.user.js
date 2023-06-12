@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.12
+// @version         0.7.13
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -284,6 +284,7 @@ function functionsCalledByInfiniteScrolls(data) {
     addLink();
     steamDBLink();
     goToUnreadPosts();
+    friend();
 }
 
 
@@ -308,7 +309,7 @@ Changes made by Altansar to avoid ban ip
 let intervalID;
 
 function allDynamicFunction() {
-    if (options.dynamic_function) { //If at least one dynamic function is active
+    if (options.dynamic_function) { //If dynamic function is active
         // set up event listener for visibility change
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === "visible") { //If the page becomes visible
@@ -344,6 +345,7 @@ function dynamicFunction(data) {
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html()); //Message
     changeColorOfNewMessage();//Colorize messages
+        friend();
     if (URLContains("viewtopic.php")) { //Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
@@ -790,3 +792,21 @@ function colorizeThePages() {
 }
 
 colorizeThePages();
+
+function friend()
+{
+    if(URLContains("index.php"))
+    {
+        if(document.querySelectorAll(".gensmall")[3].lastElementChild.text!=="Friends")
+        {
+            const friends = document.createElement('a');
+            friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
+            friends.style.color = '#f4169b';
+            friends.innerText = 'Friends';
+            const selector = document.querySelectorAll(".gensmall")[3];
+            selector.append(", ");
+            selector.append(friends);
+        }
+    }
+}
+friend();
