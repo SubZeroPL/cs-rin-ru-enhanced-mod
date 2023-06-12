@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.11
+// @version         0.7.12
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -77,7 +77,7 @@ let options = {
     "copy_link_button": true,
     "add_small_shoutbox": true,
     "add_users_tag": true,
-    "go_to_unread_posts": true
+    "go_to_unread_posts": 1 //0= dont go, 1=go to, 2=go to + preview
 };
 
 function loadConfig() {
@@ -114,7 +114,7 @@ function loadConfigButton() {
             $("input#custom_tags")[0].checked = options.custom_tags;
             $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
             $("input#add_users_tag")[0].checked = options.add_users_tag;
-            $("input#go_to_unread_posts")[0].checked = options.go_to_unread_posts;
+            $("select#go_to_unread_posts")[0].options.selectedIndex = options.go_to_unread_posts;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#title_format")[0].value = options.title_format;
@@ -487,8 +487,10 @@ function setupTopicPreview() {
                 const previewHeight = window.innerHeight * 0.75;
                 const x = (window.innerWidth / 2) - (previewWidth / 2);
                 const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
+                var link = topic.href;
+                if(options.go_to_unread_posts===1) link=link.substring(0,link.length-19);
                 GM_xmlhttpRequest({
-                    url: topic.href, onerror: (r) => {
+                    url: link, onerror: (r) => {
                         console.log("Error loading page: " + r);
                     }, onload: (r) => {
                         // Use custom parseHTML function instead of $.parseHTML
@@ -746,7 +748,7 @@ function fetchChat() {
 Made by Altansar
 */
 function goToUnreadPosts() {
-    if (options.go_to_unread_posts) {
+    if (options.go_to_unread_posts >= 1) {
         document.querySelectorAll(".titles:not(:first-child), .topictitle").forEach(element => {
             if (element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') { //If we don't already have added unread
                 element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
