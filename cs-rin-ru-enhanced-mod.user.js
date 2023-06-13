@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.14
+// @version         0.7.15
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -56,6 +56,20 @@ function getBaseUrl() {
 
 const FORUM_BASE_URL = getBaseUrl();
 
+//Contains the list of friends
+const FRIENDS_LIST = [];
+
+//Retrieve friends list
+async function retrievesFriendsLists() {
+    await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends")
+        .then(response => response.text())
+        .then(text => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(text, "text/html");
+            FRIENDS_LIST.push(...Array.from(doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select').children, node => node.innerText));
+        });
+}
+
 /*
 Configuration array with default values.
 */
@@ -64,6 +78,7 @@ let options = {
     "infinite_scrolling": true,
     "mentioning": true,
     "dynamic_function": true,
+    "colorize_friends": true,
     "colorize_new_messages": true,
     "colorize_the_page": true,
     "display_ajax_loader": true,
@@ -108,6 +123,7 @@ function loadConfigButton() {
             $("input#steam_db_link")[0].checked = options.steam_db_link;
             $("input#copy_link_button")[0].checked = options.copy_link_button;
             $("input#dynamic_function")[0].checked = options.dynamic_function;
+            $("input#colorize_friends")[0].checked = options.colorize_friends;
             $("input#colorize_new_messages")[0].checked = options.colorize_new_messages;
             $("input#colorize_the_page")[0].checked = options.colorize_the_page;
             $("input#display_ajax_loader")[0].checked = options.display_ajax_loader;
@@ -284,7 +300,7 @@ function functionsCalledByInfiniteScrolls(data) {
     addLink();
     steamDBLink();
     goToUnreadPosts();
-    friend();
+    colorizeFriends();
 }
 
 
@@ -345,7 +361,7 @@ function dynamicFunction(data) {
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html()); //Message
     changeColorOfNewMessage();//Colorize messages
-    friend();
+    colorizeFriends();
     if (URLContains("viewtopic.php")) { //Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
@@ -491,6 +507,7 @@ function setupTopicPreview() {
                         const parser = new DOMParser();
                         const dom = parser.parseFromString(r.responseText, "text/html").body.children;
                         const body = $(dom).find("div#pagecontent table.tablebg")[1].outerHTML;
+                        // Use custom parseHTML function instead of $.parseHTML
                         const bodyObj = parser.parseFromString(body, "text/html").body.children[0];
                         if ($("div#topic_preview").length > 0) {
                             const tip = $("div#topic_preview");
@@ -576,8 +593,8 @@ function addUsersTag() {
 addUsersTag()
 
 /*
-Made by Altansar
-Remade by Redpoint
+Originally made by Altansar
+Completely remade by Redpoint
 */
 function steamDBLink() {
     if (!options.steam_db_link || this.value === "Show") {
@@ -734,6 +751,9 @@ function fetchChat() {
             let script = document.createElement("script");
             script.innerHTML = originalScript.innerHTML;
             chatContainer.appendChild(script);
+        })
+        .then(() => {
+            colorizeFriends();
         });
 }
 
@@ -784,18 +804,30 @@ function colorizeThePages() {
 
 colorizeThePages();
 
-function friend() {
-    if (URLContains("index.php")) {
-        if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
-            const friends = document.createElement('a');
-            friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
-            friends.style.color = '#f4169b';
-            friends.innerText = 'Friends';
-            const selector = document.querySelectorAll(".gensmall")[3];
-            selector.append(", ");
-            selector.append(friends);
+//Color friends pink
+async function colorizeFriends() {
+    if(options.colorize_friends) {
+        //Add legends friends
+        if(URLContains("index.php")) {
+            if(document.querySelectorAll(".gensmall")[3].lastElementChild.text!=="Friends") {
+                const friends = document.createElement('a');
+                friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
+                friends.style.color = '#f4169b';
+                friends.innerText = 'Friends';
+                const selector = document.querySelectorAll(".gensmall")[3];
+                selector.append(", ");
+                selector.append(friends);
+            }
         }
+        //Colorize friends
+        await retrievesFriendsLists();
+        const links = document.querySelectorAll("a[href^='./memberlist.php'], .postauthor, .gen");
+        links.forEach(link => {
+            if(FRIENDS_LIST.includes(link.innerText)) {
+                link.id="colorize";
+                link.style.color='#f4169b';
+            }
+        });
     }
 }
-
-friend();
+colorizeFriends();
