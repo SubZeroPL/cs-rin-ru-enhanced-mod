@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.13
+// @version         0.7.14
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -345,7 +345,7 @@ function dynamicFunction(data) {
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html()); //Message
     changeColorOfNewMessage();//Colorize messages
-        friend();
+    friend();
     if (URLContains("viewtopic.php")) { //Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
@@ -468,13 +468,6 @@ Made by SubZeroPL
 displays preview of first post from topic that mouse cursor points
 */
 
-// Custom parseHTML function that does not use innerHTML
-function parseHTML(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    return doc.body.children;
-}
-
 function setupTopicPreview() {
     if (!options.topic_preview) return;
     $("a.topictitle").each((_, e) => {
@@ -489,17 +482,16 @@ function setupTopicPreview() {
                 const previewHeight = window.innerHeight * 0.75;
                 const x = (window.innerWidth / 2) - (previewWidth / 2);
                 const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
-                var link = topic.href;
-                if(options.go_to_unread_posts===1) link=link.substring(0,link.length-19);
+                let link = topic.href;
+                if (options.go_to_unread_posts === 1) link = link.substring(0, link.length - 19);
                 GM_xmlhttpRequest({
                     url: link, onerror: (r) => {
                         console.log("Error loading page: " + r);
                     }, onload: (r) => {
-                        // Use custom parseHTML function instead of $.parseHTML
-                        const dom = parseHTML(r.responseText);
+                        const parser = new DOMParser();
+                        const dom = parser.parseFromString(r.responseText, "text/html").body.children;
                         const body = $(dom).find("div#pagecontent table.tablebg")[1].outerHTML;
-                        // Use custom parseHTML function instead of $.parseHTML
-                        const bodyObj = parseHTML(body)[0];
+                        const bodyObj = parser.parseFromString(body, "text/html").body.children[0];
                         if ($("div#topic_preview").length > 0) {
                             const tip = $("div#topic_preview");
                             tip.html(bodyObj);
@@ -566,7 +558,6 @@ function addUsersTag() {
                         // Extract the text content of each tag and join them with a comma and a space
                         const genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
                         // Modify the original page by adding a new line with the genres
-                        // const br = document.querySelector("#pagecontent > table:nth-child(" + child + ") > tbody > tr:nth-child(3) > td:nth-child(2) > table > tbody > tr > td > div > br:nth-child(16)");
                         const br = $('span[style="font-weight: bold"]:contains("Genre(s):")').next()[0];
                         const span = document.createElement("span");
                         span.style.fontWeight = "bold";
@@ -793,12 +784,9 @@ function colorizeThePages() {
 
 colorizeThePages();
 
-function friend()
-{
-    if(URLContains("index.php"))
-    {
-        if(document.querySelectorAll(".gensmall")[3].lastElementChild.text!=="Friends")
-        {
+function friend() {
+    if (URLContains("index.php")) {
+        if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
             const friends = document.createElement('a');
             friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
             friends.style.color = '#f4169b';
@@ -809,4 +797,5 @@ function friend()
         }
     }
 }
+
 friend();

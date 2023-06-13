@@ -14,7 +14,7 @@
 
     function showMessage(id, text) {
         const container = $("#messages")[0];
-        if ($(`div#msg${id}`).length == 0) {
+        if ($(`div#msg${id}`).length === 0) {
             const msg = document.createElement('div');
             msg.id = `msg${id}`;
             msg.className = 'message';
@@ -26,7 +26,7 @@
 
     function hideMessage(id) {
         $(`div#msg${id}`).remove();
-        if ($(".message").length == 0) {
+        if ($(".message").length === 0) {
             $("#messages").hide();
         }
     }
@@ -294,13 +294,13 @@
                             <label for="add_users_tag">Add users tag</label>
                         </td>
                     </tr>
-                    <tr title="•Don't go -> means that clicking on a topic title will take you to the first page.&#10;• Go to -> means that clicking on a topic title will lead to unread posts.&#10;• Go to + preview -> means that clicking on a topic title will lead to the unread posts and that moving the mouse over it with the 'show topic preview' option will display the unread posts.">
+                    <tr title="•First post -> means that clicking on a topic title will take you to the first page.&#10;• Unread post -> means that clicking on a topic title will lead to unread posts.&#10;• Unread post + preview -> means that clicking on a topic title will lead to the unread posts and that moving the mouse over it with the 'show topic preview' option will display the unread posts.">
                         <td>
-                            <label for="go_to_unread_posts">Go to unread post</label>
+                            <label for="go_to_unread_posts">Change topic link</label>
                             <select id="go_to_unread_posts" data-originalValue="">
-                                <option value="0">Don't go</option>
-                                <option value="1">Go to</option>
-                                <option value="2">Go to + preview</option>
+                                <option value="0">First post</option>
+                                <option value="1">Unread post</option>
+                                <option value="2">Unread post + preview</option>
                             </select>
                         </td>
                     </tr>
