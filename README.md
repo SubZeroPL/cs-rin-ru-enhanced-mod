@@ -27,6 +27,7 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - dynamically refresh: the current time, who is online, received messages (dynamic_function)
 - colors messages in red if you have an unread message (colorize_new_messages)
 - colorize several elements on the page (colorize_the_page)
+- colorize your friends for easy recognition (colorize_friends)
 
 ## TODO (planned features):
 see: [issues](https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues)
