@@ -640,11 +640,12 @@ function addLink() {
             const postElem = $(this).parents().eq(7);
             const postId = $(postElem).find("a[name]").attr("name").slice(1);
             $(this).append("<a href='javascript:void(0);'><img src='https://i.imgur.com/WlKpJzR.png' alt='Copy the link into the clipboard' title='Copy the link into the clipboard'>");
-            $(this).on("click", function () {
+            const bar = this;
+            $(this).find('[title="Copy the link into the clipboard"]').on("click", function () {
                 const url = FORUM_BASE_URL + `viewtopic.php?p=${postId}#p${postId}`;
                 navigator.clipboard.writeText(url);
                 const copied = $('<span class="copied">Copied!</span>');
-                const child = $(this).find("[href='javascript:void(0);']");
+                const child = $(bar).find("[href='javascript:void(0);']");
                 copied.css({
                     'position': 'absolute',
                     'top': child.offset().top - copied.outerHeight() - 20,
@@ -655,6 +656,7 @@ function addLink() {
                     copied.fadeOut();
                 }, 2000);
             });
+
         });
     }
 }
