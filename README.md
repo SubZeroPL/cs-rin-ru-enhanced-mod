@@ -17,7 +17,7 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - filtering also in SCS section
 - configuration window (script adds button to open configuration window in upper-right corner of browser window)
 - option to enable/disable whole script
-- option for custom title formatting
+- option for custom title formatting (title_format)
 - topic preview (when checked displays preview of first post from topic that mouse cursor points to with configurable delay)
 - steamdb link added below each steam link (steam_db_link)
 - copy the link of a message (copy_link_button)
@@ -25,6 +25,9 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - adds popular user tags below the official steam tags under a game presentation (add_users_tag)
 - goes to unread posts directly by clicking on a topic title (go_to_unread_posts)
 - dynamically refresh: the current time, who is online, received messages (dynamic_function)
+- colors messages in red if you have an unread message (colorize_new_messages)
+- colorize several elements on the page (colorize_the_page)
+- colorize your friends for easy recognition (colorize_friends)
 
 ## TODO (planned features):
 see: [issues](https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues)
