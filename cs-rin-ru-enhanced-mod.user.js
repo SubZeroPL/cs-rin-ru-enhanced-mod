@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.16
+// @version         0.7.17
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -94,6 +94,14 @@ let options = {
     "add_users_tag": true,
     "go_to_unread_posts": 1 //0= dont go, 1=go to, 2=go to + preview
 };
+
+/*
+Color used in this script
+*/
+let color = {
+  "pink": '#f4169b'
+};
+
 
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
@@ -809,7 +817,7 @@ async function colorizeFriends() {
             if(document.querySelectorAll(".gensmall")[3].lastElementChild.text!=="Friends") {
                 const friends = document.createElement('a');
                 friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
-                friends.style.color = '#f4169b';
+                friends.style.color = color.pink;
                 friends.innerText = 'Friends';
                 const selector = document.querySelectorAll(".gensmall")[3];
                 selector.append(", ");
@@ -818,11 +826,13 @@ async function colorizeFriends() {
         }
         //Colorize friends
         await retrievesFriendsLists();
-        const links = document.querySelectorAll("a[href^='./memberlist.php'], .postauthor, .gen");
+        const links = document.querySelectorAll("a[href^='./memberlist.php'], .postauthor, .gen, .postlink-local, .quotetitle");
         links.forEach(link => {
-            if(FRIENDS_LIST.includes(link.innerText)) {
+            var nickname = link.innerText;
+            if(link.classList.contains('quotetitle')) {nickname = nickname.substr(0, nickname.length - 7);};
+            if(FRIENDS_LIST.includes(nickname)) {
                 link.id="colorize";
-                link.style.color='#f4169b';
+                link.style.color=color.pink;
             }
         });
     }
