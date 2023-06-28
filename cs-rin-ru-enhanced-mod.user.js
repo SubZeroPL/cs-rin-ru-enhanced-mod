@@ -99,7 +99,7 @@ let options = {
 Color used in this script
 */
 let color = {
-  "pink": '#f4169b'
+    "pink": '#f4169b'
 };
 
 
@@ -495,10 +495,8 @@ function setupTopicPreview() {
         const topic = $(e)[0];
         let tid;
         $(topic).off("mouseover").on("mouseover", () => {
-            var showPreview = true;
             $("div#topic_preview").hide();
             tid = setTimeout(() => {
-                if (!showPreview) return;
                 const previewWidth = window.innerWidth * 0.75;
                 const previewHeight = window.innerHeight * 0.75;
                 const x = (window.innerWidth / 2) - (previewWidth / 2);
@@ -548,7 +546,6 @@ function setupTopicPreview() {
             }, options.topic_preview_timeout * 1000);
         });
         $(topic).off("mouseleave").on("mouseleave", () => {
-            showPreview = false;
             clearTimeout(tid);
         });
     });
@@ -811,10 +808,10 @@ colorizeThePages();
 
 //Color friends pink
 async function colorizeFriends() {
-    if(options.colorize_friends) {
+    if (options.colorize_friends) {
         //Add legends friends
-        if(URLContains("index.php")) {
-            if(document.querySelectorAll(".gensmall")[3].lastElementChild.text!=="Friends") {
+        if (URLContains("index.php")) {
+            if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
                 const friends = document.createElement('a');
                 friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
                 friends.style.color = color.pink;
@@ -828,13 +825,14 @@ async function colorizeFriends() {
         await retrievesFriendsLists();
         const links = document.querySelectorAll("a[href^='./memberlist.php'], .postauthor, .gen, .postlink-local, .quotetitle");
         links.forEach(link => {
-            var nickname = link.innerText;
-            if(link.classList.contains('quotetitle')) {nickname = nickname.substr(0, nickname.length - 7);};
-            if(FRIENDS_LIST.includes(nickname)) {
-                link.id="colorize";
-                link.style.color=color.pink;
+            let nickname = link.innerText;
+            if (link.classList.contains('quotetitle')) nickname = nickname.substring(0, nickname.length - 7)
+            if (FRIENDS_LIST.includes(nickname)) {
+                link.id = "colorize";
+                link.style.color = color.pink;
             }
         });
     }
 }
+
 colorizeFriends();
