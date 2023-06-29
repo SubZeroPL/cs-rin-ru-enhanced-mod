@@ -7,8 +7,8 @@ Original version created by *Royalgamer06*, modified by _SubZeroPL_.
 - enable or disable any of the features in script code
 - mention somebody when posting (mentioning)
 - dynamically load next pages when browsing the site (infinite_scrolling)
-~~- dynamically refresh the current time (dynamic_time)~~
-~~- dynamically refresh Who Is Online (dynamic_who_is_online)~~
+- ~~dynamically refresh the current time (dynamic_time)~~
+- ~~dynamically refresh Who Is Online (dynamic_who_is_online)~~
 - see when something is dynamically loading (display_ajax_loader)
 - custom topic tags (custom_tags)
 
