@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.18
+// @version         0.7.19
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -92,7 +92,7 @@ let options = {
     "copy_link_button": true,
     "add_small_shoutbox": true,
     "add_users_tag": true,
-    "go_to_unread_posts": 1 //0= dont go, 1=go to, 2=go to + preview
+    "go_to_unread_posts": 0 //0= dont go, 1=go to, 2=go to + preview
 };
 
 /*
