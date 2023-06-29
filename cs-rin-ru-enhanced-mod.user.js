@@ -493,10 +493,12 @@ function setupTopicPreview() {
     if (!options.topic_preview) return;
     $("a.topictitle").each((_, e) => {
         const topic = $(e)[0];
-        let tid;
+        let tid, showPreview;
         $(topic).off("mouseover").on("mouseover", () => {
+            showPreview = true;
             $("div#topic_preview").hide();
             tid = setTimeout(() => {
+                if (!showPreview) return;
                 const previewWidth = window.innerWidth * 0.75;
                 const previewHeight = window.innerHeight * 0.75;
                 const x = (window.innerWidth / 2) - (previewWidth / 2);
@@ -507,6 +509,7 @@ function setupTopicPreview() {
                     url: link, onerror: (r) => {
                         console.log("Error loading page: " + r);
                     }, onload: (r) => {
+                        if (!showPreview) return;
                         const parser = new DOMParser();
                         const dom = parser.parseFromString(r.responseText, "text/html").body.children;
                         const body = $(dom).find("div#pagecontent table.tablebg")[1].outerHTML;
@@ -547,6 +550,7 @@ function setupTopicPreview() {
         });
         $(topic).off("mouseleave").on("mouseleave", () => {
             clearTimeout(tid);
+            showPreview = false;
         });
     });
 }
