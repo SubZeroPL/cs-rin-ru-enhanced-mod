@@ -200,6 +200,7 @@ INFINITE SCROLLING
 if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrolling) {
     let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; //viewforum.php
     if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; //search.php
+    if ($(selector).length === 0) selector ="#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)"; // search.php (user messages) and memberlist.php
     if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; //inbox
     if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; //viewtopic.php
     const navElem = $("[title='Click to jump to page…']").first().parent();
@@ -769,8 +770,11 @@ Made by Altansar
 function goToUnreadPosts() {
     if (options.go_to_unread_posts >= 1) {
         document.querySelectorAll(".titles:not(:first-child), .topictitle").forEach(element => {
-            if (element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') { //If we don't already have added unread
-                element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
+            if (element.getAttribute('href')) {
+                if (element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') {
+                    //If we don't already have added unread
+                    element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
+                }
             }
         });
     }
