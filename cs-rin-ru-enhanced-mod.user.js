@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.8.0
+// @version         0.8.1
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -206,17 +206,17 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
 
     const navElem = $("[title='Click to jump to page…']").first().parent();
     let nextElem = $(navElem).find("strong").next().next();
-    let nextPage = $(nextElem).attr("href");
+    let nextPage = $(nextElem).attr("href"); // Will be undefined if there is no next element
     let previousElem = $(navElem).find("strong").prev().prev();
-    let prevPage = $(previousElem).attr("href");
+    let prevPage = $(previousElem).attr("href"); // Will be undefined if there is no previous element
     let ajaxDone = true;
 
-    let scrollPos = 0;
-    let scrollLength = 0;
+    // Stuff for infinite scrolling backwards
+    let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
 
-    let navElems = {};
-    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()};
+    let navElems = {}; // Dictionary for storing nav elements for each page
+    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
         if (nextElem.length !== 0) { // If we're not on the last page
@@ -227,7 +227,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
         $(selector).parent().prepend($(".cat:has(.btnlite)").parent());
     }
 
-    $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number to elements on the page
+    $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number attribute to posts on the page upon loading
     window.addEventListener("wheel", function (e) {
         if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
             ajaxDone = false;
@@ -240,15 +240,6 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                 functionsCalledByInfiniteScrolls(data);
                 nextElem = $(navElem).find("strong").next().next();
                 nextPage = $(nextElem).attr("href");
-                if (nextElem.length === 0 && URLContains("viewtopic.php")) { //if you're on the last page and on viewtopic
-                    const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
-                    const copiedElement = originalElement.cloneNode(true);
-                    document.querySelector("#pagecontent").appendChild(copiedElement);
-                    //Retrieve the correct nav
-                    const element = document.getElementsByClassName("nav")[3];
-                    // Replace the first number with the second in the HTML code
-                    element.querySelector('strong:nth-child(1)').innerHTML = element.querySelector('strong:nth-child(2)').textContent;
-                }
                 ajaxDone = true;
             });
         }
@@ -270,11 +261,6 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     functionsCalledByInfiniteScrolls(data);
                     previousElem = $(navElem).find("strong").prev().prev();
                     prevPage = $(previousElem).attr("href");
-                    if (URLContains("viewtopic.php")) {
-                        //Retrieve the correct nav
-                        const element = document.getElementsByClassName("nav")[0];
-                        element.querySelector('strong:nth-child(1)').innerHTML = $(navElem).find("strong").text();
-                    }
                     ajaxDone = true;
                 });
                 scrollLength = 0;
@@ -282,7 +268,6 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
         } else {
             scrollLength = 0
         }
-        scrollPos = currentPosition;
 
         const posts = $(selector).toArray();
         let topElement;
@@ -294,10 +279,14 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
             }
         }
         if (topElement) {
-            const pageNumber = $(topElement).attr('page_number');
-            console.log(pageNumber);
-            $(navElem).html(navElems[pageNumber].Html);
-            console.log(navElems[pageNumber])
+            const pageNumber = $(topElement).attr('page_number'); // Get page number of top element
+            $(navElem).html(navElems[pageNumber].Html); // Update nav element
+
+            // Update number next to "Post Reply"
+            if (URLContains("viewtopic.php")) {
+                const element = document.getElementsByClassName("nav")[0];
+                element.querySelector('strong:nth-child(1)').innerHTML = pageNumber;
+            }
         }
     });
 }
