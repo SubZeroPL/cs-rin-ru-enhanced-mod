@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.8.1
+// @version         0.8.2
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -238,7 +238,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                 const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
                 navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
                 functionsCalledByInfiniteScrolls(data);
-                nextElem = $(navElem).find("strong").next().next();
+                nextElem = $(navElem).find("strong").next().next().next().next();
                 nextPage = $(nextElem).attr("href");
                 ajaxDone = true;
             });
@@ -259,7 +259,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
                     navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
                     functionsCalledByInfiniteScrolls(data);
-                    previousElem = $(navElem).find("strong").prev().prev();
+                    previousElem = $(navElem).find("strong").prev().prev().prev().prev();
                     prevPage = $(previousElem).attr("href");
                     ajaxDone = true;
                 });
