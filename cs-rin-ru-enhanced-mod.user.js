@@ -237,7 +237,6 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                 $(selector).last().after(page);
                 const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
                 navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
-                // $(navElem).html(nextNavElemHTML);
                 functionsCalledByInfiniteScrolls(data);
                 nextElem = $(navElem).find("strong").next().next();
                 nextPage = $(nextElem).attr("href");
@@ -268,7 +267,6 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
                     $('html, body').animate({scrollTop: scrollPosition}, 0);
                     const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
                     navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
-                    // $(navElem).html(prevNavElemHTML);
                     functionsCalledByInfiniteScrolls(data);
                     previousElem = $(navElem).find("strong").prev().prev();
                     prevPage = $(previousElem).attr("href");
@@ -298,7 +296,6 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
         if (topElement) {
             const pageNumber = $(topElement).attr('page_number');
             console.log(pageNumber);
-            // Update the <strong> element with the new page number
             $(navElem).html(navElems[pageNumber].Html);
             console.log(navElems[pageNumber])
         }
