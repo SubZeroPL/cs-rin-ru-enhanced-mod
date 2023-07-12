@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.8.2
+// @version         0.9.0
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -197,16 +197,16 @@ Infinite scroll in both directions made by Redpoint
 Reply button added by Altansar
 INFINITE SCROLLING
 */
-if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrolling) {
-    let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; //viewforum.php
-    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; //search.php
+if (options.infinite_scrolling && $("[title='Click to jump to page…']").length > 0) {
+    let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; // viewforum.php
+    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; // search.php
     if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)"; // search.php (user messages) and memberlist.php
-    if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; //inbox
-    if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; //viewtopic.php
+    if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; // inbox
+    if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; // viewtopic.php
 
     const navElem = $("[title='Click to jump to page…']").first().parent();
     let nextElem = $(navElem).find("strong").next().next();
-    let nextPage = $(nextElem).attr("href"); // Will be undefined if there is no next element
+    let nextPage = $(nextElem).attr("href"); // Will be undefined if there is no next element but only the length of nextElem will be used
     let previousElem = $(navElem).find("strong").prev().prev();
     let prevPage = $(previousElem).attr("href"); // Will be undefined if there is no previous element
     let ajaxDone = true;
@@ -215,7 +215,7 @@ if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrol
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
 
-    let navElems = {}; // Dictionary for storing nav elements for each page
+    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
     navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
@@ -359,7 +359,10 @@ function dynamicFunction(data) {
     //Call every 60seconds as well as when using infinite scroll
     $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
-    $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html()); //Message
+    const html = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html();
+    if ($(html)[0].src === 'https://cs.rin.ru/forum/styles/rinDark/theme/images/icon_mini_message.gif') {
+        $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)").html(html); //Message
+    }
     changeColorOfNewMessage();//Colorize messages
     colorizeFriends();
     if (URLContains("viewtopic.php")) { //Dynamics posts
@@ -773,12 +776,49 @@ function goToUnreadPosts() {
 
 goToUnreadPosts();
 
+function profileButton() {
+    let profileLink = GM_getValue("profileLink", null);
+    if (!profileLink) {
+        let username = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent;
+        username = username.slice(10, -2);
+        if ($(`p.gensmall > :contains(${username})`).length === 0) {
+            GM_xmlhttpRequest({
+                method: "GET", url: "https://cs.rin.ru/forum/viewforum.php?f=10", onload: function (response) {
+                    // Parse the response as HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response.responseText, "text/html");
+                    profileLink = $(doc).find(`p.gensmall > :contains(${username})`)[0].href;
+                    GM_setValue("profileLink", profileLink);
+                }
+            });
+        } else {
+            profileLink = $(`p.gensmall > :contains(${username})`)[0].href;
+            GM_setValue("profileLink", profileLink);
+        }
+        GM_setValue("profileLink", profileLink);
+    }
+    profileLink = GM_getValue("profileLink", null);
+    const bar = $(".genmed")[2];
+    const a = document.createElement("a");
+    a.href = profileLink;
+    const img  = document.createElement("img");
+    img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
+    img.width = 12;
+    img.height = 13;
+    a.appendChild(img);
+    a.appendChild(document.createTextNode(" Profile"));
+    const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
+    $(bar).find("a")[1].before(a, sep);
+}
+
+profileButton()
+
 /*
 Made by Altansar
 */
 function changeColorOfNewMessage() {
     if (options.colorize_new_messages) {
-        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)");
+        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)");
         if (!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
             menuBar.style.color = "red"; // We colorize in the color wanted by users
         } else {
@@ -797,6 +837,7 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90" // FAQ
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1" // Members
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB" // User Control Panel
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080" // Profile
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA" // Search
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#FF0000" // Logout
         document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = '#' + Math.floor(Math.random() * 16777215).toString(16); // Random colour for the title
