@@ -360,7 +360,7 @@ function dynamicFunction(data) {
     $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     const html = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html();
-    if ($(html)[0].src === 'https://cs.rin.ru/forum/styles/rinDark/theme/images/icon_mini_message.gif') {
+    if ($(html)[0].src.endsWith("theme/images/icon_mini_message.gif")) {
         $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)").html(html); //Message
     }
     changeColorOfNewMessage();//Colorize messages
@@ -779,11 +779,10 @@ goToUnreadPosts();
 function profileButton() {
     let profileLink = GM_getValue("profileLink", null);
     if (!profileLink) {
-        let username = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent;
-        username = username.slice(10, -2);
+        let username = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
         if ($(`p.gensmall > :contains(${username})`).length === 0) {
             GM_xmlhttpRequest({
-                method: "GET", url: "https://cs.rin.ru/forum/viewforum.php?f=10", onload: function (response) {
+                method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
                     // Parse the response as HTML
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, "text/html");
