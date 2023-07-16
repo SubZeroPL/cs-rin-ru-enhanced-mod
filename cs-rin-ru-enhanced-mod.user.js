@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.7.19
+// @version         0.9.0
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -197,106 +197,98 @@ Infinite scroll in both directions made by Redpoint
 Reply button added by Altansar
 INFINITE SCROLLING
 */
-if ($("[title='Click to jump to page…']").length > 0 && options.infinite_scrolling) {
-    let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; //viewforum.php
-    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; //search.php
-    if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; //inbox
-    if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; //viewtopic.php
+if (options.infinite_scrolling && $("[title='Click to jump to page…']").length > 0) {
+    let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; // viewforum.php
+    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; // search.php
+    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)"; // search.php (user messages) and memberlist.php
+    if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; // inbox
+    if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; // viewtopic.php
+
     const navElem = $("[title='Click to jump to page…']").first().parent();
     let nextElem = $(navElem).find("strong").next().next();
+    let nextPage = $(nextElem).attr("href"); // Will be undefined if there is no next element but only the length of nextElem will be used
+    let previousElem = $(navElem).find("strong").prev().prev();
+    let prevPage = $(previousElem).attr("href"); // Will be undefined if there is no previous element
+    let ajaxDone = true;
+
+    // Stuff for infinite scrolling backwards
+    let scrollLength = 0; // How long the user has scrolled when at the top of the page
+    const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
+
+    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
+    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
+
     if (URLContains("viewtopic.php")) {
-        if (nextElem.length !== 0) //If we're not on the last page
-        {
+        if (nextElem.length !== 0) { // If we're not on the last page
             $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").parent().parent().parent());
             $("[title='Reply to topic']").last().parents().eq(4).remove();
         }
     } else if (!URLContains("ucp.php")) {
         $(selector).parent().prepend($(".cat:has(.btnlite)").parent());
     }
-    if (nextElem.length === 1) { //If there is a next page
-        let nextPage = $(nextElem).attr("href");
-        let ajaxDone = true;
-        $(document).scroll(function () {
-            if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
+
+    $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number attribute to posts on the page upon loading
+    window.addEventListener("wheel", function (e) {
+        if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
+            ajaxDone = false;
+            $.get(nextPage, function (data) {
+                let page = $(selector, data).attr("page_number", $(nextElem).text());
+                $(page[0]).find("tbody:first").find("tr:first").remove();
+                $(selector).last().after(page);
+                const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
+                functionsCalledByInfiniteScrolls(data);
+                nextElem = $(navElem).find("strong").next().next().next().next();
+                nextPage = $(nextElem).attr("href");
+                ajaxDone = true;
+            });
+        }
+
+        const currentPosition = window.scrollY || window.document.documentElement.scrollTop;
+        if (currentPosition === 0 && e.deltaY < 0) {
+            scrollLength += Math.abs(e.deltaY);
+            if (scrollLength >= scrollThreshold && previousElem.length > 0 && ajaxDone) {
                 ajaxDone = false;
-                $.get(nextPage, function (data) {
-                    let page = $(selector, data);
-                    $(page[0]).find("tbody:first").find("tr:first").remove();
-                    $(selector).last().after(page);
-                    $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
+                $.get(prevPage, function (data) {
+                    let element = $(selector);
+                    $(element[0]).find("tbody:first").find("tr:first").remove();
+                    $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
+                    let top = $(element[0]).offset().top + $(element[0]).height();
+                    const scrollPosition = top - $(window).height();
+                    $('html, body').animate({scrollTop: scrollPosition}, 0);
+                    const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                    navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
                     functionsCalledByInfiniteScrolls(data);
-                    nextElem = $(navElem).find("strong").next().next();
-                    nextPage = $(nextElem).attr("href");
-                    if (nextElem.length === 0 && URLContains("viewtopic.php")) { //if you're on the last page and on viewtopic
-                        const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
-                        const copiedElement = originalElement.cloneNode(true);
-                        document.querySelector("#pagecontent").appendChild(copiedElement);
-                        //Retrieve the correct nav
-                        const element = document.getElementsByClassName("nav")[3];
-                        // Replace the first number with the second in the HTML code
-                        element.querySelector('strong:nth-child(1)').innerHTML = element.querySelector('strong:nth-child(2)').textContent;
-                    }
+                    previousElem = $(navElem).find("strong").prev().prev().prev().prev();
+                    prevPage = $(previousElem).attr("href");
                     ajaxDone = true;
                 });
+                scrollLength = 0;
             }
-        });
-    }
+        } else {
+            scrollLength = 0
+        }
 
-    let prevElem = $(navElem).find("strong").prev().prev();
-    if (prevElem.length === 1) { //If there is a prev page
-        let prevPage = $(prevElem).attr("href");
-        let ajaxDone = true;
-        // set a variable to store the scroll position
-        let scrollPos = 0;
-        // set a variable to store the scroll duration
-        let scrollDur = 0;
-        // set a variable to store the threshold for logging
-        const scrollThresh = 1000; // in milliseconds
-        // add an event listener for the wheel event
-        window.addEventListener("wheel", function (e) {
-            // get the current scroll position
-            const currPos = window.scrollY || window.document.documentElement.scrollTop;
-            // check if the user is at the top of the page
-            if (currPos === 0) {
-                // check if the user tries to scroll upwards
-                if (e.deltaY < 0) {
-                    // increase the scroll duration
-                    scrollDur += Math.abs(e.deltaY);
-                    // check if the scroll duration exceeds the threshold
-                    if (scrollDur >= scrollThresh && prevElem.length > 0 && ajaxDone) {
-                        ajaxDone = false;
-                        $.get(prevPage, function (data) {
-                            let element = $(selector);
-                            $(element[0]).find("tbody:first").find("tr:first").remove();
-                            $($(selector)[0]).before($(selector, data));
-                            let top = $(element[0]).offset().top + $(element[0]).height();
-                            const scrollPosition = top - $(window).height();
-                            $('html, body').animate({scrollTop: scrollPosition}, 0);
-                            $(navElem).html($("[title='Click to jump to page…']", data).first().parent().html());
-                            functionsCalledByInfiniteScrolls(data);
-                            prevElem = $(navElem).find("strong").prev().prev();
-                            prevPage = $(prevElem).attr("href");
-                            if (URLContains("viewtopic.php")) {
-                                //Retrieve the correct nav
-                                const element = document.getElementsByClassName("nav")[0];
-                                element.querySelector('strong:nth-child(1)').innerHTML = $(navElem).find("strong").text();
-                            }
-                            ajaxDone = true;
-                        });
-                        scrollDur = 0;
-                    }
-                } else {
-                    // reset the scroll duration
-                    scrollDur = 0;
-                }
-            } else {
-                // reset the scroll duration
-                scrollDur = 0;
+        const posts = $(selector).toArray();
+        let topElement;
+        for (let i = 0; i < posts.length; i++) {
+            const rect = posts[i].getBoundingClientRect();
+            if (rect.top >= 0) {
+                topElement = posts[i];
+                break;
             }
-            // update the scroll position
-            scrollPos = currPos;
-        });
-    }
+        }
+        if (topElement) {
+            const pageNumber = $(topElement).attr('page_number'); // Get page number of top element
+            $(navElem).html(navElems[pageNumber].Html); // Update nav element
+
+            // Update number next to "Post Reply"
+            if (URLContains("viewtopic.php")) {
+                const element = document.getElementsByClassName("nav")[0];
+                element.querySelector('strong:nth-child(1)').innerHTML = pageNumber;
+            }
+        }
+    });
 }
 
 function functionsCalledByInfiniteScrolls(data) {
@@ -367,7 +359,10 @@ function dynamicFunction(data) {
     //Call every 60seconds as well as when using infinite scroll
     $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
-    $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").html($("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html()); //Message
+    const html = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html();
+    if ($(html)[0].src.endsWith("theme/images/icon_mini_message.gif")) {
+        $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)").html(html); //Message
+    }
     changeColorOfNewMessage();//Colorize messages
     colorizeFriends();
     if (URLContains("viewtopic.php")) { //Dynamics posts
@@ -769,8 +764,11 @@ Made by Altansar
 function goToUnreadPosts() {
     if (options.go_to_unread_posts >= 1) {
         document.querySelectorAll(".titles:not(:first-child), .topictitle").forEach(element => {
-            if (element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') { //If we don't already have added unread
-                element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
+            if (element.getAttribute('href')) {
+                if (element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') {
+                    //If we don't already have added unread
+                    element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
+                }
             }
         });
     }
@@ -778,12 +776,48 @@ function goToUnreadPosts() {
 
 goToUnreadPosts();
 
+function profileButton() {
+    let profileLink = GM_getValue("profileLink", null);
+    if (!profileLink) {
+        let username = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
+        if ($(`p.gensmall > :contains(${username})`).length === 0) {
+            GM_xmlhttpRequest({
+                method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
+                    // Parse the response as HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response.responseText, "text/html");
+                    profileLink = $(doc).find(`p.gensmall > :contains(${username})`)[0].href;
+                    GM_setValue("profileLink", profileLink);
+                }
+            });
+        } else {
+            profileLink = $(`p.gensmall > :contains(${username})`)[0].href;
+            GM_setValue("profileLink", profileLink);
+        }
+        GM_setValue("profileLink", profileLink);
+    }
+    profileLink = GM_getValue("profileLink", null);
+    const bar = $(".genmed")[2];
+    const a = document.createElement("a");
+    a.href = profileLink;
+    const img  = document.createElement("img");
+    img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
+    img.width = 12;
+    img.height = 13;
+    a.appendChild(img);
+    a.appendChild(document.createTextNode(" Profile"));
+    const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
+    $(bar).find("a")[1].before(a, sep);
+}
+
+profileButton()
+
 /*
 Made by Altansar
 */
 function changeColorOfNewMessage() {
     if (options.colorize_new_messages) {
-        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)");
+        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)");
         if (!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
             menuBar.style.color = "red"; // We colorize in the color wanted by users
         } else {
@@ -802,6 +836,7 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90" // FAQ
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1" // Members
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB" // User Control Panel
+        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080" // Profile
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA" // Search
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#FF0000" // Logout
         document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = '#' + Math.floor(Math.random() * 16777215).toString(16); // Random colour for the title
