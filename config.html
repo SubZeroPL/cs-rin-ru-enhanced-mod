@@ -67,16 +67,8 @@ const WARNING_MSG = `
             document.querySelectorAll('[need-connected="true"]').forEach(checkbox => {
               checkbox.disabled = true;
             });
+            showMessage(WARNING, WARNING_MSG)
         }
-        $("[need-connected]").on("click", e => {
-            if (e.target.checked) {
-                showMessage(WARNING, WARNING_MSG);
-            } else {
-                if ($("[need-connected]:checked").length == 0) {
-                    hideMessage(WARNING);
-                }
-            }
-        });
 
         $("[data-originalValue]").change((e) => {
             var changed = false;
