@@ -160,15 +160,14 @@ loadConfigButton();
 
 if (!options.script_enabled) return;
 
-if(document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text===' Login') {
-    var notConnected = GM_getValue("notConnected", null);
-    if(notConnected%10===0) {
+if (document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text === ' Login') {
+    let notConnected = GM_getValue("notConnected", null);
+    if (notConnected % 10 === 0) {
         window.alert("In order to use all the features of the site and to use the CS.RIN.RU Enhanced extension, you need to log in.");
     }
     notConnected++;
     GM_setValue("notConnected", notConnected);
-
-return
+    return;
 }
 
 
@@ -796,38 +795,37 @@ function goToUnreadPosts() {
 goToUnreadPosts();
 
 function addProfileButton() {
-    if(options.add_profile_button) {
-        let profileLink = GM_getValue("profileLink", null);
-        if (!profileLink) {
-            if ($(`p.gensmall > :contains(${USERNAME})`).length === 0) {
-                GM_xmlhttpRequest({
-                    method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
-                        // Parse the response as HTML
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(response.responseText, "text/html");
-                        profileLink = $(doc).find(`p.gensmall > :contains(${USERNAME})`)[0].href;
-                        GM_setValue("profileLink", profileLink);
-                    }
-                });
-            } else {
-                profileLink = $(`p.gensmall > :contains(${USERNAME})`)[0].href;
-                GM_setValue("profileLink", profileLink);
-            }
+    if (!options.add_profile_button) return;
+    let profileLink = GM_getValue("profileLink", null);
+    if (!profileLink) {
+        if ($(`p.gensmall > :contains(${USERNAME})`).length === 0) {
+            GM_xmlhttpRequest({
+                method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
+                    // Parse the response as HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response.responseText, "text/html");
+                    profileLink = $(doc).find(`p.gensmall > :contains(${USERNAME})`)[0].href;
+                    GM_setValue("profileLink", profileLink);
+                }
+            });
+        } else {
+            profileLink = $(`p.gensmall > :contains(${USERNAME})`)[0].href;
             GM_setValue("profileLink", profileLink);
         }
-        profileLink = GM_getValue("profileLink", null);
-        const bar = $(".genmed")[2];
-        const a = document.createElement("a");
-        a.href = profileLink;
-        const img = document.createElement("img");
-        img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
-        img.width = 12;
-        img.height = 13;
-        a.appendChild(img);
-        a.appendChild(document.createTextNode(" Profile"));
-        const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
-        $(bar).find("a")[1].before(a, sep);
+        GM_setValue("profileLink", profileLink);
     }
+    profileLink = GM_getValue("profileLink", null);
+    const bar = $(".genmed")[2];
+    const a = document.createElement("a");
+    a.href = profileLink;
+    const img = document.createElement("img");
+    img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
+    img.width = 12;
+    img.height = 13;
+    a.appendChild(img);
+    a.appendChild(document.createTextNode(" Profile"));
+    const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
+    $(bar).find("a")[1].before(a, sep);
 }
 
 addProfileButton()
@@ -856,7 +854,7 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90" // FAQ
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1" // Members
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB" // User Control Panel
-        if(options.add_profile_button) document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080" // Profile
+        if (options.add_profile_button) document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080" // Profile
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA" // Search
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#FF0000" // Logout
         document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = '#' + Math.floor(Math.random() * 16777215).toString(16); // Random colour for the title
