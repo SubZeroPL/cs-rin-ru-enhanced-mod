@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.9.1
+// @version         0.9.2
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -59,6 +59,8 @@ const FORUM_BASE_URL = getBaseUrl();
 //Contains the list of friends
 const FRIENDS_LIST = [];
 
+const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
+
 //Retrieve friends list
 async function retrievesFriendsLists() {
     await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends")
@@ -79,6 +81,7 @@ let options = {
     "mentioning": true,
     "dynamic_function": true,
     "colorize_friends": true,
+    "add_profile_button": true,
     "colorize_new_messages": true,
     "colorize_the_page": true,
     "display_ajax_loader": true,
@@ -132,6 +135,7 @@ function loadConfigButton() {
             $("input#copy_link_button")[0].checked = options.copy_link_button;
             $("input#dynamic_function")[0].checked = options.dynamic_function;
             $("input#colorize_friends")[0].checked = options.colorize_friends;
+            $("input#add_profile_button")[0].checked = options.add_profile_button;
             $("input#colorize_new_messages")[0].checked = options.colorize_new_messages;
             $("input#colorize_the_page")[0].checked = options.colorize_the_page;
             $("input#display_ajax_loader")[0].checked = options.display_ajax_loader;
@@ -155,6 +159,18 @@ function loadConfigButton() {
 loadConfigButton();
 
 if (!options.script_enabled) return;
+
+if(document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text===' Login') {
+    var notConnected = GM_getValue("notConnected", null);
+    if(notConnected%10===0) {
+        window.alert("In order to use all the features of the site and to use the CS.RIN.RU Enhanced extension, you need to log in.");
+    }
+    notConnected++;
+    GM_setValue("notConnected", notConnected);
+
+return
+}
+
 
 // Navigation bar
 let navBar = $("[title='Click to jump to page…']").parent().parent().first()[0]; // Gets the first navigation bar
@@ -779,48 +795,49 @@ function goToUnreadPosts() {
 
 goToUnreadPosts();
 
-function profileButton() {
-    let profileLink = GM_getValue("profileLink", null);
-    if (!profileLink) {
-        let username = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
-        if ($(`p.gensmall > :contains(${username})`).length === 0) {
-            GM_xmlhttpRequest({
-                method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
-                    // Parse the response as HTML
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(response.responseText, "text/html");
-                    profileLink = $(doc).find(`p.gensmall > :contains(${username})`)[0].href;
-                    GM_setValue("profileLink", profileLink);
-                }
-            });
-        } else {
-            profileLink = $(`p.gensmall > :contains(${username})`)[0].href;
+function addProfileButton() {
+    if(options.add_profile_button) {
+        let profileLink = GM_getValue("profileLink", null);
+        if (!profileLink) {
+            if ($(`p.gensmall > :contains(${USERNAME})`).length === 0) {
+                GM_xmlhttpRequest({
+                    method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
+                        // Parse the response as HTML
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(response.responseText, "text/html");
+                        profileLink = $(doc).find(`p.gensmall > :contains(${USERNAME})`)[0].href;
+                        GM_setValue("profileLink", profileLink);
+                    }
+                });
+            } else {
+                profileLink = $(`p.gensmall > :contains(${USERNAME})`)[0].href;
+                GM_setValue("profileLink", profileLink);
+            }
             GM_setValue("profileLink", profileLink);
         }
-        GM_setValue("profileLink", profileLink);
+        profileLink = GM_getValue("profileLink", null);
+        const bar = $(".genmed")[2];
+        const a = document.createElement("a");
+        a.href = profileLink;
+        const img = document.createElement("img");
+        img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
+        img.width = 12;
+        img.height = 13;
+        a.appendChild(img);
+        a.appendChild(document.createTextNode(" Profile"));
+        const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
+        $(bar).find("a")[1].before(a, sep);
     }
-    profileLink = GM_getValue("profileLink", null);
-    const bar = $(".genmed")[2];
-    const a = document.createElement("a");
-    a.href = profileLink;
-    const img  = document.createElement("img");
-    img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
-    img.width = 12;
-    img.height = 13;
-    a.appendChild(img);
-    a.appendChild(document.createTextNode(" Profile"));
-    const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
-    $(bar).find("a")[1].before(a, sep);
 }
 
-profileButton()
+addProfileButton()
 
 /*
 Made by Altansar
 */
 function changeColorOfNewMessage() {
     if (options.colorize_new_messages) {
-        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)");
+        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(" + (2 + options.add_profile_button) + ")");
         if (!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
             menuBar.style.color = "red"; // We colorize in the color wanted by users
         } else {
@@ -839,7 +856,7 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90" // FAQ
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1" // Members
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB" // User Control Panel
-        document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080" // Profile
+        if(options.add_profile_button) document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080" // Profile
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA" // Search
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#FF0000" // Logout
         document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = '#' + Math.floor(Math.random() * 16777215).toString(16); // Random colour for the title
