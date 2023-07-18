@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.9.2
+// @version         0.9.3
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -159,17 +159,6 @@ function loadConfigButton() {
 loadConfigButton();
 
 if (!options.script_enabled) return;
-
-if (document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text === ' Login') {
-    let notConnected = GM_getValue("notConnected", null);
-    if (notConnected % 10 === 0) {
-        window.alert("In order to use all the features of the site and to use the CS.RIN.RU Enhanced extension, you need to log in.");
-    }
-    notConnected++;
-    GM_setValue("notConnected", notConnected);
-    return;
-}
-
 
 // Navigation bar
 let navBar = $("[title='Click to jump to page…']").parent().parent().first()[0]; // Gets the first navigation bar
