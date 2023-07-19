@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.10.0
+// @version         0.10.1
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -884,6 +884,10 @@ async function colorizeFriends() {
         links.forEach(link => {
             let nickname = link.innerText;
             if (link.classList.contains('quotetitle')) nickname = nickname.substring(0, nickname.length - 7)
+            if(USERNAME.includes(nickname)) {
+                link.id = "colorize";
+                link.style.color = '#ff4c4c';
+            }
             if (FRIENDS_LIST.includes(nickname)) {
                 link.id = "colorize";
                 link.style.color = color.pink;
