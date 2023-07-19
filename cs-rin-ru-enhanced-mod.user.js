@@ -108,7 +108,7 @@ let color = {
 };
 
 /*
-Functions that need to be connected must be added here and you must also add the need-connected="true" tag to them.
+Functions that need you to be connected must be added here, and you must also add the need-connected="true" tag to them.
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
@@ -230,7 +230,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
 
-    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
+    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element})
     navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
