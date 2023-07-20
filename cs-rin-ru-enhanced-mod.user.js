@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.10.1
+// @version         0.10.2
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -36,7 +36,7 @@ Contributor: Altansar (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/beta/config.html"
+const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
@@ -59,7 +59,7 @@ const FORUM_BASE_URL = getBaseUrl();
 //Contains the list of friends
 const FRIENDS_LIST = [];
 
-const NOT_CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text === ' Login';
+const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text!==' Login';
 
 const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
 
@@ -108,12 +108,12 @@ let color = {
 };
 
 /*
-Functions that need you to be connected must be added here, and you must also add the need-connected="true" tag to them.
+Functions that need to be connected must be added here and you must also add the need-connected="true" tag to them.
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
     options = {...options, ...savedOptions};
-    if (NOT_CONNECTED) {
+    if(!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
         options.colorize_new_messages = false;
@@ -121,7 +121,6 @@ function loadConfig() {
         options.colorize_friends = false;
     }
 }
-
 loadConfig();
 
 window.addEventListener("message", receiveConfigMessage, false);
@@ -230,7 +229,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
 
-    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element})
+    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
     navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
@@ -852,7 +851,7 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#FFC200"; // Donate
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#98FB98"; // Chat
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90"; // FAQ
-        if (!NOT_CONNECTED) document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1"; // Members
+        if(CONNECTED) document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1"; // Members
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB"; // User Control Panel
         if (options.add_profile_button) document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080"; // Profile
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA"; // Search
