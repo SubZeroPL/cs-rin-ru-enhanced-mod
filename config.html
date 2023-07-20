@@ -11,7 +11,7 @@
     const RELOAD = 0;
     const WARNING = 1;
 
-    const NOT_CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text === ' Login';
+    const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
 
     const WARNING_MSG = `
    You need to be <a href='${FORUM_BASE_URL}ucp.php?mode=login' target='blank' class='forum_link'>logged in to the forum</a> to use the greyed-out functions.<br>
@@ -63,7 +63,7 @@
                     break;
             }
         });
-        if (NOT_CONNECTED) {
+        if (!CONNECTED) {
             document.querySelectorAll('[need-connected="true"]').forEach(checkbox => {
                 checkbox.disabled = true;
             });
