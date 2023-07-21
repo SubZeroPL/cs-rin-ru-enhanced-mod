@@ -59,7 +59,7 @@ const FORUM_BASE_URL = getBaseUrl();
 //Contains the list of friends
 const FRIENDS_LIST = [];
 
-const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text!==' Login';
+const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
 
 const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
 
@@ -113,7 +113,7 @@ Functions that need to be connected must be added here and you must also add the
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
     options = {...options, ...savedOptions};
-    if(!CONNECTED) {
+    if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
         options.colorize_new_messages = false;
@@ -121,6 +121,7 @@ function loadConfig() {
         options.colorize_friends = false;
     }
 }
+
 loadConfig();
 
 window.addEventListener("message", receiveConfigMessage, false);
@@ -851,7 +852,7 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#FFC200"; // Donate
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#98FB98"; // Chat
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90"; // FAQ
-        if(CONNECTED) document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1"; // Members
+        if (CONNECTED) document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1"; // Members
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB"; // User Control Panel
         if (options.add_profile_button) document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080"; // Profile
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA"; // Search
@@ -883,7 +884,7 @@ async function colorizeFriends() {
         links.forEach(link => {
             let nickname = link.innerText;
             if (link.classList.contains('quotetitle')) nickname = nickname.substring(0, nickname.length - 7)
-            if(USERNAME.includes(nickname)) {
+            if (USERNAME.includes(nickname)) {
                 link.id = "colorize";
                 link.style.color = '#ff4c4c';
             }

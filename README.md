@@ -16,12 +16,12 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 
 ## Added features:
 - SCS topics filtering (hide_scs).
-- Diltering also in SCS section (apply_in_scs).
+- Filtering also in SCS section (apply_in_scs).
 - Configuration window (script adds button to open configuration window in upper-right corner of browser window).
 - Option to enable/disable whole script (script_enabled).
 - Option for custom title formatting (title_format).
 - Topic preview. When checked displays preview of first post from topic that mouse cursor points to with configurable delay (topic_preview).
-- Steamdb link added below each steam link (steam_db_link).
+- SteamDB link added below each steam link (steam_db_link).
 - Copy the link of a message (copy_link_button).
 - Adding a small shoutbox (add_small_shoutbox).
 - Adds popular user tags below the official steam tags under a game presentation (add_users_tag).
