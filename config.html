@@ -1,13 +1,29 @@
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
 <script>
+    function getBaseUrl() {
+        let path = window.location.origin + window.location.pathname;
+        let base = path.slice(0, path.lastIndexOf('/') + 1);
+        return base ?? 'https://cs.rin.ru/forum/';
+    }
+
+    const FORUM_BASE_URL = getBaseUrl();
+
     const RELOAD = 0;
+    const WARNING = 1;
+
+    const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
+
+    const WARNING_MSG = `
+   You need to be <a href='${FORUM_BASE_URL}ucp.php?mode=login' target='blank' class='forum_link'>logged in to the forum</a> to use the greyed-out functions.<br>
+   If you don't have an account yet, you need to <a href='${FORUM_BASE_URL}ucp.php?mode=register' target='blank' class='forum_link'>register</a>.
+    `;
 
     /**
-    * will match one and only one of the string 'true','1', or 'on' regardless
-    * of capitalization and regardless off surrounding white-space.
-    **/
+     * will match one and only one of the string 'true','1', or 'on' regardless
+     * of capitalization and regardless off surrounding white-space.
+     **/
     function strToBool(s) {
-        regex = /^\s*(true|1|on)\s*$/i
+        let regex = /^\s*(true|1|on)\s*$/i;
 
         return regex.test(s);
     }
@@ -47,6 +63,12 @@
                     break;
             }
         });
+        if (!CONNECTED) {
+            document.querySelectorAll('[need-connected="true"]').forEach(checkbox => {
+                checkbox.disabled = true;
+            });
+            showMessage(WARNING, WARNING_MSG)
+        }
 
         $("[data-originalValue]").change((e) => {
             let changed = false;
@@ -231,8 +253,8 @@
             <table>
                 <tr colspan="2">
                     <td>
-                        <input type="checkbox" id="script_enabled" onclick="enableScript();"
-                            data-originalValue="">
+                        <input data-originalValue="" id="script_enabled" onclick="enableScript();"
+                               type="checkbox">
                         <label for="script_enabled">Enable script</label>
                     </td>
                 </tr>
@@ -241,76 +263,77 @@
                 <table>
                     <tr>
                         <td>
-                            <input type="checkbox" id="infinite_scrolling" data-originalValue="">
+                            <input data-originalValue="" id="infinite_scrolling" type="checkbox">
                             <label for="infinite_scrolling">Infinite scrolling</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="mentioning" data-originalValue="">
+                            <input data-originalValue="" id="mentioning" type="checkbox">
                             <label for="mentioning">Mentioning</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" id="steam_db_link" data-originalValue="">
+                            <input data-originalValue="" id="steam_db_link" type="checkbox">
                             <label for="steam_db_link">SteamDB Link</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="copy_link_button" data-originalValue="">
+                            <input data-originalValue="" id="copy_link_button" type="checkbox">
                             <label for="copy_link_button">Copy link button</label>
                         </td>
                     </tr>
                     <tr>
                         <td title="Many things will be dynamic on the page, meaning that you don't need to reload the page for them to update, as they're updated every minute.&#10;- The messages you receive.&#10;- Online users.&#10;- Current time">
-                            <input type="checkbox" id="dynamic_function" data-originalValue=""
-                                data-danger="true">
+                            <input data-originalValue="" id="dynamic_function" need-connected="true"
+                                   type="checkbox">
                             <label for="dynamic_function">Dynamic functions</label>
                         </td>
                         <td title="Add a button to access your profile">
-                            <input type="checkbox" id="add_profile_button" data-originalValue=""
-                                data-danger="true">
+                            <input data-originalValue="" id="add_profile_button" need-connected="true"
+                                   type="checkbox">
                             <label for="add_profile_button">Profile button</label>
                         </td>
                     </tr>
                     <tr>
                         <td title="Activate to change the color of messages (if any) to red">
-                            <input type="checkbox" id="colorize_new_messages" data-originalValue="">
+                            <input data-originalValue="" id="colorize_new_messages" need-connected="true"
+                                   type="checkbox">
                             <label for="colorize_new_messages">Colorize new messages received in red</label>
                         </td>
                         <td title="Activate to add a bit of color to the page">
-                            <input type="checkbox" id="colorize_the_page" data-originalValue="">
+                            <input data-originalValue="" id="colorize_the_page" type="checkbox">
                             <label for="colorize_the_page">Add a bit of color to the page</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" id="display_ajax_loader" data-originalValue="">
+                            <input data-originalValue="" id="display_ajax_loader" type="checkbox">
                             <label for="display_ajax_loader">Display Ajax loader</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="custom_tags" data-originalValue="">
+                            <input data-originalValue="" id="custom_tags" type="checkbox">
                             <label for="custom_tags">Custom tags</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" id="add_small_shoutbox" data-originalValue="">
+                            <input data-originalValue="" id="add_small_shoutbox" need-connected="true"
+                                   type="checkbox">
                             <label for="add_small_shoutbox">Add small shoutbox</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="add_users_tag" data-originalValue="">
+                            <input data-originalValue="" id="add_users_tag" type="checkbox">
                             <label for="add_users_tag">Add users tag</label>
                         </td>
                     </tr>
-                        <td title="Colour your friends in pink">
-                            <input type="checkbox" id="colorize_friends" data-originalValue=""
-                                data-danger="true">
-                            <label for="dynamic_function">Colorize friends</label>
-                        </td>
-                    </tr>
+                    <td title="Colour your friends in pink">
+                        <input data-originalValue="" id="colorize_friends" need-connected="true"
+                               type="checkbox">
+                        <label for="colorize_friends">Colorize friends</label>
+                    </td>
                     <tr title="• First post -> means that clicking on a topic title will take you to the first page.&#10;• Unread post -> means that clicking on a topic title will lead to unread posts.&#10;• Unread post + preview -> means that clicking on a topic title will lead to the unread posts and that moving the mouse over it with the 'show topic preview' option will display the unread posts.">
                         <td>
                             <label for="go_to_unread_posts">Change topic link</label>
-                            <select id="go_to_unread_posts" data-originalValue="">
+                            <select data-originalValue="" id="go_to_unread_posts">
                                 <option value="0">First post</option>
                                 <option value="1">Unread post</option>
                                 <option value="2">Unread post + preview</option>
@@ -319,18 +342,18 @@
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <input type="checkbox" id="topic_preview" data-originalValue="">
+                            <input data-originalValue="" id="topic_preview" type="checkbox">
                             <label for="topic_preview">Show topic preview on mouse hover</label>
                             <span>after</span>
-                            <input type="number" id="topic_preview_timeout" data-originalValue="" value="5" min="1"
-                                maxlength="2" size="3" />
+                            <input data-originalValue="" id="topic_preview_timeout" maxlength="2" min="1" size="3"
+                                   type="number" value="5"/>
                             <span>seconds</span>
                         </td>
                     </tr>
                     <tr title="• Green means that all games in the respective topic are available for download&#10;• Yellow means that some, but not all titles (of a series) are available for download&#10;• Red means that no game is available for download.">
                         <td>
                             <label for="hide_scs">Hide SCS</label>
-                            <select id="hide_scs" data-originalValue="">
+                            <select data-originalValue="" id="hide_scs">
                                 <option value="0">not hide</option>
                                 <option value="1">hide all</option>
                                 <option value="2">hide only green</option>
@@ -338,15 +361,17 @@
                             </select>
                         </td>
                         <td>
-                            <input type="checkbox" id="apply_in_scs" data-originalValue="">
+                            <input data-originalValue="" id="apply_in_scs" type="checkbox">
                             <label for="apply_in_scs">Apply also in SCS</label>
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2">
                             <label for="title_format">Window/tab title for topic pages</label>
-                            <input type="text" id="title_format" data-originalValue="" value="%C %S - %T"
-                                title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %C - standard forum name (CS.RIN.RU - Steam Underground Community •)&#10; %S - Section title&#10; %T - Page title &#10;%RT - Page title without tags">
+                            <input data-originalValue="" id="title_format"
+                                   title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %C - standard forum name (CS.RIN.RU - Steam Underground Community •)&#10; %S - Section title&#10; %T - Page title &#10;%RT - Page title without tags"
+                                   type="text"
+                                   value="%C %S - %T">
                         </td>
                     </tr>
                 </table>
