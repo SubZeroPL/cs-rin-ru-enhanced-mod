@@ -448,15 +448,27 @@ function hideScs() {
         });
     }
 }
-
+/*
+Enhanced by PetricaT
+*/
 function colorize(str) {
     let lstr = str.toLowerCase();
-    let hash = 0;
-    for (let i = 0; i < lstr.length; i++) {
+    if (lstr.match(/\[cracked]*/gm)){
+      return '#66ff99'
+    } else if (lstr.match(/\[not cracked]/gm)) {
+      return '#ff0000'
+    } else if (lstr.match(/(vr)/gm)){
+      return '#ccccff'
+    } else if (lstr.match(/(early access)/gm)){
+      return '#33ccff'
+    } else {
+      let hash = 0;
+      for (let i = 0; i < lstr.length; i++) {
         hash = lstr.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+      return '#' + color.padStart(6, '0');
     }
-    const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
-    return '#' + color.padStart(6, '0');
 }
 
 function URLContains(match) {
