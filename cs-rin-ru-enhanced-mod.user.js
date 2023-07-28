@@ -180,7 +180,7 @@ if (navBar) {
     div.setAttribute("width", "500"); // Standardised width
     div.innerHTML = navBar.innerHTML; // Copy the navigation bar
     navBar.parentNode.replaceChild(div, navBar); // Replace the existing navigation bar with the modified one
-    const ancestor = $(td).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
+    const ancestor = $(div).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
     if (ancestor.length) {
         $("#pagecontent").before(div);
     } else {
