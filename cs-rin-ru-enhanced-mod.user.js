@@ -250,7 +250,6 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 let page = $(selector, data).attr("page_number", $(nextElem).text());
                 if (page.length === 0) {
                     ajaxDone = true;
-
                 } else {
                     $(page[0]).find("tbody:first").find("tr:first").remove();
                     $(selector).last().after(page);
@@ -330,6 +329,7 @@ function functionsCalledByInfiniteScrolls(data) {
     setupTopicPreview();
     addLink();
     steamDBLink();
+    addUsersTag();
     goToUnreadPosts();
     colorizeFriends();
 }
