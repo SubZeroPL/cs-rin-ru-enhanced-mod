@@ -112,7 +112,7 @@ Functions that need to be connected must be added here and you must also add the
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
-    options = {...options, ...savedOptions};
+    options = { ...options, ...savedOptions };
     if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
@@ -174,17 +174,17 @@ if (!options.script_enabled) return;
 // Navigation bar
 let navBar = $("[title='Click to jump to page…']").parent().parent().first()[0]; // Gets the first navigation bar
 if (navBar) {
-    const td = document.createElement("td"); // Necessary for search.php
-    td.setAttribute("class", "gensmall"); // Necessary for search.php
-    td.setAttribute("name", "page_nav"); // Makes it easier for the GM_addStyle function
-    td.setAttribute("width", "500"); // Standardised width
-    td.innerHTML = navBar.innerHTML; // Copy the navigation bar
-    navBar.parentNode.replaceChild(td, navBar); // Replace the existing navigation bar with the modified one
-    const ancestor = $(td).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
+    const div = document.createElement("div"); // Necessary for search.php
+    div.setAttribute("class", "gensmall"); // Necessary for search.php
+    div.setAttribute("name", "page_nav"); // Makes it easier for the GM_addStyle function
+    div.setAttribute("width", "500"); // Standardised width
+    div.innerHTML = navBar.innerHTML; // Copy the navigation bar
+    navBar.parentNode.replaceChild(div, navBar); // Replace the existing navigation bar with the modified one
+    const ancestor = $(div).closest("#pagecontent, #pageheader"); // #pagecontent for viewforum.php, #pageheader for viewtopic.php
     if (ancestor.length) {
-        $("#pagecontent").before(td);
+        $("#pagecontent").before(div);
     } else {
-        $("[method='post']:not(#search)").get(0).before(td); // For search.php, memberlist.php
+        $("[method='post']:not(#search)").get(0).before(div); // For search.php, memberlist.php
     }
 
     GM_addStyle(`[name="page_nav"] {
@@ -231,7 +231,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
 
     let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
-    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
+    navElems[$(navElem).find("strong").text()] = { Html: navElem.html() }; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
         if (nextElem.length !== 0) { // If we're not on the last page
@@ -255,7 +255,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     $(page[0]).find("tbody:first").find("tr:first").remove();
                     $(selector).last().after(page);
                     const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
+                    navElems[$(nextElem).text()] = { Html: nextNavElemHTML };
                     functionsCalledByInfiniteScrolls(data);
                     nextElem = $(navElem).find("strong").next().next().next().next();
                     nextPage = $(nextElem).attr("href");
@@ -279,9 +279,9 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                         $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
                         let top = $(element[0]).offset().top + $(element[0]).height();
                         const scrollPosition = top - $(window).height();
-                        $('html, body').animate({scrollTop: scrollPosition}, 0);
+                        $('html, body').animate({ scrollTop: scrollPosition }, 0);
                         const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                        navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
+                        navElems[$(previousElem).text()] = { Html: prevNavElemHTML };
                         functionsCalledByInfiniteScrolls(data);
                         previousElem = $(navElem).find("strong").prev().prev().prev().prev();
                         prevPage = $(previousElem).attr("href");
