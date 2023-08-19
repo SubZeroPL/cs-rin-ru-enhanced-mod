@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.10.5
+// @version         0.10.6
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -248,14 +248,20 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
             ajaxDone = false;
             $.get(nextPage, function (data) {
                 let page = $(selector, data).attr("page_number", $(nextElem).text());
-                $(page[0]).find("tbody:first").find("tr:first").remove();
-                $(selector).last().after(page);
-                const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
-                functionsCalledByInfiniteScrolls(data);
-                nextElem = $(navElem).find("strong").next().next().next().next();
-                nextPage = $(nextElem).attr("href");
-                ajaxDone = true;
+                if (page.length === 0) {
+                    ajaxDone = true;
+
+                } else {
+                    $(page[0]).find("tbody:first").find("tr:first").remove();
+                    $(selector).last().after(page);
+                    const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                    navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
+                    functionsCalledByInfiniteScrolls(data);
+                    nextElem = $(navElem).find("strong").next().next().next().next();
+                    nextPage = $(nextElem).attr("href");
+                    ajaxDone = true;
+                }
+
             });
         }
 
@@ -266,17 +272,21 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 ajaxDone = false;
                 $.get(prevPage, function (data) {
                     let element = $(selector);
-                    $(element[0]).find("tbody:first").find("tr:first").remove();
-                    $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
-                    let top = $(element[0]).offset().top + $(element[0]).height();
-                    const scrollPosition = top - $(window).height();
-                    $('html, body').animate({scrollTop: scrollPosition}, 0);
-                    const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
-                    functionsCalledByInfiniteScrolls(data);
-                    previousElem = $(navElem).find("strong").prev().prev().prev().prev();
-                    prevPage = $(previousElem).attr("href");
-                    ajaxDone = true;
+                    if (element.length === 0) {
+                        ajaxDone = true;
+                    } else {
+                        $(element[0]).find("tbody:first").find("tr:first").remove();
+                        $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
+                        let top = $(element[0]).offset().top + $(element[0]).height();
+                        const scrollPosition = top - $(window).height();
+                        $('html, body').animate({scrollTop: scrollPosition}, 0);
+                        const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                        navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
+                        functionsCalledByInfiniteScrolls(data);
+                        previousElem = $(navElem).find("strong").prev().prev().prev().prev();
+                        prevPage = $(previousElem).attr("href");
+                        ajaxDone = true;
+                    }
                 });
                 scrollLength = 0;
             }
