@@ -591,7 +591,8 @@ function addUsersTag() {
     if (options.add_users_tag) {
         const steamLink = $('a[href^="https://store.steampowered.com/app/"], a[href^="http://store.steampowered.com/app/"]').first()[0];
         if (steamLink != null) {
-            if ($(":contains('Genre(s):')").filter((i, e) => $(e).text() === "Genre(s):").length > 0) { // If we are on the game presentation page
+            const genreDescription = $(":contains('Genre(s):')").filter((i, e) => $(e).text() === "Genre(s):");
+            if (genreDescription.length > 0 && genreDescription.next().next().text() !== "User-defined Tag(s): ") { // If we are on the game presentation page
                 // Get the link to the Steam game page
                 const link = steamLink.href;
                 // Send a request to the Steam game page and bypass CSP
