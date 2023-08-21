@@ -462,13 +462,26 @@ function hideScs() {
     }
 }
 
+function hexToRgb(hex) {
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return [r, g, b];
+}
+
 function colorize(str) {
     let lstr = str.toLowerCase();
     let hash = 0;
     for (let i = 0; i < lstr.length; i++) {
         hash = lstr.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+    let color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+    let rgb = hexToRgb(color);
+    while (rgb[0] + rgb[1] + rgb[2] < 350) {
+        hash = (hash << 5) - hash;
+        color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+        rgb = hexToRgb(color);
+    }
     return '#' + color.padStart(6, '0');
 }
 
@@ -605,6 +618,9 @@ function addUsersTag() {
                         const tags = doc.querySelectorAll("#glanceCtnResponsiveRight > div.glance_tags_ctn.popular_tags_ctn > div.glance_tags.popular_tags > a.app_tag");
                         // Extract the text content of each tag and join them with a comma and a space
                         const genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
+                        if (genreDescription.next().next().text() === "User-defined Tag(s): ") {
+                            return;
+                        }
                         // Modify the original page by adding a new line with the genres
                         const br = $('span[style="font-weight: bold"]:contains("Genre(s):")').next()[0];
                         const span = document.createElement("span");
