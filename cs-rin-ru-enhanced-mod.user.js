@@ -480,8 +480,7 @@ function colorize(str, bgColour) {
     let rgb = hexToRgb(color);
     let matches = bgColour.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
     const bgRgb = [parseInt(matches[1]), parseInt(matches[2]), parseInt(matches[3])]
-    console.log(bgRgb)
-    while (Math.abs(rgb[0] + rgb[1] + rgb[2] - (bgRgb[0] + bgRgb[1] + bgRgb[2])) < 200) {
+    while (Math.abs(rgb[0] + rgb[1] + rgb[2] - (bgRgb[0] + bgRgb[1] + bgRgb[2])) < 300) {
         hash = (hash << 5) - hash;
         color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
         rgb = hexToRgb(color);
