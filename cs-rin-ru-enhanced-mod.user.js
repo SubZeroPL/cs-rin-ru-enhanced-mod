@@ -425,13 +425,13 @@ function tagify() {
     if (options.custom_tags) {
         $(".titles, .topictitle").each(function () {
             const titleElem = this;
-            const bgColour = getComputedStyle(titleElem.parentElement).getPropertyValue("background-color")
+            const parentElem = titleElem.parentElement
             if (titleElem.id !== "colorize") {
                 titleElem.id = "colorize";
                 const tags = $(titleElem).text().match(/\[([^\]]+)]/g);
                 if (tags) {
                     tags.forEach(function (tag) {
-                        const color = colorize(tag, bgColour);
+                        const color = colorize(tag, parentElem);
                         titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/[\[\]]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
                     });
                 }
@@ -470,7 +470,7 @@ function hexToRgb(hex) {
     return [r, g, b];
 }
 
-function colorize(str, bgColour) {
+function colorize(str, parentElem) {
     let lstr = str.toLowerCase();
     let hash = 0;
     for (let i = 0; i < lstr.length; i++) {
@@ -478,13 +478,20 @@ function colorize(str, bgColour) {
     }
     let color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
     let rgb = hexToRgb(color);
+
+    while (!getComputedStyle(parentElem).getPropertyValue("background-color").match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)) {
+        parentElem = parentElem.parentElement
+    }
+    let bgColour = getComputedStyle(parentElem).getPropertyValue("background-color");
     let matches = bgColour.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
     const bgRgb = [parseInt(matches[1]), parseInt(matches[2]), parseInt(matches[3])]
+
     while (Math.abs(rgb[0] + rgb[1] + rgb[2] - (bgRgb[0] + bgRgb[1] + bgRgb[2])) < 300) {
         hash = (hash << 5) - hash;
         color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
         rgb = hexToRgb(color);
     }
+
     return '#' + color.padStart(6, '0');
 }
 
