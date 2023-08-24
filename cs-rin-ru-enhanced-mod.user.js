@@ -260,7 +260,6 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     nextPage = $(nextElem).attr("href");
                     ajaxDone = true;
                 }
-
             });
         }
 
