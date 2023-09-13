@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.10.3
+// @version         0.10.8
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -243,19 +243,23 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     }
 
     $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number attribute to posts on the page upon loading
-    window.addEventListener("wheel", function (e) {
+    function infiniteScroll(e) {
         if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
             ajaxDone = false;
             $.get(nextPage, function (data) {
                 let page = $(selector, data).attr("page_number", $(nextElem).text());
-                $(page[0]).find("tbody:first").find("tr:first").remove();
-                $(selector).last().after(page);
-                const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                navElems[$(nextElem).text()] = { Html: nextNavElemHTML };
-                functionsCalledByInfiniteScrolls(data);
-                nextElem = $(navElem).find("strong").next().next().next().next();
-                nextPage = $(nextElem).attr("href");
-                ajaxDone = true;
+                if (page.length === 0) {
+                    ajaxDone = true;
+                } else {
+                    $(page[0]).find("tbody:first").find("tr:first").remove();
+                    $(selector).last().after(page);
+                    const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                    navElems[$(nextElem).text()] = { Html: nextNavElemHTML };
+                    functionsCalledByInfiniteScrolls(data);
+                    nextElem = $(navElem).find("strong").next().next().next().next();
+                    nextPage = $(nextElem).attr("href");
+                    ajaxDone = true;
+                }
             });
         }
 
@@ -266,17 +270,21 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 ajaxDone = false;
                 $.get(prevPage, function (data) {
                     let element = $(selector);
-                    $(element[0]).find("tbody:first").find("tr:first").remove();
-                    $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
-                    let top = $(element[0]).offset().top + $(element[0]).height();
-                    const scrollPosition = top - $(window).height();
-                    $('html, body').animate({ scrollTop: scrollPosition }, 0);
-                    const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(previousElem).text()] = { Html: prevNavElemHTML };
-                    functionsCalledByInfiniteScrolls(data);
-                    previousElem = $(navElem).find("strong").prev().prev().prev().prev();
-                    prevPage = $(previousElem).attr("href");
-                    ajaxDone = true;
+                    if (element.length === 0) {
+                        ajaxDone = true;
+                    } else {
+                        $(element[0]).find("tbody:first").find("tr:first").remove();
+                        $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
+                        let top = $(element[0]).offset().top + $(element[0]).height();
+                        const scrollPosition = top - $(window).height();
+                        $('html, body').animate({ scrollTop: scrollPosition }, 0);
+                        const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                        navElems[$(previousElem).text()] = { Html: prevNavElemHTML };
+                        functionsCalledByInfiniteScrolls(data);
+                        previousElem = $(navElem).find("strong").prev().prev().prev().prev();
+                        prevPage = $(previousElem).attr("href");
+                        ajaxDone = true;
+                    }
                 });
                 scrollLength = 0;
             }
@@ -306,7 +314,10 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 element.querySelector('strong:nth-child(1)').innerHTML = pageNumber;
             }
         }
-    });
+    }
+
+    window.addEventListener("wheel", infiniteScroll);
+    window.addEventListener("scroll", infiniteScroll);
 }
 
 function functionsCalledByInfiniteScrolls(data) {
@@ -317,6 +328,7 @@ function functionsCalledByInfiniteScrolls(data) {
     setupTopicPreview();
     addLink();
     steamDBLink();
+    addUsersTag();
     goToUnreadPosts();
     colorizeFriends();
 }
@@ -412,12 +424,13 @@ function tagify() {
     if (options.custom_tags) {
         $(".titles, .topictitle").each(function () {
             const titleElem = this;
+            const parentElem = titleElem.parentElement
             if (titleElem.id !== "colorize") {
                 titleElem.id = "colorize";
                 const tags = $(titleElem).text().match(/\[([^\]]+)]/g);
                 if (tags) {
                     tags.forEach(function (tag) {
-                        const color = colorize(tag);
+                        const color = colorize(tag, parentElem);
                         titleElem.innerHTML = titleElem.innerHTML.replace(tag, "<span style='color:" + color + ";'>[</span><span style='color:" + color + ";font-size: 0.9em;'>" + tag.replace(/[\[\]]/g, "") + "</span><span style='color:" + color + ";'>]</span>");
                     });
                 }
@@ -449,13 +462,35 @@ function hideScs() {
     }
 }
 
-function colorize(str) {
+function hexToRgb(hex) {
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return [r, g, b];
+}
+
+function colorize(str, parentElem) {
     let lstr = str.toLowerCase();
     let hash = 0;
     for (let i = 0; i < lstr.length; i++) {
         hash = lstr.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+    let color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+    let rgb = hexToRgb(color);
+
+    while (!getComputedStyle(parentElem).getPropertyValue("background-color").match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)) {
+        parentElem = parentElem.parentElement
+    }
+    let bgColour = getComputedStyle(parentElem).getPropertyValue("background-color");
+    let matches = bgColour.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    const bgRgb = [parseInt(matches[1]), parseInt(matches[2]), parseInt(matches[3])]
+
+    while (Math.abs(rgb[0] + rgb[1] + rgb[2] - (bgRgb[0] + bgRgb[1] + bgRgb[2])) < 300) {
+        hash = (hash << 5) - hash;
+        color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777216)).toString(16);
+        rgb = hexToRgb(color);
+    }
+
     return '#' + color.padStart(6, '0');
 }
 
@@ -578,7 +613,8 @@ function addUsersTag() {
     if (options.add_users_tag) {
         const steamLink = $('a[href^="https://store.steampowered.com/app/"], a[href^="http://store.steampowered.com/app/"]').first()[0];
         if (steamLink != null) {
-            if ($(":contains('Genre(s):')").filter((i, e) => $(e).text() === "Genre(s):").length > 0) { // If we are on the game presentation page
+            const genreDescription = $(":contains('Genre(s):')").filter((i, e) => $(e).text() === "Genre(s):");
+            if (genreDescription.length > 0 && genreDescription.next().next().text() !== "User-defined Tag(s): ") { // If we are on the game presentation page
                 // Get the link to the Steam game page
                 const link = steamLink.href;
                 // Send a request to the Steam game page and bypass CSP
@@ -591,6 +627,9 @@ function addUsersTag() {
                         const tags = doc.querySelectorAll("#glanceCtnResponsiveRight > div.glance_tags_ctn.popular_tags_ctn > div.glance_tags.popular_tags > a.app_tag");
                         // Extract the text content of each tag and join them with a comma and a space
                         const genres = Array.from(tags).map(tag => tag.textContent.trim()).join(", ");
+                        if (genreDescription.next().next().text() === "User-defined Tag(s): ") {
+                            return;
+                        }
                         // Modify the original page by adding a new line with the genres
                         const br = $('span[style="font-weight: bold"]:contains("Genre(s):")').next()[0];
                         const span = document.createElement("span");
@@ -618,7 +657,7 @@ function steamDBLink() {
         return;
     }
 
-    let postlinks = document.getElementsByClassName("postlink");
+    let postlinks = $(".postlink");
     if (postlinks.length === 0) {
         return;
     }
