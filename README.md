@@ -29,7 +29,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - Dynamically refresh: the current time, who is online, received messages (dynamic_function).
 - Colors messages in red if you have an unread message (colorize_new_messages).
 - Colorize several elements on the page (colorize_the_page).
-- Colorize your friends for easy recognition (colorize_friends).
+- Colorize your friends for easy recognition (colorize_friends_me).
 - Add a button to access your profile (add_profile_button).
 - Verification that the user is connected or not. If he is not, he disables the functions that need to be connected.
 
