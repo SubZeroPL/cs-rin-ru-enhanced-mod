@@ -102,7 +102,7 @@
                 "steam_db_link": $("#steam_db_link")[0].checked,
                 "copy_link_button": $("#copy_link_button")[0].checked,
                 "dynamic_function": $("#dynamic_function")[0].checked,
-                "colorize_friends": $("#colorize_friends")[0].checked,
+                "colorize_friends_me": Number($("#colorize_friends_me")[0].value),
                 "add_profile_button": $("#add_profile_button")[0].checked,
                 "colorize_new_messages": $("#colorize_new_messages")[0].checked,
                 "colorize_the_page": $("#colorize_the_page")[0].checked,
@@ -325,10 +325,14 @@
                             <label for="add_users_tag">Add users tag</label>
                         </td>
                     </tr>
-                    <td title="Colour your friends in pink">
-                        <input data-originalValue="" id="colorize_friends" need-connected="true"
-                               type="checkbox">
-                        <label for="colorize_friends">Colorize friends</label>
+                    <tr title="0=nothing, 1=your in red, 2=your friends in pink, 3=both">
+                        <label for="colorize_friends_me">Colorize friends</label>
+                        <select data-originalValue="" id="colorize_friends_me" need-connected="true">
+                            <option value="0">Nothing</option>
+                            <option value="1">Me</option>
+                            <option value="2">My friends</option>
+                            <option value="3">Me and my friends</option>
+                        </select>
                     </td>
                     <tr title="• First post -> means that clicking on a topic title will take you to the first page.&#10;• Unread post -> means that clicking on a topic title will lead to unread posts.&#10;• Unread post + preview -> means that clicking on a topic title will lead to the unread posts and that moving the mouse over it with the 'show topic preview' option will display the unread posts.">
                         <td>
