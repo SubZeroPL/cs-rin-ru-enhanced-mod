@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.10.10
+// @version         0.10.11
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -82,7 +82,7 @@ let options = {
     "infinite_scrolling": true,
     "mentioning": true,
     "dynamic_function": true,
-    "colorize_friends": true,
+    "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "add_profile_button": true,
     "colorize_new_messages": true,
     "colorize_the_page": true,
@@ -104,7 +104,8 @@ let options = {
 Color used in this script
 */
 let color = {
-    "pink": '#f4169b'
+    "color_of_friends": '#f4169b',
+    "color_of_me": '#ff4c4c'
 };
 
 /*
@@ -118,7 +119,7 @@ function loadConfig() {
         options.add_profile_button = false;
         options.colorize_new_messages = false;
         options.add_small_shoutbox = false;
-        options.colorize_friends = false;
+        options.colorize_friends_me = 0;
     }
 }
 
@@ -145,7 +146,7 @@ function loadConfigButton() {
             $("input#steam_db_link")[0].checked = options.steam_db_link;
             $("input#copy_link_button")[0].checked = options.copy_link_button;
             $("input#dynamic_function")[0].checked = options.dynamic_function;
-            $("input#colorize_friends")[0].checked = options.colorize_friends;
+            $("select#colorize_friends_me")[0].options.selectedIndex = options.colorize_friends_me;
             $("input#add_profile_button")[0].checked = options.add_profile_button;
             $("input#colorize_new_messages")[0].checked = options.colorize_new_messages;
             $("input#colorize_the_page")[0].checked = options.colorize_the_page;
@@ -330,7 +331,7 @@ function functionsCalledByInfiniteScrolls(data) {
     steamDBLink();
     addUsersTag();
     goToUnreadPosts();
-    colorizeFriends();
+    colorizeFriendsMe();
 }
 
 
@@ -394,7 +395,7 @@ function dynamicFunction(data) {
         $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)").html(html); //Message
     }
     changeColorOfNewMessage();//Colorize messages
-    colorizeFriends();
+    colorizeFriendsMe();
     if (URLContains("viewtopic.php")) { //Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
@@ -811,7 +812,7 @@ function fetchChat() {
             chatContainer.appendChild(script);
         })
         .then(() => {
-            colorizeFriends();
+            colorizeFriendsMe();
         });
 }
 
@@ -902,15 +903,15 @@ function colorizeThePages() {
 
 colorizeThePages();
 
-//Color friends pink
-async function colorizeFriends() {
-    if (options.colorize_friends) {
+//Color friends
+async function colorizeFriendsMe() {
+    if (options.colorize_friends_me > 0) {
         //Add legends friends
-        if (URLContains("index.php")) {
+        if (URLContains("index.php")&&options.colorize_friends_me > 1) {
             if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
                 const friends = document.createElement('a');
                 friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
-                friends.style.color = color.pink;
+                friends.style.color = color.color_of_friends;
                 friends.innerText = 'Friends';
                 const selector = document.querySelectorAll(".gensmall")[3];
                 selector.append(", ");
@@ -923,16 +924,16 @@ async function colorizeFriends() {
         links.forEach(link => {
             let nickname = link.innerText;
             if (link.classList.contains('quotetitle')) nickname = nickname.substring(0, nickname.length - 7)
-            if (USERNAME === nickname) {
+            if (USERNAME === nickname&&options.colorize_friends_me === 1 || USERNAME === nickname&&options.colorize_friends_me === 3) {
                 link.id = "colorize";
-                link.style.color = '#ff4c4c';
+                link.style.color = color.color_of_me;
             }
-            if (FRIENDS_LIST.includes(nickname)) {
+            if (FRIENDS_LIST.includes(nickname)&&options.colorize_friends_me > 1) {
                 link.id = "colorize";
-                link.style.color = color.pink;
+                link.style.color = color.color_of_friends;
             }
         });
     }
 }
 
-colorizeFriends();
+colorizeFriendsMe();
