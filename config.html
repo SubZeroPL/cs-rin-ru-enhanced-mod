@@ -142,9 +142,9 @@
         window.open("https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717", "blank");
     }
 
-    $("#toggleParams").click(function() {
-        $("#params").slideToggle();
-    });
+    function toggleParams() {
+        $("#params").slideToggle(400);
+    }
 </script>
 <style>
     /* fallback */
@@ -375,7 +375,7 @@
                             <input data-originalvalue="true" id="special_search" type="checkbox">
                             <label for="special_search">Activate the special search bar with these parameters</label>
 
-                            <button id="toggleParams">Show/Hide Parameters</button>
+                            <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
                             <div id="params" style="display: none;">
                                 <input data-originalvalue="" id="special_search_parameter"
                                        title="All different parameters with their different values here:
