@@ -117,7 +117,7 @@
                 "topic_preview": $("#topic_preview")[0].checked,
                 "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value),
                 "special_search": $("#special_search")[0].checked,
-                "special_search_parameter": $("#special_search_parameter")[0].value  
+                "special_search_parameter": $("#special_search_parameter")[0].value
             };
             window.postMessage(JSON.stringify(data), "*");
             window.location.reload();
@@ -141,6 +141,10 @@
     function openForum() {
         window.open("https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717", "blank");
     }
+
+    $("#toggleParams").click(function() {
+        $("#params").slideToggle();
+    });
 </script>
 <style>
     /* fallback */
@@ -359,13 +363,26 @@
                         </td>
                     </tr>
                     <tr>
+<!--                        <td colspan="2">-->
+<!--                            <input data-originalvalue="true" id="special_search" type="checkbox">-->
+<!--                            <label for="special_search">Activate the special search bar with these parameters</label>-->
+<!--                            <input data-originalvalue="" id="special_search_parameter"-->
+<!--                                title="All different parameters with their different values here:-->
+<!--                                https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search" type="text"-->
+<!--                                value="search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all">-->
+<!--                        </td>-->
                         <td colspan="2">
                             <input data-originalvalue="true" id="special_search" type="checkbox">
                             <label for="special_search">Activate the special search bar with these parameters</label>
-                            <input data-originalvalue="" id="special_search_parameter"
-                                title="All different parameters with their different values here:
-                                https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search" type="text"
-                                value="search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all">
+
+                            <button id="toggleParams">Show/Hide Parameters</button>
+                            <div id="params" style="display: none;">
+                                <input data-originalvalue="" id="special_search_parameter"
+                                       title="All different parameters with their different values here:
+            https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search"
+                                       type="text"
+                                       value="search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all">
+                            </div>
                         </td>
                     </tr>
                     <tr title="• Green means that all games in the respective topic are available for download&#10;• Yellow means that some, but not all titles (of a series) are available for download&#10;• Red means that no game is available for download.">
