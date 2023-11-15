@@ -22,6 +22,6 @@ terms
 No parameters are mandatory. Parameters not specified will take their default value.
 You can put spaces between each parameter - it doesn't matter.
 You can put the parameters in any order you like.
-Exemple: search %all -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all
-Example: terms %all -search %all -sortad %d -author %Altansar
-Example: terms%all-search%all-sortad%d-author%Altansar
+• Exemple: search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all
+• Example: terms %all -search %all -sortad %d -author %Altansar
+• Example: terms%all-search%all-sortad%d-author%Altansar
