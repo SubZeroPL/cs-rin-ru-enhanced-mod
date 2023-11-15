@@ -171,7 +171,13 @@ function loadConfigButton() {
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
             $("input#special_search")[0].checked = options.special_search;
-            $("input#special_search_parameter")[0].value = options.special_search_parameter;
+            let specialSearchParameter = JSON.parse(options.special_search_parameter);
+            $("input#searchSubforums")[0].checked = specialSearchParameter.SearchSubforums;
+            $("select#sortResultsBy")[0].value = specialSearchParameter.SortResultsBy;
+            $("select#sortOrderBy")[0].value = specialSearchParameter.SortOrderBy;
+            $("input#showAsPosts")[0].checked = specialSearchParameter.ShowAsPosts;
+            $("input#limitToPrevious")[0].value = specialSearchParameter.LimitToPrevious;
+            $("input#returnFirst")[0].value = specialSearchParameter.ReturnFirst;
 
             if (!options.script_enabled) {
                 $("fieldset#config").hide();
