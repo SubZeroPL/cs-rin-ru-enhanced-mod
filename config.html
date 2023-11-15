@@ -382,32 +382,44 @@
 
                             <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
                             <div id="params" style="display: none;">
-                                <label for="searchSubforums">Search subforums:</label>
-                                <input data-originalvalue="true" id="searchSubforums" name="searchSubforums" type="checkbox">
+                                <div>
+                                    <label for="searchSubforums">Search subforums:</label>
+                                    <input data-originalvalue="true" id="searchSubforums" name="searchSubforums" type="checkbox">
+                                </div>
 
-                                <label for="sortResultsBy">Sort results by:</label>
-                                <select id="sortResultsBy" name="sortResultsBy">
-                                    <option value="a">Author</option>
-                                    <option value="t">Post Time</option>
-                                    <option value="f">Forum</option>
-                                    <option value="i">Topic title</option>
-                                    <option value="s">Post subject</option>
-                                </select>
+                                <div>
+                                    <label for="sortResultsBy">Sort results by:</label>
+                                    <select id="sortResultsBy" name="sortResultsBy">
+                                        <option value="a">Author</option>
+                                        <option value="t">Post Time</option>
+                                        <option value="f">Forum</option>
+                                        <option value="i">Topic title</option>
+                                        <option value="s">Post subject</option>
+                                    </select>
+                                </div>
 
-                                <label for="sortOrderBy">Sort order by:</label>
-                                <select id="sortOrderBy" name="sortOrderBy">
-                                    <option value="a">Ascending</option>
-                                    <option value="d">Descending</option>
-                                </select>
+                                <div>
+                                    <label for="sortOrderBy">Sort order by:</label>
+                                    <select id="sortOrderBy" name="sortOrderBy">
+                                        <option value="a">Ascending</option>
+                                        <option value="d">Descending</option>
+                                    </select>
+                                </div>
 
-                                <label for="showAsPosts">Show as posts:</label>
-                                <input data-originalvalue="true" id="showAsPosts" name="showAsPosts" type="checkbox">
+                                <div>
+                                    <label for="showAsPosts">Show as posts:</label>
+                                    <input data-originalvalue="true" id="showAsPosts" name="showAsPosts" type="checkbox">
+                                </div>
 
-                                <label for="limitToPrevious">Limit to previous days:</label>
-                                <input type="number" id="limitToPrevious" name="limitToPrevious">
+                                <div>
+                                    <label for="limitToPrevious">Limit to previous days:</label>
+                                    <input type="number" id="limitToPrevious" name="limitToPrevious">
+                                </div>
 
-                                <label for="returnFirst">Return first characters of posts:</label>
-                                <input type="number" id="returnFirst" name="returnFirst">
+                                <div>
+                                    <label for="returnFirst">Return first characters of posts:</label>
+                                    <input type="number" id="returnFirst" name="returnFirst">
+                                </div>
                             </div>
                         </td>
                     </tr>
