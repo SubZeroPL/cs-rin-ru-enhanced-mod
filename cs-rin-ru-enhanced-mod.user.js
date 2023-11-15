@@ -107,8 +107,7 @@ let options = {
 Color used in this script
 */
 let color = {
-    "color_of_friends": '#f4169b',
-    "color_of_me": '#ff4c4c'
+    "color_of_friends": '#f4169b', "color_of_me": '#ff4c4c'
 };
 
 /*
@@ -944,20 +943,20 @@ async function colorizeFriendsMe() {
 colorizeFriendsMe();
 
 function searchURL() {
-    const searchBar = document.querySelector('#searchBar');
+    const searchBar = document.querySelector("#searchBar");
     // Fetch the values from search options
-    let searchScope = document.getElementById('searchScope').value; // Everywhere/This forum/This thread
-    let searchTerms = document.getElementById('searchTerms').value; // Any/All
-    let searchLocation = document.getElementById('searchLocation').checked ? 'firstpost' : 'all'; // Search
-    let showAsPosts = document.getElementById('showAsPosts').checked ? 'posts' : 'topics'; // Display
-    let searchAuthor = document.getElementById('searchAuthor').value; // Author
+    let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This thread
+    let searchTerms = document.getElementById("searchTerms").value; // Any/All
+    let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : "all"; // Search
+    let showAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
+    let searchAuthor = document.getElementById("searchAuthor").value; // Author
     let forumID = "";
     let threadID = "0";
 
     // Check the searchScope and parse URL if required
-    if (searchScope === 'thisForum') {
+    if (searchScope === "thisForum") {
         let urlParams = new URLSearchParams(window.location.search);
-        forumID = urlParams.get('f');
+        forumID = urlParams.get("f");
         if (forumID) {
             forumID = "&fid%5B%5D=" + forumID;
         }
@@ -965,7 +964,7 @@ function searchURL() {
 
     if (searchScope === "thisThread") {
         let urlParams = new URLSearchParams(window.location.search);
-        threadID = urlParams.get('t');
+        threadID = urlParams.get("t");
     }
 
     window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=1&sf=${searchLocation}&sk=t&sd=d&sr=${showAsPosts}&st=0&ch=300&t=${threadID}`;
@@ -976,9 +975,9 @@ function specialSearch() {
     if (options.special_search) {
         // Get row to insert searchBar
         const cell = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)");
-        const container = document.createElement('div');
-        container.style.position = 'relative';
-        container.style.display = 'inline-block';
+        const container = document.createElement("div");
+        container.style.position = "relative";
+        container.style.display = "inline-block";
 
         // Different locations based on which page the user is on
         let searchScopeOptions;
@@ -1026,7 +1025,7 @@ function specialSearch() {
                 </div>
                 <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
                     <label for="searchAuthor" style="color: white;">By: </label>
-                    <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author's name">
+                    <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author"s name">
                 </div>
                 <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
                     <button id="searchButton">Search</button>
@@ -1037,39 +1036,39 @@ function specialSearch() {
         cell.prepend(container);
 
         // Getting reference of the search bar and the search options
-        const searchBar = document.querySelector('#searchBar');
-        const searchOptions = document.querySelector('#searchOptions');
+        const searchBar = document.querySelector("#searchBar");
+        const searchOptions = document.querySelector("#searchOptions");
 
         // Add event listener for search bar
-        searchBar.addEventListener('click', function (event) {
+        searchBar.addEventListener("click", function (event) {
             // Makes it so search options will not disappear first
             event.stopPropagation();
             // Toggles the display of search options when search bar is clicked
-            searchOptions.style.display = 'block';
+            searchOptions.style.display = "block";
         });
 
         // Add event listener for search options so search options will not disappear when clicked on
-        searchOptions.addEventListener('click', function (event) {
+        searchOptions.addEventListener("click", function (event) {
             event.stopPropagation();
         });
 
         // Add event listener to document (disappear when anything other than the search bar/options is clicked)
-        document.addEventListener('click', function () {
+        document.addEventListener("click", function () {
             // Hides the search options when click is outside the search bar
-            if (searchOptions.style.display === 'block') {
-                searchOptions.style.display = 'none';
+            if (searchOptions.style.display === "block") {
+                searchOptions.style.display = "none";
             }
         });
 
         // Redirect to search on Enter key press
-        searchBar.addEventListener('keydown', function (ev) {
-            if (ev.code === 'Enter') {
+        searchBar.addEventListener("keydown", function (ev) {
+            if (ev.code === "Enter") {
                 searchURL()
             }
         });
 
         // Add functionality for search button
-        document.querySelector("#searchButton").addEventListener('click', searchURL);
+        document.querySelector("#searchButton").addEventListener("click", searchURL);
     }
 }
 
