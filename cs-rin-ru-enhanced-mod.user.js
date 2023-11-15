@@ -974,7 +974,7 @@ function searchURL() {
     // Fetch the values from search options
     let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This thread
     let searchTerms = document.getElementById("searchTerms").value; // Any/All
-    let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : searchTopicLocation; // Search
+    let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : (searchTopicLocation === "all" || searchTopicLocation === "msgonly") ? searchTopicLocation : "all"; // Search
     let showResultsAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
     let searchAuthor = document.getElementById("searchAuthor").value; // Author
     let forumID = "";
