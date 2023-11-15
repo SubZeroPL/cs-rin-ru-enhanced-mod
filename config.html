@@ -99,10 +99,11 @@
                 "searchSubforums": $("#searchSubforums").prop("checked"),
                 "sortResultsBy": $("#sortResultsBy").val(),
                 "sortOrderBy": $("#sortOrderBy").val(),
-                "showAsPosts": $("#showAsPosts").prop("checked"),
+                "showAsPosts": $("#showAsPosts:checked").length > 0,
                 "limitToPrevious": $("#limitToPrevious").val(),
                 "returnFirst": $("#returnFirst").val(),
             });
+
             const data = {
                 "script_enabled": $("#script_enabled")[0].checked,
                 "infinite_scrolling": $("#infinite_scrolling")[0].checked,
