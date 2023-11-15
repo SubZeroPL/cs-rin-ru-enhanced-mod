@@ -103,7 +103,7 @@ let options = {
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "special_search": true,
-    "special_search_parameter": "search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all", //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
+    "special_search_parameter": specialSearchParameters, //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
     "steam_db_link": true,
     "copy_link_button": true,
     "add_small_shoutbox": true,
