@@ -193,11 +193,15 @@ if (navBar) {
         $("[method='post']:not(#search)").get(0).before(div); // For search.php, memberlist.php
     }
 
+    let bgColour = getComputedStyle(document.querySelector("body")).getPropertyValue("background-color");
+    let matches = bgColour.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    const bgRgb = [parseInt(matches[1]), parseInt(matches[2]), parseInt(matches[3])]
+    let colour = bgRgb[0] + bgRgb[1] + bgRgb[2] > 600 ? "white" : "black";
     GM_addStyle(`[name="page_nav"] {
         position: sticky !important;
         top: 0px;
         width: 500px;
-        background: linear-gradient(90deg, black 90%, transparent 95%);
+        background: linear-gradient(90deg, ${colour} 90%, transparent 95%);
     }`);
 }
 
