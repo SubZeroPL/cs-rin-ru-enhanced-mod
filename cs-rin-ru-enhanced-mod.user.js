@@ -37,7 +37,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
+const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/advanced-search-bar/config.html"
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
@@ -94,7 +94,7 @@ let options = {
     "title_format": "%C %S - %T", // %C: CS.RIN.RU - Steam Underground Community •, %S: Section title (e.g. View topic), %T: Page title, %RT Page title without tags
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
-    "special_search":true,
+    "special_search": true,
     "special_search_parameter": "search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all", //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
     "steam_db_link": true,
     "copy_link_button": true,
@@ -116,7 +116,7 @@ Functions that need to be connected must be added here and you must also add the
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
-    options = { ...options, ...savedOptions };
+    options = {...options, ...savedOptions};
     if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
@@ -237,7 +237,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
 
     let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
-    navElems[$(navElem).find("strong").text()] = { Html: navElem.html() }; // Add the current nav element to the dictionary
+    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
         if (nextElem.length !== 0) { // If we're not on the last page
@@ -260,7 +260,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     $(page[0]).find("tbody:first").find("tr:first").remove();
                     $(selector).last().after(page);
                     const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(nextElem).text()] = { Html: nextNavElemHTML };
+                    navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
                     functionsCalledByInfiniteScrolls(data);
                     nextElem = $(navElem).find("strong").next().next().next().next();
                     nextPage = $(nextElem).attr("href");
@@ -283,9 +283,9 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                         $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
                         let top = $(element[0]).offset().top + $(element[0]).height();
                         const scrollPosition = top - $(window).height();
-                        $('html, body').animate({ scrollTop: scrollPosition }, 0);
+                        $('html, body').animate({scrollTop: scrollPosition}, 0);
                         const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                        navElems[$(previousElem).text()] = { Html: prevNavElemHTML };
+                        navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
                         functionsCalledByInfiniteScrolls(data);
                         previousElem = $(navElem).find("strong").prev().prev().prev().prev();
                         prevPage = $(previousElem).attr("href");
@@ -912,7 +912,7 @@ colorizeThePages();
 async function colorizeFriendsMe() {
     if (options.colorize_friends_me > 0) {
         //Add legends friends
-        if (URLContains("index.php")&&options.colorize_friends_me > 1) {
+        if (URLContains("index.php") && options.colorize_friends_me > 1) {
             if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
                 const friends = document.createElement('a');
                 friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
@@ -929,11 +929,11 @@ async function colorizeFriendsMe() {
         links.forEach(link => {
             let nickname = link.innerText;
             if (link.classList.contains('quotetitle')) nickname = nickname.substring(0, nickname.length - 7)
-            if (USERNAME === nickname&&options.colorize_friends_me === 1 || USERNAME === nickname&&options.colorize_friends_me === 3) {
+            if (USERNAME === nickname && options.colorize_friends_me === 1 || USERNAME === nickname && options.colorize_friends_me === 3) {
                 link.id = "colorize";
                 link.style.color = color.color_of_me;
             }
-            if (FRIENDS_LIST.includes(nickname)&&options.colorize_friends_me > 1) {
+            if (FRIENDS_LIST.includes(nickname) && options.colorize_friends_me > 1) {
                 link.id = "colorize";
                 link.style.color = color.color_of_friends;
             }
@@ -945,43 +945,43 @@ colorizeFriendsMe();
 
 function specialSearch() {
 //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
-    if(options.special_search) {
-        let str= options.special_search_parameter;
+    if (options.special_search) {
+        let str = options.special_search_parameter;
         const allSpacesRemoved = str.replaceAll(' ', '');
         let variables = {};
         let parts = allSpacesRemoved.split("-");
         let subparts = [];
-        for(let i=0;i<parts.length;i++) {
+        for (let i = 0; i < parts.length; i++) {
             subparts.push(parts[i].split("%"));
             variables[subparts[i][0]] = subparts[i][1];
         }
 
-        if(variables.search===undefined) {
-            variables.search="all";
+        if (variables.search === undefined) {
+            variables.search = "all";
         }
-        if(variables.sort===undefined) {
-            variables.sort="t";
+        if (variables.sort === undefined) {
+            variables.sort = "t";
         }
-        if(variables.sortad===undefined) {
-            variables.sortad="d";
+        if (variables.sortad === undefined) {
+            variables.sortad = "d";
         }
-        if(variables.display===undefined) {
-            variables.display="topics";
+        if (variables.display === undefined) {
+            variables.display = "topics";
         }
-        if(variables.returnchar===undefined) {
-            variables.returnchar="300";
+        if (variables.returnchar === undefined) {
+            variables.returnchar = "300";
         }
-        if(variables.author===undefined) {
-            variables.author="";
+        if (variables.author === undefined) {
+            variables.author = "";
         }
-        if(variables.date===undefined) {
-            variables.date="0";
+        if (variables.date === undefined) {
+            variables.date = "0";
         }
-        if(variables.searchsub===undefined) {
-            variables.searchsub="1";
+        if (variables.searchsub === undefined) {
+            variables.searchsub = "1";
         }
-        if(variables.terms===undefined) {
-            variables.terms="all";
+        if (variables.terms === undefined) {
+            variables.terms = "all";
         }
 
         const cell = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)");
@@ -1000,4 +1000,5 @@ function specialSearch() {
         })
     }
 }
+
 specialSearch();
