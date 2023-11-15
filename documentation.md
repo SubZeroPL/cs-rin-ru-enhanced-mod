@@ -1,7 +1,7 @@
 # Special Search
 
 search (within)
- - all = Post subjects and message text. msgonly = Message text only. titleonly = Topic titles only. topics = First post of topics only
+ - all = Post subjects and message text. msgonly = Message text only. titleonly = Topic titles only. firstpost = First post of topics only
 sort (results by)
  - a = author. t = post time. f = forum. i = topic title. s = post subject
 sortad (sort results by)
