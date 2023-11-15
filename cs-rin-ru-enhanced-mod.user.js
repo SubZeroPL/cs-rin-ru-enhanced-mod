@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.10.11
+// @version         0.11.0
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -33,6 +33,7 @@ Creator: Royalgamer06 (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u
 Contributor: SubZeroPL (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=505897) who has now taken over the project
 Contributor: Redpoint (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1365721) has created some functionality
 Contributor: Altansar (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1280185) has created some functionality
+Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=582752) created the original function for the special search. We have kindly given his permission to use his work
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
@@ -93,6 +94,8 @@ let options = {
     "title_format": "%C %S - %T", // %C: CS.RIN.RU - Steam Underground Community •, %S: Section title (e.g. View topic), %T: Page title, %RT Page title without tags
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
+    "special_search":true,
+    "special_search_parameter": "search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all", //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
     "steam_db_link": true,
     "copy_link_button": true,
     "add_small_shoutbox": true,
@@ -160,6 +163,8 @@ function loadConfigButton() {
             $("input#title_format")[0].value = options.title_format;
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
+            $("input#special_search")[0].checked = options.special_search;
+            $("input#special_search_parameter")[0].value = options.special_search_parameter;
 
             if (!options.script_enabled) {
                 $("fieldset#config").hide();
@@ -937,3 +942,62 @@ async function colorizeFriendsMe() {
 }
 
 colorizeFriendsMe();
+
+function specialSearch() {
+//Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
+    if(options.special_search) {
+        let str= options.special_search_parameter;
+        const allSpacesRemoved = str.replaceAll(' ', '');
+        let variables = {};
+        let parts = allSpacesRemoved.split("-");
+        let subparts = [];
+        for(let i=0;i<parts.length;i++) {
+            subparts.push(parts[i].split("%"));
+            variables[subparts[i][0]] = subparts[i][1];
+        }
+
+        if(variables.search===undefined) {
+            variables.search="all";
+        }
+        if(variables.sort===undefined) {
+            variables.sort="t";
+        }
+        if(variables.sortad===undefined) {
+            variables.sortad="d";
+        }
+        if(variables.display===undefined) {
+            variables.display="topics";
+        }
+        if(variables.returnchar===undefined) {
+            variables.returnchar="300";
+        }
+        if(variables.author===undefined) {
+            variables.author="";
+        }
+        if(variables.date===undefined) {
+            variables.date="0";
+        }
+        if(variables.searchsub===undefined) {
+            variables.searchsub="1";
+        }
+        if(variables.terms===undefined) {
+            variables.terms="all";
+        }
+
+        const cell = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)");
+        const container = document.createElement('div')
+        container.style.position = 'relative'
+        container.style.display = 'inline-block'
+        container.innerHTML += '<input type="text" placeholder="Special search">' +
+            '<div style="position: absolute; top: 110%">'
+        const inputField = container.querySelector('input')
+        cell.prepend(container)
+
+        inputField.addEventListener('keydown', ev => {
+            if (ev.code === 'Enter') {
+                window.location.href = `./search.php?keywords=${encodeURIComponent(inputField.value).replace(/%20/g, "+")}&terms=${variables.terms}&author=${variables.author}&sc=${variables.searchsub}&sf=${variables.search}&sk=${variables.sort}&sd=${variables.sortad}&sr=${variables.display}&st=${variables.date}&ch=${variables.returnchar}&t=0`
+            }
+        })
+    }
+}
+specialSearch();
