@@ -943,61 +943,133 @@ async function colorizeFriendsMe() {
 
 colorizeFriendsMe();
 
+function searchURL() {
+    const searchBar = document.querySelector('#searchBar');
+    // Fetch the values from search options
+    let searchScope = document.getElementById('searchScope').value; // Everywhere/This forum/This thread
+    let searchTerms = document.getElementById('searchTerms').value; // Any/All
+    let searchLocation = document.getElementById('searchLocation').checked ? 'firstpost' : 'all'; // Search
+    let showAsPosts = document.getElementById('showAsPosts').checked ? 'posts' : 'topics'; // Display
+    let searchAuthor = document.getElementById('searchAuthor').value; // Author
+    let forumID = "";
+    let threadID = "0";
+
+    // Check the searchScope and parse URL if required
+    if (searchScope === 'thisForum') {
+        let urlParams = new URLSearchParams(window.location.search);
+        forumID = urlParams.get('f');
+        if (forumID) {
+            forumID = "&fid%5B%5D=" + forumID;
+        }
+    }
+
+    if (searchScope === "thisThread") {
+        let urlParams = new URLSearchParams(window.location.search);
+        threadID = urlParams.get('t');
+    }
+
+    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=1&sf=${searchLocation}&sk=t&sd=d&sr=${showAsPosts}&st=0&ch=300&t=${threadID}`;
+}
+
 function specialSearch() {
 //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
     if (options.special_search) {
-        let str = options.special_search_parameter;
-        const allSpacesRemoved = str.replaceAll(' ', '');
-        let variables = {};
-        let parts = allSpacesRemoved.split("-");
-        let subparts = [];
-        for (let i = 0; i < parts.length; i++) {
-            subparts.push(parts[i].split("%"));
-            variables[subparts[i][0]] = subparts[i][1];
-        }
-
-        if (variables.search === undefined) {
-            variables.search = "all";
-        }
-        if (variables.sort === undefined) {
-            variables.sort = "t";
-        }
-        if (variables.sortad === undefined) {
-            variables.sortad = "d";
-        }
-        if (variables.display === undefined) {
-            variables.display = "topics";
-        }
-        if (variables.returnchar === undefined) {
-            variables.returnchar = "300";
-        }
-        if (variables.author === undefined) {
-            variables.author = "";
-        }
-        if (variables.date === undefined) {
-            variables.date = "0";
-        }
-        if (variables.searchsub === undefined) {
-            variables.searchsub = "1";
-        }
-        if (variables.terms === undefined) {
-            variables.terms = "all";
-        }
-
+        // Get row to insert searchBar
         const cell = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)");
-        const container = document.createElement('div')
-        container.style.position = 'relative'
-        container.style.display = 'inline-block'
-        container.innerHTML += '<input type="text" placeholder="Special search">' +
-            '<div style="position: absolute; top: 110%">'
-        const inputField = container.querySelector('input')
-        cell.prepend(container)
+        const container = document.createElement('div');
+        container.style.position = 'relative';
+        container.style.display = 'inline-block';
 
-        inputField.addEventListener('keydown', ev => {
-            if (ev.code === 'Enter') {
-                window.location.href = `./search.php?keywords=${encodeURIComponent(inputField.value).replace(/%20/g, "+")}&terms=${variables.terms}&author=${variables.author}&sc=${variables.searchsub}&sf=${variables.search}&sk=${variables.sort}&sd=${variables.sortad}&sr=${variables.display}&st=${variables.date}&ch=${variables.returnchar}&t=0`
+        // Different locations based on which page the user is on
+        let searchScopeOptions;
+        if (window.location.href.includes("viewtopic.php")) {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+                <option value="thisForum">This forum</option>
+                <option value="thisThread">This thread</option>
+            `;
+        } else if (window.location.href.includes("viewforum.php")) {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+                <option value="thisForum">This forum</option>
+            `;
+        } else {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+            `;
+        }
+
+        // Creating search bar and search options
+        container.innerHTML = `
+            <input id="searchBar" type="text" placeholder="Special search">
+            <div id="searchOptions" style="display: none; position: absolute; background-color:#1c1c1c; border-top:0.5em solid black; text-align: left;">
+                <div style="padding-bottom: 1em;">
+                    <label for="searchScope" style="color: white;">Search:</label>
+                    <select id="searchScope" name="searchScope">
+                        ${searchScopeOptions}
+                    </select>
+                </div>
+                <div style="padding-bottom: 1em;">
+                    <label for="searchTerms" style="color: white;">Search for:</label>
+                    <select id="searchTerms" name="searchTerms">
+                        <option value="any">Any term</option>
+                        <option value="all">All terms</option>
+                    </select>
+                </div>
+                <div style="padding-bottom: 1em;">
+                    <input type="checkbox" id="searchLocation" name="searchLocation" value="firstPost">
+                    <label for="searchLocation" style="color: white;">Search first post/titles only</label>
+                </div>
+                <div style="padding-bottom: 1em;">
+                    <input type="checkbox" id="showAsPosts" name="showAsPosts">
+                    <label for="showAsPosts" style="color: white;">Show as posts</label>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
+                    <label for="searchAuthor" style="color: white;">By: </label>
+                    <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author's name">
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
+                    <button id="searchButton">Search</button>
+                </div>
+            </div>
+        `;
+
+        cell.prepend(container);
+
+        // Getting reference of the search bar and the search options
+        const searchBar = document.querySelector('#searchBar');
+        const searchOptions = document.querySelector('#searchOptions');
+
+        // Add event listener for search bar
+        searchBar.addEventListener('click', function (event) {
+            // Makes it so search options will not disappear first
+            event.stopPropagation();
+            // Toggles the display of search options when search bar is clicked
+            searchOptions.style.display = 'block';
+        });
+
+        // Add event listener for search options so search options will not disappear when clicked on
+        searchOptions.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+
+        // Add event listener to document (disappear when anything other than the search bar/options is clicked)
+        document.addEventListener('click', function () {
+            // Hides the search options when click is outside the search bar
+            if (searchOptions.style.display === 'block') {
+                searchOptions.style.display = 'none';
             }
-        })
+        });
+
+        // Redirect to search on Enter key press
+        searchBar.addEventListener('keydown', function (ev) {
+            if (ev.code === 'Enter') {
+                searchURL()
+            }
+        });
+
+        // Add functionality for search button
+        document.querySelector("#searchButton").addEventListener('click', searchURL);
     }
 }
 
