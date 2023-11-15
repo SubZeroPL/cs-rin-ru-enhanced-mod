@@ -115,7 +115,9 @@
                 "apply_in_scs": $("#apply_in_scs")[0].checked,
                 "title_format": $("#title_format")[0].value,
                 "topic_preview": $("#topic_preview")[0].checked,
-                "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value)
+                "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value),
+                "special_search": $("#special_search")[0].checked,
+                "special_search_parameter": Number($("#special_search_parameter")[0].value)  
             };
             window.postMessage(JSON.stringify(data), "*");
             window.location.reload();
@@ -354,6 +356,13 @@
                             <input data-originalValue="" id="topic_preview_timeout" maxlength="2" min="1" size="3"
                                    type="number" value="5"/>
                             <span>seconds</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input data-originalvalue="true" id="special_search" type="checkbox">
+                            <label for="special_search">Activate the special search bar with these parameters</label>
+                            <input data-originalvalue="search %all -sort %t -sortad %d -display %topics -returnchar %300 -author %Altansar -date %0 -searchsub %1 -terms %all" id="special_search_parameter" size="17">
                         </td>
                     </tr>
                     <tr title="• Green means that all games in the respective topic are available for download&#10;• Yellow means that some, but not all titles (of a series) are available for download&#10;• Red means that no game is available for download.">
