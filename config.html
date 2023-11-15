@@ -95,6 +95,14 @@
 
     function sendConfig() {
         if ($("#messages").is(":visible")) {
+            const specialSearchParameters = JSON.stringify({
+                "searchSubforums": $("#searchSubforums").prop("checked"),
+                "sortResultsBy": $("#sortResultsBy").val(),
+                "sortOrderBy": $("#sortOrderBy").val(),
+                "showAsPosts": $("#showAsPosts").prop("checked"),
+                "limitToPrevious": $("#limitToPrevious").val(),
+                "returnFirst": $("#returnFirst").val(),
+            });
             const data = {
                 "script_enabled": $("#script_enabled")[0].checked,
                 "infinite_scrolling": $("#infinite_scrolling")[0].checked,
@@ -117,7 +125,7 @@
                 "topic_preview": $("#topic_preview")[0].checked,
                 "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value),
                 "special_search": $("#special_search")[0].checked,
-                "special_search_parameter": $("#special_search_parameter")[0].value
+                "special_search_parameter": specialSearchParameters
             };
             window.postMessage(JSON.stringify(data), "*");
             window.location.reload();

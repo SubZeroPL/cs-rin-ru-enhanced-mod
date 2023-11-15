@@ -78,6 +78,14 @@ async function retrievesFriendsLists() {
 /*
 Configuration array with default values.
 */
+const specialSearchParameters = JSON.stringify({
+    "searchSubforums": true,
+    "sortResultsBy": "t",
+    "sortOrderBy": "d",
+    "showAsPosts": false,
+    "limitToPrevious": 0,
+    "returnFirst": "300",
+});
 let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
