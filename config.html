@@ -96,7 +96,7 @@
     function sendConfig() {
         if ($("#messages").is(":visible")) {
             const specialSearchParameters = JSON.stringify({
-                "searchTermsSpecificity": $(#searchTermsSpecificity).val(),
+                "searchTermsSpecificity": $("#searchTermsSpecificity").val(),
                 "searchSubforums": $("#searchSubforums").prop("checked"),
                 "searchTopicLocation": $("#searchTopicLocation").val(),
                 "sortResultsBy": $("#sortResultsBy").val(),
