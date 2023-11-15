@@ -377,16 +377,37 @@
 <!--                                value="search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all">-->
 <!--                        </td>-->
                         <td colspan="2">
-                            <input data-originalvalue="true" id="special_search" type="checkbox">
-                            <label for="special_search">Activate the special search bar with these parameters</label>
+                            <input data-originalvalue="true" id="special_search" name="special_search" type="checkbox">
+                            <label for="special_search">Activate the special search bar</label>
 
                             <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
                             <div id="params" style="display: none;">
-                                <input data-originalvalue="" id="special_search_parameter"
-                                       title="All different parameters with their different values here:
-            https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search"
-                                       type="text"
-                                       value="search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all">
+                                <label for="searchSubforums">Search subforums:</label>
+                                <input data-originalvalue="true" id="searchSubforums" name="searchSubforums" type="checkbox">
+
+                                <label for="sortResultsBy">Sort results by:</label>
+                                <select id="sortResultsBy" name="sortResultsBy">
+                                    <option value="a">Author</option>
+                                    <option value="t">Post Time</option>
+                                    <option value="f">Forum</option>
+                                    <option value="i">Topic title</option>
+                                    <option value="s">Post subject</option>
+                                </select>
+
+                                <label for="sortOrderBy">Sort order by:</label>
+                                <select id="sortOrderBy" name="sortOrderBy">
+                                    <option value="a">Ascending</option>
+                                    <option value="d">Descending</option>
+                                </select>
+
+                                <label for="showAsPosts">Show as posts:</label>
+                                <input data-originalvalue="true" id="showAsPosts" name="showAsPosts" type="checkbox">
+
+                                <label for="limitToPrevious">Limit to previous days:</label>
+                                <input type="number" id="limitToPrevious" name="limitToPrevious">
+
+                                <label for="returnFirst">Return first characters of posts:</label>
+                                <input type="number" id="returnFirst" name="returnFirst">
                             </div>
                         </td>
                     </tr>
