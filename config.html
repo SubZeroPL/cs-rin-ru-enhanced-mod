@@ -96,7 +96,9 @@
     function sendConfig() {
         if ($("#messages").is(":visible")) {
             const specialSearchParameters = JSON.stringify({
+                "searchTermsSpecificity": $(#searchTermsSpecificity).val(),
                 "searchSubforums": $("#searchSubforums").prop("checked"),
+                "searchTopicLocation": $("#searchTopicLocation").val(),
                 "sortResultsBy": $("#sortResultsBy").val(),
                 "sortOrderBy": $("#sortOrderBy").val(),
                 "showResultsAsPosts": $("#showResultsAsPosts").prop("checked"),
@@ -392,6 +394,14 @@
                             <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
                             <div id="params" style="display: none;">
                                 <div>
+                                    <label for="searchTermsSpecificity">Search for:</label>
+                                    <select data-originalvalue="" id="searchTermsSpecificity" name="searchTermsSpecificity">
+                                        <option value="any">Any term</option>
+                                        <option value="all">All terms</option>
+                                    </select>
+                                </div>
+
+                                <div>
                                     <label for="searchSubforums">Search subforums:</label>
                                     <input data-originalvalue="" id="searchSubforums" name="searchSubforums"
                                            type="checkbox">
@@ -413,6 +423,16 @@
                                     <select data-originalvalue="" id="sortOrderBy" name="sortOrderBy">
                                         <option value="a">Ascending</option>
                                         <option value="d">Descending</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="searchTopicLocation">Search within:</label>
+                                    <select data-originalvalue="" id="searchTopicLocation" name="searchTopicLocation">
+                                        <option value="all">Post subjects and message text</option>
+                                        <option value="msgonly">Message text only</option>
+                                        <option value="titleonly">Topic titles only/option>
+                                        <option value="firstpost">First post of topics only</option>
                                     </select>
                                 </div>
 

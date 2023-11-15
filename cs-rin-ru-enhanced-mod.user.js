@@ -79,7 +79,9 @@ async function retrievesFriendsLists() {
 Configuration array with default values.
 */
 const specialSearchParameters = JSON.stringify({
+    "searchTermsSpecificity": "any",
     "searchSubforums": true,
+    "searchTopicLocation": "titleonly",
     "sortResultsBy": "t",
     "sortOrderBy": "d",
     "showResultsAsPosts": false,
@@ -173,7 +175,9 @@ function loadConfigButton() {
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
             $("input#special_search")[0].checked = options.special_search;
             let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+            $("select#searchTermsSpecificity")[0].value = specialSearchParametersJSON.searchTermsSpecificity;
             $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
+            $("select#searchTopicLocation")[0].value = specialSearchParametersJSON.searchTopicLocation;
             $("select#sortResultsBy")[0].value = specialSearchParametersJSON.sortResultsBy;
             $("select#sortOrderBy")[0].value = specialSearchParametersJSON.sortOrderBy;
             $("input#showResultsAsPosts")[0].checked = specialSearchParametersJSON.showResultsAsPosts;
@@ -959,6 +963,13 @@ colorizeFriendsMe();
 
 function searchURL() {
     const searchBar = document.querySelector("#searchBar");
+    // Config values
+    let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+    const searchSubforums = specialSearchParametersJSON.searchSubforums;
+    const sortResultsBy = specialSearchParametersJSON.sortResultsBy;
+    const sortOrderBy = specialSearchParametersJSON.sortOrderBy;
+    const limitToPrevious = specialSearchParametersJSON.limitToPrevious;
+    const returnFirst = specialSearchParametersJSON.returnFirst;
     // Fetch the values from search options
     let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This thread
     let searchTerms = document.getElementById("searchTerms").value; // Any/All
@@ -982,7 +993,7 @@ function searchURL() {
         threadID = urlParams.get("t");
     }
 
-    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=1&sf=${searchLocation}&sk=t&sd=d&sr=${showResultsAsPosts}&st=0&ch=300&t=${threadID}`;
+    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=${searchSubforums}&sf=${searchLocation}&sk=${sortResultsBy}&sd=${sortOrderBy}&sr=${showResultsAsPosts}&st=${limitToPrevious}&ch=${returnFirst}&t=${threadID}`;
 }
 
 function specialSearch() {
@@ -1013,6 +1024,12 @@ function specialSearch() {
             `;
         }
 
+        // Getting config values
+        let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+        const searchLocationChecked = specialSearchParametersJSON.searchTopicLocation === "titleonly" || specialSearchParametersJSON.searchTopicLocation === "firstpost" ? "checked" : "";
+        const showAsPostsChecked = specialSearchParametersJSON.showResultsAsPosts ? "checked" : "";
+        const searchTermsSelected = specialSearchParametersJSON.searchTermsSpecificity;
+
         // Creating search bar and search options
         container.innerHTML = `
             <input id="searchBar" type="text" placeholder="Special search">
@@ -1026,21 +1043,21 @@ function specialSearch() {
                 <div style="padding-bottom: 1em;">
                     <label for="searchTerms" style="color: white;">Search for:</label>
                     <select id="searchTerms" name="searchTerms">
-                        <option value="any">Any term</option>
-                        <option value="all">All terms</option>
+                        <option value="any" ${searchTermsSelected === 'any' ? 'selected' : ''}>Any term</option>
+                        <option value="all" ${searchTermsSelected === 'all' ? 'selected' : ''}>All terms</option>
                     </select>
                 </div>
                 <div style="padding-bottom: 1em;">
-                    <input type="checkbox" id="searchLocation" name="searchLocation" value="firstPost">
+                    <input type="checkbox" id="searchLocation" name="searchLocation" value="firstPost" ${searchLocationChecked}>
                     <label for="searchLocation" style="color: white;">Search first post/titles only</label>
                 </div>
                 <div style="padding-bottom: 1em;">
-                    <input type="checkbox" id="showAsPosts" name="showAsPosts">
+                    <input type="checkbox" id="showAsPosts" name="showAsPosts" ${showAsPostsChecked}>
                     <label for="showAsPosts" style="color: white;">Show as posts</label>
                 </div>
                 <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
                     <label for="searchAuthor" style="color: white;">By: </label>
-                    <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author"s name">
+                    <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author's name">
                 </div>
                 <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
                     <button id="searchButton">Search</button>
