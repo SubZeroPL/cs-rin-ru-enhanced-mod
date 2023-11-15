@@ -86,6 +86,7 @@ const specialSearchParameters = JSON.stringify({
     "limitToPrevious": 0,
     "returnFirst": "300",
 });
+
 let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
@@ -171,13 +172,13 @@ function loadConfigButton() {
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
             $("input#special_search")[0].checked = options.special_search;
-            let specialSearchParameter = JSON.parse(options.special_search_parameter);
-            $("input#searchSubforums")[0].checked = specialSearchParameter.SearchSubforums;
-            $("select#sortResultsBy")[0].value = specialSearchParameter.SortResultsBy;
-            $("select#sortOrderBy")[0].value = specialSearchParameter.SortOrderBy;
-            $("input#showAsPosts")[0].checked = specialSearchParameter.ShowAsPosts;
-            $("input#limitToPrevious")[0].value = specialSearchParameter.LimitToPrevious;
-            $("input#returnFirst")[0].value = specialSearchParameter.ReturnFirst;
+            let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+            $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
+            $("select#sortResultsBy")[0].value = specialSearchParametersJSON.sortResultsBy;
+            $("select#sortOrderBy")[0].value = specialSearchParametersJSON.sortOrderBy;
+            $("input#showAsPosts")[0].checked = specialSearchParametersJSON.showAsPosts;
+            $("input#limitToPrevious")[0].value = specialSearchParametersJSON.limitToPrevious;
+            $("input#returnFirst")[0].value = specialSearchParametersJSON.returnFirst;
 
             if (!options.script_enabled) {
                 $("fieldset#config").hide();
