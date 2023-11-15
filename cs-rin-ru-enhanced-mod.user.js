@@ -966,6 +966,7 @@ function searchURL() {
     // Config values
     let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
     const searchSubforums = specialSearchParametersJSON.searchSubforums;
+    const searchTopicLocation = specialSearchParametersJSON.searchTopicLocation;
     const sortResultsBy = specialSearchParametersJSON.sortResultsBy;
     const sortOrderBy = specialSearchParametersJSON.sortOrderBy;
     const limitToPrevious = specialSearchParametersJSON.limitToPrevious;
@@ -973,7 +974,7 @@ function searchURL() {
     // Fetch the values from search options
     let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This thread
     let searchTerms = document.getElementById("searchTerms").value; // Any/All
-    let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : "all"; // Search
+    let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : searchTopicLocation; // Search
     let showResultsAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
     let searchAuthor = document.getElementById("searchAuthor").value; // Author
     let forumID = "";
