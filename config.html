@@ -99,11 +99,11 @@
                 "searchSubforums": $("#searchSubforums").prop("checked"),
                 "sortResultsBy": $("#sortResultsBy").val(),
                 "sortOrderBy": $("#sortOrderBy").val(),
-                "showAsPosts": $("#showAsPosts:checked").length > 0,
+                "showResultsAsPosts": $("#showResultsAsPosts").prop("checked"),
                 "limitToPrevious": $("#limitToPrevious").val(),
                 "returnFirst": $("#returnFirst").val(),
             });
-
+            console.log(specialSearchParameters);
             const data = {
                 "script_enabled": $("#script_enabled")[0].checked,
                 "infinite_scrolling": $("#infinite_scrolling")[0].checked,
@@ -417,8 +417,8 @@
                                 </div>
 
                                 <div>
-                                    <label for="showAsPosts">Show as posts:</label>
-                                    <input data-originalvalue="" id="showAsPosts" name="showAsPosts" type="checkbox">
+                                    <label for="showResultsAsPosts">Show as posts:</label>
+                                    <input data-originalvalue="" id="showResultsAsPosts" name="showResultsAsPosts" type="checkbox">
                                 </div>
 
                                 <div>

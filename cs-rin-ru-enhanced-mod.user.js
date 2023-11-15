@@ -82,7 +82,7 @@ const specialSearchParameters = JSON.stringify({
     "searchSubforums": true,
     "sortResultsBy": "t",
     "sortOrderBy": "d",
-    "showAsPosts": false,
+    "showResultsAsPosts": false,
     "limitToPrevious": 0,
     "returnFirst": "300",
 });
@@ -176,7 +176,7 @@ function loadConfigButton() {
             $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
             $("select#sortResultsBy")[0].value = specialSearchParametersJSON.sortResultsBy;
             $("select#sortOrderBy")[0].value = specialSearchParametersJSON.sortOrderBy;
-            $("input#showAsPosts")[0].checked = specialSearchParametersJSON.showAsPosts;
+            $("input#showResultsAsPosts")[0].checked = specialSearchParametersJSON.showResultsAsPosts;
             $("input#limitToPrevious")[0].value = specialSearchParametersJSON.limitToPrevious;
             $("input#returnFirst")[0].value = specialSearchParametersJSON.returnFirst;
 
@@ -963,7 +963,7 @@ function searchURL() {
     let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This thread
     let searchTerms = document.getElementById("searchTerms").value; // Any/All
     let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : "all"; // Search
-    let showAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
+    let showResultsAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
     let searchAuthor = document.getElementById("searchAuthor").value; // Author
     let forumID = "";
     let threadID = "0";
@@ -982,7 +982,7 @@ function searchURL() {
         threadID = urlParams.get("t");
     }
 
-    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=1&sf=${searchLocation}&sk=t&sd=d&sr=${showAsPosts}&st=0&ch=300&t=${threadID}`;
+    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=1&sf=${searchLocation}&sk=t&sd=d&sr=${showResultsAsPosts}&st=0&ch=300&t=${threadID}`;
 }
 
 function specialSearch() {
