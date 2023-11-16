@@ -231,13 +231,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
         "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))" // viewtopic.php
     ];
 
-    let selector;
-
-    for (const select of selectors) {
-        if ($(select).length !== 0) {
-            selector = select;
-        }
-    }
+    const selector = selectors.find(select => $(select).length !== 0);
 
     let ajaxDone = true;
     const navElem = $("[title='Click to jump to page…']").first().parent();
