@@ -211,11 +211,15 @@ if (navBar) {
         $("[method='post']:not(#search)").get(0).before(div); // For search.php, memberlist.php
     }
 
+    let bgColour = getComputedStyle(document.querySelector("body")).getPropertyValue("background-color");
+    let matches = bgColour.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    const bgRgb = [parseInt(matches[1]), parseInt(matches[2]), parseInt(matches[3])]
+    let colour = bgRgb[0] + bgRgb[1] + bgRgb[2] > 600 ? "white" : "black";
     GM_addStyle(`[name="page_nav"] {
         position: sticky !important;
         top: 0px;
         width: 500px;
-        background: linear-gradient(90deg, black 90%, transparent 95%);
+        background: linear-gradient(90deg, ${colour} 90%, transparent 95%);
     }`);
 }
 
@@ -237,28 +241,26 @@ Reply button added by Altansar
 INFINITE SCROLLING
 */
 if (options.infinite_scrolling && $("[title='Click to jump to page…']").length > 0) {
-    let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; // viewforum.php
-    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; // search.php
-    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)"; // search.php (user messages) and memberlist.php
-    if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; // inbox
-    if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; // viewtopic.php
+    const selectors = [
+        "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
+        "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']", // search.php
+        "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)", // search.php (user messages) and memberlist.php
+        "#pagecontent > form > table.tablebg > tbody > tr:not(:first)", // inbox
+        "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))" // viewtopic.php
+    ];
 
-    const navElem = $("[title='Click to jump to page…']").first().parent();
-    let nextElem = $(navElem).find("strong").next().next();
-    let nextPage = $(nextElem).attr("href"); // Will be undefined if there is no next element but only the length of nextElem will be used
-    let previousElem = $(navElem).find("strong").prev().prev();
-    let prevPage = $(previousElem).attr("href"); // Will be undefined if there is no previous element
+    const selector = selectors.find(select => $(select).length !== 0);
+
     let ajaxDone = true;
-
-    // Stuff for infinite scrolling backwards
+    const navElem = $("[title='Click to jump to page…']").first().parent();
+    const initialPageElem = $(navElem).find("strong");
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
-
-    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
+    let navElems = {}; // Dictionary for storing nav bar elements for each page (page number: {Html: HTML of that page's nav element})
     navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
-        if (nextElem.length !== 0) { // If we're not on the last page
+        if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
             $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").parent().parent().parent());
             $("[title='Reply to topic']").last().parents().eq(4).remove();
         }
@@ -266,77 +268,83 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
         $(selector).parent().prepend($(".cat:has(.btnlite)").parent());
     }
 
-    $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number attribute to posts on the page upon loading
+    $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number attribute to initial posts on the page
+
     function infiniteScroll(e) {
-        if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
-            ajaxDone = false;
-            $.get(nextPage, function (data) {
-                let page = $(selector, data).attr("page_number", $(nextElem).text());
-                if (page.length === 0) {
-                    ajaxDone = true;
-                } else {
-                    $(page[0]).find("tbody:first").find("tr:first").remove();
-                    $(selector).last().after(page);
-                    const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(nextElem).text()] = {Html: nextNavElemHTML};
-                    functionsCalledByInfiniteScrolls(data);
-                    nextElem = $(navElem).find("strong").next().next().next().next();
-                    nextPage = $(nextElem).attr("href");
-                    ajaxDone = true;
-                }
-            });
+        // Update nav element
+        const posts = [...$(selector)]; // Get all posts on page
+        const topElement = posts.find(post => window.getComputedStyle(post).display !== "none" && post.getBoundingClientRect().top >= 0); // Get the first element at the top of the screen that is not hidden
+        let currentPageNumber = $(navElem).find("strong").text(); // Get the bolded number in the nav bar
+        if (topElement) {
+            currentPageNumber = $(topElement).attr("page_number"); // Get page number of the top element
+            $(navElem).html(navElems[currentPageNumber].Html); // Replace the nav element with the one stored in the dictionary
+
+            // Update number next to "post reply" button in topics
+            if (URLContains("viewtopic.php")) {
+                const pageIndicator = document.getElementsByClassName("nav")[0];
+                pageIndicator.querySelector("strong:nth-child(1)").innerHTML = `${currentPageNumber}`;
+            }
         }
 
-        const currentPosition = window.scrollY || window.document.documentElement.scrollTop;
-        if (currentPosition === 0 && e.deltaY < 0) {
+        // Min and max page numbers that have already been visited
+        const navElemsKeys = Object.keys(navElems).map(Number);
+        let earliestPageNumber = Math.min(...navElemsKeys).toString();
+        let latestPageNumber = Math.max(...navElemsKeys).toString();
+
+        // Backward scroll
+        if ((window.scrollY || window.document.documentElement.scrollTop) === 0 && e.deltaY < 0) {
             scrollLength += Math.abs(e.deltaY);
-            if (scrollLength >= scrollThreshold && previousElem.length > 0 && ajaxDone) {
+            if (scrollLength >= scrollThreshold && currentPageNumber === earliestPageNumber && ajaxDone) {
                 ajaxDone = false;
-                $.get(prevPage, function (data) {
-                    let element = $(selector);
-                    if (element.length === 0) {
-                        ajaxDone = true;
-                    } else {
-                        $(element[0]).find("tbody:first").find("tr:first").remove();
-                        $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
-                        let top = $(element[0]).offset().top + $(element[0]).height();
-                        const scrollPosition = top - $(window).height();
-                        $('html, body').animate({scrollTop: scrollPosition}, 0);
-                        const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                        navElems[$(previousElem).text()] = {Html: prevNavElemHTML};
-                        functionsCalledByInfiniteScrolls(data);
-                        previousElem = $(navElem).find("strong").prev().prev().prev().prev();
-                        prevPage = $(previousElem).attr("href");
-                        ajaxDone = true;
-                    }
+                let previousPageElem = $(navElem).find(`:contains('${earliestPageNumber}')`).prev().prev(); // Find the previous page
+                let previousPageLink = $(previousPageElem).attr("href"); // Get the link to the page
+                // If there is no suitable link then stop
+                if (!previousPageLink) {
+                    ajaxDone = true;
+                    return;
+                }
+
+                $.get(previousPageLink, function (data) {
+                    let currentPage = $(selector); // Posts on current page
+                    $($(selector)[0]).before($(selector, data).attr("page_number", $(previousPageElem).text())); // Add the new content to the front as well as page number
+                    $(currentPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from current page - this element will be added back with the new content
+                    let scrollPosition = $(currentPage[0]).offset().top + $(currentPage[0]).height() - $(window).height();
+                    $("html, body").animate({scrollTop: scrollPosition}, 0); // Move to new content
+                    const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                    navElems[$(previousPageElem).text()] = {Html: prevNavElemHTML};
+                    functionsCalledByInfiniteScrolls(data); // Run functions
+                    earliestPageNumber = $($.parseHTML(prevNavElemHTML)).find("strong").text();
+                    ajaxDone = true;
                 });
-                scrollLength = 0;
+                scrollLength = 0; // Reset scrollLength
             }
         } else {
-            scrollLength = 0
+            scrollLength = 0; // Reset scrollLength if not actively trying to go to previous page
         }
 
-        const posts = $(selector).toArray();
-        let topElement;
-        for (let i = 0; i < posts.length; i++) {
-            if (window.getComputedStyle(posts[i]).display === "none") {
-                continue;
+        // Forward scroll
+        if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && currentPageNumber === latestPageNumber && ajaxDone) {
+            ajaxDone = false;
+            let nextPageElem = $(navElem).find(`:contains('${latestPageNumber}')`).next().next(); // Find the next page
+            let nextPageLink = $(nextPageElem).attr("href"); // Get the link to the page
+            // If there is no suitable link then stop
+            if (!nextPageLink) {
+                ajaxDone = true;
+                return;
             }
-            const rect = posts[i].getBoundingClientRect();
-            if (rect.top >= 0) {
-                topElement = posts[i];
-                break;
-            }
-        }
-        if (topElement) {
-            const pageNumber = $(topElement).attr('page_number'); // Get page number of top element
-            $(navElem).html(navElems[pageNumber].Html); // Update nav element
 
-            // Update number next to "Post Reply"
-            if (URLContains("viewtopic.php")) {
-                const element = document.getElementsByClassName("nav")[0];
-                element.querySelector('strong:nth-child(1)').innerHTML = pageNumber;
-            }
+            $.get(nextPageLink, function (data) {
+                let newPage = $(selector, data).attr("page_number", $(nextPageElem).text()); // Selected next page content
+                $(newPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from the new content
+                $(selector).last().after(newPage) // Add the new page content to the end
+                const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html(); // Get the nav bar of the new page
+                navElems[$(nextPageElem).text()] = {Html: nextNavElemHTML}; // Store it for use when the user scrolls over the new content
+                functionsCalledByInfiniteScrolls(data); // Run functions
+                if ($($.parseHTML(nextNavElemHTML)).find("strong").text()) {
+                    latestPageNumber = ($.parseHTML(nextNavElemHTML)).find("strong").text(); // Update position
+                }
+                ajaxDone = true;
+            });
         }
     }
 
@@ -1079,6 +1087,7 @@ function specialSearch() {
             // Toggles the display of search options when search bar is clicked
             searchOptions.style.display = "block";
         });
+
 
         // Add event listener for search options so search options will not disappear when clicked on
         searchOptions.addEventListener("click", function (event) {
