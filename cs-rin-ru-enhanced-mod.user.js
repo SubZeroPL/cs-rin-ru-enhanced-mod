@@ -272,13 +272,12 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
         const navElemsKeys = Object.keys(navElems).map(Number);
         let earliestPageNumber = Math.min(...navElemsKeys).toString();
         let latestPageNumber = Math.max(...navElemsKeys).toString();
-
         // Backward scroll
         if ((window.scrollY || window.document.documentElement.scrollTop) === 0 && e.deltaY < 0) {
             scrollLength += Math.abs(e.deltaY);
             if (scrollLength >= scrollThreshold && currentPageNumber === earliestPageNumber && ajaxDone) {
                 ajaxDone = false;
-                let previousPageElem = $(navElem).find(`:contains('${earliestPageNumber}')`).prev().prev(); // Find the previous page
+                let previousPageElem = $(navElem).find(`:contains('${earliestPageNumber}')`).first().prev().prev(); // Find the previous page
                 let previousPageLink = $(previousPageElem).attr("href"); // Get the link to the page
                 // If there is no suitable link then stop
                 if (!previousPageLink) {
