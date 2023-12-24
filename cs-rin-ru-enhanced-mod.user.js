@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.12.0
+// @version         0.13.0
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -78,6 +78,17 @@ async function retrievesFriendsLists() {
 /*
 Configuration array with default values.
 */
+const specialSearchParameters = JSON.stringify({
+    "searchTermsSpecificity": "any",
+    "searchSubforums": true,
+    "searchTopicLocation": "titleonly",
+    "sortResultsBy": "t",
+    "sortOrderBy": "d",
+    "showResultsAsPosts": false,
+    "limitToPrevious": 0,
+    "returnFirst": "300",
+});
+
 let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
@@ -95,7 +106,7 @@ let options = {
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "special_search": true,
-    "special_search_parameter": "search %firstpost -sort %t -sortad %d -display %topics -returnchar %300 -author % -date %0 -searchsub %1 -terms %all", //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
+    "special_search_parameter": specialSearchParameters, //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
     "steam_db_link": true,
     "copy_link_button": true,
     "add_small_shoutbox": true,
@@ -107,8 +118,7 @@ let options = {
 Color used in this script
 */
 let color = {
-    "color_of_friends": '#f4169b',
-    "color_of_me": '#ff4c4c'
+    "color_of_friends": '#f4169b', "color_of_me": '#ff4c4c'
 };
 
 /*
@@ -164,7 +174,15 @@ function loadConfigButton() {
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
             $("input#special_search")[0].checked = options.special_search;
-            $("input#special_search_parameter")[0].value = options.special_search_parameter;
+            let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+            $("select#searchTermsSpecificity")[0].value = specialSearchParametersJSON.searchTermsSpecificity;
+            $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
+            $("select#searchTopicLocation")[0].value = specialSearchParametersJSON.searchTopicLocation;
+            $("select#sortResultsBy")[0].value = specialSearchParametersJSON.sortResultsBy;
+            $("select#sortOrderBy")[0].value = specialSearchParametersJSON.sortOrderBy;
+            $("input#showResultsAsPosts")[0].checked = specialSearchParametersJSON.showResultsAsPosts;
+            $("input#limitToPrevious")[0].value = specialSearchParametersJSON.limitToPrevious;
+            $("input#returnFirst")[0].value = specialSearchParametersJSON.returnFirst;
 
             if (!options.script_enabled) {
                 $("fieldset#config").hide();
@@ -950,61 +968,148 @@ async function colorizeFriendsMe() {
 
 colorizeFriendsMe();
 
+function searchURL() {
+    const searchBar = document.querySelector("#searchBar");
+    // Config values
+    let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+    const searchSubforums = specialSearchParametersJSON.searchSubforums;
+    const searchTopicLocation = specialSearchParametersJSON.searchTopicLocation;
+    const sortResultsBy = specialSearchParametersJSON.sortResultsBy;
+    const sortOrderBy = specialSearchParametersJSON.sortOrderBy;
+    const limitToPrevious = specialSearchParametersJSON.limitToPrevious;
+    const returnFirst = specialSearchParametersJSON.returnFirst;
+    // Fetch the values from search options
+    let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This thread
+    let searchTerms = document.getElementById("searchTerms").value; // Any/All
+    let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : (searchTopicLocation === "all" || searchTopicLocation === "msgonly") ? searchTopicLocation : "all"; // Search
+    let showResultsAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
+    let searchAuthor = document.getElementById("searchAuthor").value; // Author
+    let forumID = "";
+    let threadID = "0";
+
+    // Check the searchScope and parse URL if required
+    if (searchScope === "thisForum") {
+        let urlParams = new URLSearchParams(window.location.search);
+        forumID = urlParams.get("f");
+        if (forumID) {
+            forumID = "&fid%5B%5D=" + forumID;
+        }
+    }
+
+    if (searchScope === "thisThread") {
+        let urlParams = new URLSearchParams(window.location.search);
+        threadID = urlParams.get("t");
+    }
+
+    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=${searchSubforums}&sf=${searchLocation}&sk=${sortResultsBy}&sd=${sortOrderBy}&sr=${showResultsAsPosts}&st=${limitToPrevious}&ch=${returnFirst}&t=${threadID}`;
+}
+
 function specialSearch() {
 //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
     if (options.special_search) {
-        let str = options.special_search_parameter;
-        const allSpacesRemoved = str.replaceAll(' ', '');
-        let variables = {};
-        let parts = allSpacesRemoved.split("-");
-        let subparts = [];
-        for (let i = 0; i < parts.length; i++) {
-            subparts.push(parts[i].split("%"));
-            variables[subparts[i][0]] = subparts[i][1];
-        }
-
-        if (variables.search === undefined) {
-            variables.search = "all";
-        }
-        if (variables.sort === undefined) {
-            variables.sort = "t";
-        }
-        if (variables.sortad === undefined) {
-            variables.sortad = "d";
-        }
-        if (variables.display === undefined) {
-            variables.display = "topics";
-        }
-        if (variables.returnchar === undefined) {
-            variables.returnchar = "300";
-        }
-        if (variables.author === undefined) {
-            variables.author = "";
-        }
-        if (variables.date === undefined) {
-            variables.date = "0";
-        }
-        if (variables.searchsub === undefined) {
-            variables.searchsub = "1";
-        }
-        if (variables.terms === undefined) {
-            variables.terms = "all";
-        }
-
+        // Get row to insert searchBar
         const cell = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)");
-        const container = document.createElement('div')
-        container.style.position = 'relative'
-        container.style.display = 'inline-block'
-        container.innerHTML += '<input type="text" placeholder="Special search">' +
-            '<div style="position: absolute; top: 110%">'
-        const inputField = container.querySelector('input')
-        cell.prepend(container)
+        const container = document.createElement("div");
+        container.style.position = "relative";
+        container.style.display = "inline-block";
 
-        inputField.addEventListener('keydown', ev => {
-            if (ev.code === 'Enter') {
-                window.location.href = `./search.php?keywords=${encodeURIComponent(inputField.value).replace(/%20/g, "+")}&terms=${variables.terms}&author=${variables.author}&sc=${variables.searchsub}&sf=${variables.search}&sk=${variables.sort}&sd=${variables.sortad}&sr=${variables.display}&st=${variables.date}&ch=${variables.returnchar}&t=0`
+        // Different locations based on which page the user is on
+        let searchScopeOptions;
+        if (window.location.href.includes("viewtopic.php")) {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+                <option value="thisForum">This forum</option>
+                <option value="thisThread">This thread</option>
+            `;
+        } else if (window.location.href.includes("viewforum.php")) {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+                <option value="thisForum">This forum</option>
+            `;
+        } else {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+            `;
+        }
+
+        // Getting config values
+        let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+        const searchLocationChecked = specialSearchParametersJSON.searchTopicLocation === "titleonly" || specialSearchParametersJSON.searchTopicLocation === "firstpost" ? "checked" : "";
+        const showAsPostsChecked = specialSearchParametersJSON.showResultsAsPosts ? "checked" : "";
+        const searchTermsSelected = specialSearchParametersJSON.searchTermsSpecificity;
+
+        // Creating search bar and search options
+        container.innerHTML = `
+            <input id="searchBar" type="text" placeholder="Special search">
+            <div id="searchOptions" style="display: none; position: absolute; background-color:#1c1c1c; border-top:0.5em solid black; text-align: left;">
+                <div style="padding-bottom: 1em;">
+                    <label for="searchScope" style="color: white;">Search:</label>
+                    <select id="searchScope" name="searchScope">
+                        ${searchScopeOptions}
+                    </select>
+                </div>
+                <div style="padding-bottom: 1em;">
+                    <label for="searchTerms" style="color: white;">Search for:</label>
+                    <select id="searchTerms" name="searchTerms">
+                        <option value="any" ${searchTermsSelected === 'any' ? 'selected' : ''}>Any term</option>
+                        <option value="all" ${searchTermsSelected === 'all' ? 'selected' : ''}>All terms</option>
+                    </select>
+                </div>
+                <div style="padding-bottom: 1em;">
+                    <input type="checkbox" id="searchLocation" name="searchLocation" value="firstPost" ${searchLocationChecked}>
+                    <label for="searchLocation" style="color: white;">Search first post/titles only</label>
+                </div>
+                <div style="padding-bottom: 1em;">
+                    <input type="checkbox" id="showAsPosts" name="showAsPosts" ${showAsPostsChecked}>
+                    <label for="showAsPosts" style="color: white;">Show as posts</label>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
+                    <label for="searchAuthor" style="color: white;">By: </label>
+                    <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author's name">
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
+                    <button id="searchButton">Search</button>
+                </div>
+            </div>
+        `;
+
+        cell.prepend(container);
+
+        // Getting reference of the search bar and the search options
+        const searchBar = document.querySelector("#searchBar");
+        const searchOptions = document.querySelector("#searchOptions");
+
+        // Add event listener for search bar
+        searchBar.addEventListener("click", function (event) {
+            // Makes it so search options will not disappear first
+            event.stopPropagation();
+            // Toggles the display of search options when search bar is clicked
+            searchOptions.style.display = "block";
+        });
+
+
+        // Add event listener for search options so search options will not disappear when clicked on
+        searchOptions.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+        // Add event listener to document (disappear when anything other than the search bar/options is clicked)
+        document.addEventListener("click", function () {
+            // Hides the search options when click is outside the search bar
+            if (searchOptions.style.display === "block") {
+                searchOptions.style.display = "none";
             }
-        })
+        });
+
+        // Redirect to search on Enter key press
+        searchBar.addEventListener("keydown", function (ev) {
+            if (ev.code === "Enter") {
+                searchURL()
+            }
+        });
+
+        // Add functionality for search button
+        document.querySelector("#searchButton").addEventListener("click", searchURL);
     }
 }
 
