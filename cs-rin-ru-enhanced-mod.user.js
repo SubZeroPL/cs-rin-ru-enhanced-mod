@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.0
+// @version         0.13.1
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -63,16 +63,17 @@ const FRIENDS_LIST = [];
 const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
 
 const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
-
 //Retrieve friends list
 async function retrievesFriendsLists() {
-    await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends")
-        .then(response => response.text())
-        .then(text => {
+    if(FRIENDS_LIST.length===0){
+        await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends")
+            .then(response => response.text())
+            .then(text => {
             let parser = new DOMParser();
             let doc = parser.parseFromString(text, "text/html");
             FRIENDS_LIST.push(...Array.from(doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select').children, node => node.innerText));
         });
+    }
 }
 
 /*
@@ -106,7 +107,7 @@ let options = {
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "special_search": true,
-    "special_search_parameter": specialSearchParameters, //Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
+    "special_search_parameter": specialSearchParameters,
     "steam_db_link": true,
     "copy_link_button": true,
     "add_small_shoutbox": true,
@@ -966,7 +967,7 @@ async function colorizeFriendsMe() {
     }
 }
 
-colorizeFriendsMe();
+await colorizeFriendsMe();
 
 function searchURL() {
     const searchBar = document.querySelector("#searchBar");
@@ -1004,8 +1005,7 @@ function searchURL() {
     window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=${searchSubforums}&sf=${searchLocation}&sk=${sortResultsBy}&sd=${sortOrderBy}&sr=${showResultsAsPosts}&st=${limitToPrevious}&ch=${returnFirst}&t=${threadID}`;
 }
 
-function specialSearch() {
-//Documentation: https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/documentation.md#special-search
+async function specialSearch() {
     if (options.special_search) {
         // Get row to insert searchBar
         const cell = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)");
@@ -1019,7 +1019,7 @@ function specialSearch() {
             searchScopeOptions = `
                 <option value="everywhere">Everywhere</option>
                 <option value="thisForum">This forum</option>
-                <option value="thisThread">This thread</option>
+                <option value="thisThread">This topic</option>
             `;
         } else if (window.location.href.includes("viewforum.php")) {
             searchScopeOptions = `
@@ -1097,6 +1097,7 @@ function specialSearch() {
         document.addEventListener("click", function () {
             // Hides the search options when click is outside the search bar
             if (searchOptions.style.display === "block") {
+                friendsClass.style.display = "none"; //Hide the friend lists
                 searchOptions.style.display = "none";
             }
         });
@@ -1110,7 +1111,47 @@ function specialSearch() {
 
         // Add functionality for search button
         document.querySelector("#searchButton").addEventListener("click", searchURL);
+        await retrievesFriendsLists();
+        // Retrieve reference to "searchAuthor" input
+        const searchAuthorInput = document.querySelector("#searchAuthor");
+        // Create friends list
+        const friendsClass = document.createElement("class")
+        friendsClass.id = "friends-lists-search"
+        // Create a new paragraph element
+        const friendTitle = document.createElement('p');
+        // Add content to paragraph
+        friendTitle.textContent = "Friends (" +FRIENDS_LIST.length+ "):";
+        const friendsLists = document.createElement("ul");
+        // Browse the friends table and create a list item for each word
+        FRIENDS_LIST.forEach(friend => {
+            const friendItem = document.createElement("li");
+            friendItem.textContent = friend;
+            // Add a click event listener to each list item
+            friendItem.addEventListener("click", function() {
+                searchAuthorInput.value = friend;
+            });
+            friendsLists.appendChild(friendItem);
+        });
+        // When you click on search author input
+        searchAuthorInput.addEventListener("click", function (event) {
+            friendsClass.style.display = "block"; //Display list of friends
+        });
+        const parentElement = document.getElementById('searchOptions');
+        const children = Array.from(parentElement.children);
+        const selectedChildren = children.slice(0, children.length - 2);
+        // Add event listener to all first child of the special search bar (disappear you click on element on the special search bar who are not the friend list, the button or the input)
+        selectedChildren.forEach(option => {
+            option.addEventListener('click', function() {
+                friendsClass.style.display = "none"; //Hide the friend lists
+            });
+        });
+        // Add paragraph to specific class
+        friendsClass.appendChild(friendTitle);
+        friendsClass.appendChild(friendsLists);
+        searchOptions.appendChild(friendsClass); // Append the friend list by default
+        friendsClass.style.display = "none"; // Hide the friend list by default
     }
+
 }
 
 specialSearch();
