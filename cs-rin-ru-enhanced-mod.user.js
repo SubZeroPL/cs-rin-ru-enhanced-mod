@@ -1004,13 +1004,13 @@ function searchURL() {
     const limitToPrevious = specialSearchParametersJSON.limitToPrevious;
     const returnFirst = specialSearchParametersJSON.returnFirst;
     // Fetch the values from search options
-    let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This thread
+    let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This topic
     let searchTerms = document.getElementById("searchTerms").value; // Any/All
     let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : (searchTopicLocation === "all" || searchTopicLocation === "msgonly") ? searchTopicLocation : "all"; // Search
     let showResultsAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
     let searchAuthor = document.getElementById("searchAuthor").value; // Author
     let forumID = "";
-    let threadID = "0";
+    let topicID = "0";
 
     // Check the searchScope and parse URL if required
     if (searchScope === "thisForum") {
@@ -1021,12 +1021,12 @@ function searchURL() {
         }
     }
 
-    if (searchScope === "thisThread") {
+    if (searchScope === "thisTopic") {
         let urlParams = new URLSearchParams(window.location.search);
-        threadID = urlParams.get("t");
+        topicID = urlParams.get("t");
     }
 
-    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=${searchSubforums}&sf=${searchLocation}&sk=${sortResultsBy}&sd=${sortOrderBy}&sr=${showResultsAsPosts}&st=${limitToPrevious}&ch=${returnFirst}&t=${threadID}`;
+    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=${searchSubforums}&sf=${searchLocation}&sk=${sortResultsBy}&sd=${sortOrderBy}&sr=${showResultsAsPosts}&st=${limitToPrevious}&ch=${returnFirst}&t=${topicID}`;
 }
 
 async function specialSearch() {
@@ -1043,7 +1043,7 @@ async function specialSearch() {
             searchScopeOptions = `
                 <option value="everywhere">Everywhere</option>
                 <option value="thisForum">This forum</option>
-                <option value="thisThread">This topic</option>
+                <option value="thisTopic">This topic</option>
             `;
         } else if (window.location.href.includes("viewforum.php")) {
             searchScopeOptions = `
@@ -1179,3 +1179,12 @@ async function specialSearch() {
 }
 
 specialSearch();
+
+
+function addFriendButton() {
+    if(true) {
+        if (URLContains("viewtopic.php")) {
+
+        }
+    }
+}
