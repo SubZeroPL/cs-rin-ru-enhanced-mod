@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.2
+// @version         0.13.3
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -63,17 +63,39 @@ const FRIENDS_LIST = [];
 const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
 
 const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
+
+// Declare a promise to wait for the variable to be updated
+let updatePromise = null;
 //Retrieve friends list
 async function retrievesFriendsLists() {
-    if(FRIENDS_LIST.length===0){
-        await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends")
-            .then(response => response.text())
-            .then(text => {
-            let parser = new DOMParser();
-            let doc = parser.parseFromString(text, "text/html");
-            FRIENDS_LIST.push(...Array.from(doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select').children, node => node.innerText));
+    // Checks if the promise is already being executed
+    if (!updatePromise) {
+        // Create a new promise
+        updatePromise = new Promise(async (resolve, reject) => {
+            // Check if the friends list has already been updated
+            if (FRIENDS_LIST.length===0) {
+                try {
+                    // Performs the query to retrieve the list of friends
+                    const response = await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends");
+                    const text = await response.text();
+                    // Parse the answer to extract the list of friends
+                    let parser = new DOMParser();
+                    let doc = parser.parseFromString(text, "text/html");
+                    FRIENDS_LIST.push(...Array.from(doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select').children, node => node.innerText));
+                    // Solve the promise
+                    resolve();
+                } catch (error) {
+                    // Reject the promise in case of error
+                    reject(error);
+                }
+            } else {
+                // Resolves the promise if the list has already been updated
+                resolve();
+            }
         });
     }
+    // Waits for variable update
+    await updatePromise;
 }
 
 /*
@@ -969,7 +991,7 @@ async function colorizeFriendsMe() {
     }
 }
 
-await colorizeFriendsMe();
+colorizeFriendsMe();
 
 function searchURL() {
     const searchBar = document.querySelector("#searchBar");
