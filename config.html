@@ -104,6 +104,7 @@
                 "showResultsAsPosts": $("#showResultsAsPosts").prop("checked"),
                 "limitToPrevious": $("#limitToPrevious").val(),
                 "returnFirst": $("#returnFirst").val(),
+                "showFriends": $("showFriends").prop("checked"),
             });
             console.log(specialSearchParameters);
             const data = {
@@ -446,6 +447,11 @@
                                     <label for="returnFirst">Return first characters of posts:</label>
                                     <input data-originalvalue="" type="number" id="returnFirst" name="returnFirst"
                                            title="Write -1 to return all characters in the post">
+                                </div>
+                                <div>
+                                    <label for="showFriends">Display your friends list in author search:</label>
+                                    <input data-originalvalue="" id="showFriends" name="showFriends"
+                                           type="checkbox">
                                 </div>
                                 </fieldset>
                             </div>
