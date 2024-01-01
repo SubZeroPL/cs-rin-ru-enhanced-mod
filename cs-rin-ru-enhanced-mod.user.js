@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.4
+// @version         0.13.5
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -49,6 +49,8 @@ const AJAX_LOADER = `
 
 const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
 
+const navBarSize = 1.0 //In em
+
 function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
     let base = path.slice(0, path.lastIndexOf('/') + 1);
@@ -66,7 +68,6 @@ const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)
 
 // Declare a promise to wait for the variable to be updated
 let updatePromise = null;
-
 //Retrieve friends list
 async function retrievesFriendsLists() {
     // Checks if the promise is already being executed
@@ -269,7 +270,7 @@ INFINITE SCROLLING
 */
 if (options.infinite_scrolling && $("[title='Click to jump to page…']").length > 0) {
     const styleElement = document.querySelector("style");
-    styleElement.textContent = "[name=\"page_nav\"] {font-size: 1.3em;}" //Increase size of the nav bar
+    styleElement.textContent = "[name=\"page_nav\"] {font-size:"+navBarSize+"em;}" //Increase size of the nav bar
     const selectors = [
         "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
         "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']", // search.php
