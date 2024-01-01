@@ -1,11 +1,11 @@
-# CS RIN RU Enhanced mod
-Enhance your experience at CS.RIN.RU
+# ![Icon of CS.RIN.RU](https://i.ibb.co/zXtW7WD/csrinfavicon32.png) CS RIN RU Enhanced mod
+![License](https://img.shields.io/badge/License-UNLICENSE-red) ![Release](https://img.shields.io/github/v/release/SubZeroPL/cs-rin-ru-enhanced-mod) ![OS](https://img.shields.io/badge/OS-Windows%2FmacOS%2FLinux-green)
 
-Original version created by *Royalgamer06*, modified by _SubZeroPL_.
+Enhance your experience at CS.RIN.RU
 
 Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 
-## Original features:
+## 🔧 Original features:
 - Enable or disable any of the features in script code.
 - Mention somebody when posting (mentioning).
 - Dynamically load next pages when browsing the site (infinite_scrolling).
@@ -14,7 +14,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - See when something is dynamically loading (display_ajax_loader).
 - Custom topic tags (custom_tags).
 
-## Added features:
+## 🆕 Added features:
 - SCS topics filtering (hide_scs).
 - Filtering also in SCS section (apply_in_scs).
 - Configuration window (script adds button to open configuration window in upper-right corner of browser window).
@@ -32,14 +32,33 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - Colorize your friends for easy recognition (colorize_friends_me).
 - Add a button to access your profile (add_profile_button).
 - Verification that the user is connected or not. If he is not, he disables the functions that need to be connected.
+- Adds a special search bar configurable in settings (special_search)
 
-## TODO (planned features):
+## 🧑‍🤝‍🧑 Other related projects
+- [CS.RIN.RU-Enhanced-external](https://github.com/Altansar69/CS.RIN.RU-Enhanced-external) - Other script containing everything related to cs.rin.ru but acting on other sites (Steam, SteamDB etc...)
+
+## 📅 TODO (planned features):
 see: [issues](https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues)
 
-## Installation:
+## 🔨 Installation:
 1) Download a script extension like [Violentmonkey](https://violentmonkey.github.io/) or [Tampermonkey](https://www.tampermonkey.net/).
 2) Simply click on [this link](https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/cs-rin-ru-enhanced-mod.user.js) and a pop-up window should appear asking you if you wish to install the extension.
 
 **Notes:** The script supports automatic updates, which means you don't have to download it again each time it's updated.
 
-Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) and [Tampermonkey](https://www.tampermonkey.net/) on [Firefox](https://www.mozilla.org/) and Chromium ([Brave](https://brave.com/)).
+*Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) and [Tampermonkey](https://www.tampermonkey.net/) on [Firefox](https://www.mozilla.org/) and Chromium ([Brave](https://brave.com/)).*
+
+## 🔢 Versioning
+This project is following semantic versioning schema.
+
+## 🤝 Credits
+- [RoyalGamer06](https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=477885) - Has created the original project (now retired)
+- [SubZeroPL](https://github.com/SubZeroPL) - Has taken over the project
+- [Reddiepoint](https://github.com/Reddiepoint) - Recurring developer
+- [Altansar69](https://github.com/Altansar69) - Recurring developer
+
+*Special thanks to:*
+- [odusi](https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=582752) - Created the original special search bar and quick post function
+
+## 📄 License
+This software is under the Unlicense, terms of which are available in [UNLICENSE.txt](UNLICENSE.txt])
