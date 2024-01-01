@@ -66,6 +66,7 @@ const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)
 
 // Declare a promise to wait for the variable to be updated
 let updatePromise = null;
+
 //Retrieve friends list
 async function retrievesFriendsLists() {
     // Checks if the promise is already being executed
@@ -73,7 +74,7 @@ async function retrievesFriendsLists() {
         // Create a new promise
         updatePromise = new Promise(async (resolve, reject) => {
             // Check if the friends list has already been updated
-            if (FRIENDS_LIST.length===0) {
+            if (FRIENDS_LIST.length === 0) {
                 try {
                     // Performs the query to retrieve the list of friends
                     const response = await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends");
@@ -1144,14 +1145,14 @@ async function specialSearch() {
         // Create a new paragraph element
         const friendTitle = document.createElement('p');
         // Add content to paragraph
-        friendTitle.textContent = "Friends (" +FRIENDS_LIST.length+ "):";
+        friendTitle.textContent = "Friends (" + FRIENDS_LIST.length + "):";
         const friendsLists = document.createElement("ul");
         // Browse the friends table and create a list item for each word
         FRIENDS_LIST.forEach(friend => {
             const friendItem = document.createElement("li");
             friendItem.textContent = friend;
             // Add a click event listener to each list item
-            friendItem.addEventListener("click", function() {
+            friendItem.addEventListener("click", function () {
                 searchAuthorInput.value = friend;
             });
             friendsLists.appendChild(friendItem);
@@ -1165,7 +1166,7 @@ async function specialSearch() {
         const selectedChildren = children.slice(0, children.length - 2);
         // Add event listener to all first child of the special search bar (disappear you click on element on the special search bar who are not the friend list, the button or the input)
         selectedChildren.forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 friendsClass.style.display = "none"; //Hide the friend lists
             });
         });
@@ -1182,7 +1183,7 @@ specialSearch();
 
 
 function addFriendButton() {
-    if(true) {
+    if (true) {
         if (URLContains("viewtopic.php")) {
 
         }
