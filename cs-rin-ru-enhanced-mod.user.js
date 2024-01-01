@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.3
+// @version         0.13.4
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -60,7 +60,7 @@ const FORUM_BASE_URL = getBaseUrl();
 //Contains the list of friends
 const FRIENDS_LIST = [];
 
-const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
+const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)").lastElementChild.getAttribute("href").match("mode=login") == null
 
 const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
 
@@ -111,6 +111,7 @@ const specialSearchParameters = JSON.stringify({
     "showResultsAsPosts": false,
     "limitToPrevious": 0,
     "returnFirst": "300",
+    "showFriends": true,
 });
 
 let options = {
@@ -157,6 +158,7 @@ function loadConfig() {
         options.colorize_new_messages = false;
         options.add_small_shoutbox = false;
         options.colorize_friends_me = 0;
+        specialSearchParameters.showFriends = false;
     }
 }
 
@@ -207,6 +209,7 @@ function loadConfigButton() {
             $("input#showResultsAsPosts")[0].checked = specialSearchParametersJSON.showResultsAsPosts;
             $("input#limitToPrevious")[0].value = specialSearchParametersJSON.limitToPrevious;
             $("input#returnFirst")[0].value = specialSearchParametersJSON.returnFirst;
+            $("input#showFriends")[0].checked = specialSearchParametersJSON.showFriends;
 
             if (!options.script_enabled) {
                 $("fieldset#config").hide();
@@ -853,23 +856,23 @@ function fetchChat() {
     fetch(FORUM_BASE_URL + "chat.php")
         .then(response => response.text())
         .then(text => {
-            let chatContainer = document.getElementById("chatDiv");
-            chatContainer.innerHTML = "";
-            let parser = new DOMParser();
-            let doc = parser.parseFromString(text, "text/html");
-            let originalScript = doc.querySelector("#wrapcentre > script");
-            let chatElement = doc.querySelector("#wrapcentre > div > table > tbody");
-            if (chatElement) {
-                chatContainer.appendChild(chatElement);
-            }
-            chatContainer.style.backgroundColor = "#1c1c1c";
-            let script = document.createElement("script");
-            script.innerHTML = originalScript.innerHTML;
-            chatContainer.appendChild(script);
-        })
+        let chatContainer = document.getElementById("chatDiv");
+        chatContainer.innerHTML = "";
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(text, "text/html");
+        let originalScript = doc.querySelector("#wrapcentre > script");
+        let chatElement = doc.querySelector("#wrapcentre > div > table > tbody");
+        if (chatElement) {
+            chatContainer.appendChild(chatElement);
+        }
+        chatContainer.style.backgroundColor = "#1c1c1c";
+        let script = document.createElement("script");
+        script.innerHTML = originalScript.innerHTML;
+        chatContainer.appendChild(script);
+    })
         .then(() => {
-            colorizeFriendsMe();
-        });
+        colorizeFriendsMe();
+    });
 }
 
 /*
@@ -1122,7 +1125,6 @@ async function specialSearch() {
         document.addEventListener("click", function () {
             // Hides the search options when click is outside the search bar
             if (searchOptions.style.display === "block") {
-                friendsClass.style.display = "none"; //Hide the friend lists
                 searchOptions.style.display = "none";
             }
         });
@@ -1133,59 +1135,70 @@ async function specialSearch() {
                 searchURL()
             }
         });
+        if(specialSearchParametersJSON.showFriends) {
+            // Add functionality for search button
+            document.querySelector("#searchButton").addEventListener("click", searchURL);
+            await retrievesFriendsLists();
+            // Retrieve reference to "searchAuthor" input
+            const searchAuthorInput = document.querySelector("#searchAuthor");
+            // Create friends list
+            const friendsClass = document.createElement("class")
+            friendsClass.id = "friends-lists-search"
+            // Create a new paragraph element
+            const friendTitle = document.createElement('p');
+            // Add content to paragraph
+            friendTitle.textContent = "Friends (" +FRIENDS_LIST.length+ "):";
+            const friendsLists = document.createElement("ul");
+            // Browse the friends table and create a list item for each word
+            FRIENDS_LIST.forEach(friend => {
+                const friendItem = document.createElement("li");
+                friendItem.textContent = friend;
+                // Add a click event listener to each list item
+                friendItem.addEventListener("click", function() {
+                    searchAuthorInput.value = friend;
+                });
+                friendsLists.appendChild(friendItem);
+            });
+            // When you click on search author input
+            searchAuthorInput.addEventListener("click", function (event) {
+                friendsClass.style.display = "block"; //Display list of friends
+            });
+            const parentElement = document.getElementById('searchOptions');
+            const children = Array.from(parentElement.children);
+            const selectedChildren = children.slice(0, children.length - 2);
+            // Add event listener to all first child of the special search bar (disappear you click on element on the special search bar who are not the friend list, the button or the input)
+            selectedChildren.forEach(option => {
+                option.addEventListener('click', function() {
+                    friendsClass.style.display = "none"; //Hide the friend lists
+                });
+            });
+            // Add paragraph to specific class
+            friendsClass.appendChild(friendTitle);
+            friendsClass.appendChild(friendsLists);
+            searchOptions.appendChild(friendsClass); // Append the friend list by default
+            friendsClass.style.display = "none"; // Hide the friend list by default
 
-        // Add functionality for search button
-        document.querySelector("#searchButton").addEventListener("click", searchURL);
-        await retrievesFriendsLists();
-        // Retrieve reference to "searchAuthor" input
-        const searchAuthorInput = document.querySelector("#searchAuthor");
-        // Create friends list
-        const friendsClass = document.createElement("class")
-        friendsClass.id = "friends-lists-search"
-        // Create a new paragraph element
-        const friendTitle = document.createElement('p');
-        // Add content to paragraph
-        friendTitle.textContent = "Friends (" + FRIENDS_LIST.length + "):";
-        const friendsLists = document.createElement("ul");
-        // Browse the friends table and create a list item for each word
-        FRIENDS_LIST.forEach(friend => {
-            const friendItem = document.createElement("li");
-            friendItem.textContent = friend;
-            // Add a click event listener to each list item
-            friendItem.addEventListener("click", function () {
-                searchAuthorInput.value = friend;
-            });
-            friendsLists.appendChild(friendItem);
-        });
-        // When you click on search author input
-        searchAuthorInput.addEventListener("click", function (event) {
-            friendsClass.style.display = "block"; //Display list of friends
-        });
-        const parentElement = document.getElementById('searchOptions');
-        const children = Array.from(parentElement.children);
-        const selectedChildren = children.slice(0, children.length - 2);
-        // Add event listener to all first child of the special search bar (disappear you click on element on the special search bar who are not the friend list, the button or the input)
-        selectedChildren.forEach(option => {
-            option.addEventListener('click', function () {
+
+                    document.addEventListener("click", function () {
+            // Hides the search options when click is outside the search bar
+            if (searchOptions.style.display === "block") {
                 friendsClass.style.display = "none"; //Hide the friend lists
-            });
+            }
         });
-        // Add paragraph to specific class
-        friendsClass.appendChild(friendTitle);
-        friendsClass.appendChild(friendsLists);
-        searchOptions.appendChild(friendsClass); // Append the friend list by default
-        friendsClass.style.display = "none"; // Hide the friend list by default
+        }
     }
 
 }
 
 specialSearch();
 
+/*
+function addFriendButton() {
+    if(true) {
+        if (URLContains("viewtopic.php")) {
+            //<a href="ucp.php?i=zebra&amp;add=hal210"><img src="./styles/rinDark/imageset/en/icon_user_profile.gif" alt="Profile" title="Profile"></a>
 
-// function addFriendButton() {
-//     if (true) {
-//         if (URLContains("viewtopic.php")) {
-//
-//         }
-//     }
-// }
+        }
+    }
+}
+*/
