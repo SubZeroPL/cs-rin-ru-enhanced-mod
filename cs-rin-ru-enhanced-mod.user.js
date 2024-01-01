@@ -1182,10 +1182,10 @@ async function specialSearch() {
 specialSearch();
 
 
-function addFriendButton() {
-    if (true) {
-        if (URLContains("viewtopic.php")) {
-
-        }
-    }
-}
+// function addFriendButton() {
+//     if (true) {
+//         if (URLContains("viewtopic.php")) {
+//
+//         }
+//     }
+// }
