@@ -5,7 +5,7 @@ Enhance your experience at CS.RIN.RU
 
 Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 
-## 🔧 Original features:
+## 🔧 Original features
 - Enable or disable any of the features in script code.
 - Mention somebody when posting (mentioning).
 - Dynamically load next pages when browsing the site (infinite_scrolling).
@@ -14,7 +14,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - See when something is dynamically loading (display_ajax_loader).
 - Custom topic tags (custom_tags).
 
-## 🆕 Added features:
+## 🆕 Added features
 - SCS topics filtering (hide_scs).
 - Filtering also in SCS section (apply_in_scs).
 - Configuration window (script adds button to open configuration window in upper-right corner of browser window).
