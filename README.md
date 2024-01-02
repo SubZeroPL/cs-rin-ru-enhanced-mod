@@ -59,6 +59,7 @@ This project is following semantic versioning schema.
 
 *Special thanks to:*
 - [odusi](https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=582752) - Created the original special search bar and quick post function
+- [mandus](https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) - Create the original copy link function
 
 ## 📄 License
 This software is under the Unlicense, terms of which are available in [UNLICENSE.txt](UNLICENSE.txt])
