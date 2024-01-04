@@ -383,72 +383,74 @@
                             <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
                             <div id="params" style="display: none;">
                                 <fieldset>
-                                <div>
-                                    <label for="searchTermsSpecificity">Search for:</label>
-                                    <select data-originalvalue="" id="searchTermsSpecificity"
-                                            name="searchTermsSpecificity">
-                                        <option value="any">Any term</option>
-                                        <option value="all">All terms</option>
-                                    </select>
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="searchTermsSpecificity">Search for:</label>
+                                        <select data-originalvalue="" id="searchTermsSpecificity"
+                                                name="searchTermsSpecificity">
+                                            <option value="any">Any term</option>
+                                            <option value="all">All terms</option>
+                                        </select>
+                                    </div>
 
-                                <div>
-                                    <label for="searchSubforums">Search subforums:</label>
-                                    <input data-originalvalue="" id="searchSubforums" name="searchSubforums"
-                                           type="checkbox">
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="searchSubforums">Search subforums:</label>
+                                        <input data-originalvalue="" id="searchSubforums" name="searchSubforums"
+                                               type="checkbox">
+                                    </div>
 
-                                <div>
-                                    <label for="sortResultsBy">Sort results by:</label>
-                                    <select data-originalvalue="" id="sortResultsBy" name="sortResultsBy">
-                                        <option value="a">Author</option>
-                                        <option value="t">Post Time</option>
-                                        <option value="f">Forum</option>
-                                        <option value="i">Topic title</option>
-                                        <option value="s">Post subject</option>
-                                    </select>
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="sortResultsBy">Sort results by:</label>
+                                        <select data-originalvalue="" id="sortResultsBy" name="sortResultsBy">
+                                            <option value="a">Author</option>
+                                            <option value="t">Post Time</option>
+                                            <option value="f">Forum</option>
+                                            <option value="i">Topic title</option>
+                                            <option value="s">Post subject</option>
+                                        </select>
+                                    </div>
 
-                                <div>
-                                    <label for="sortOrderBy">Sort order by:</label>
-                                    <select data-originalvalue="" id="sortOrderBy" name="sortOrderBy">
-                                        <option value="a">Ascending</option>
-                                        <option value="d">Descending</option>
-                                    </select>
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="sortOrderBy">Sort order by:</label>
+                                        <select data-originalvalue="" id="sortOrderBy" name="sortOrderBy">
+                                            <option value="a">Ascending</option>
+                                            <option value="d">Descending</option>
+                                        </select>
+                                    </div>
 
-                                <div>
-                                    <label for="searchTopicLocation">Search within:</label>
-                                    <select data-originalvalue="" id="searchTopicLocation" name="searchTopicLocation">
-                                        <option value="all">Post subjects and message text</option>
-                                        <option value="msgonly">Message text only</option>
-                                        <option value="titleonly">Topic titles only</option>
-                                        <option value="firstpost">First post of topics only</option>
-                                    </select>
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="searchTopicLocation">Search within:</label>
+                                        <select data-originalvalue="" id="searchTopicLocation"
+                                                name="searchTopicLocation">
+                                            <option value="all">Post subjects and message text</option>
+                                            <option value="msgonly">Message text only</option>
+                                            <option value="titleonly">Topic titles only</option>
+                                            <option value="firstpost">First post of topics only</option>
+                                        </select>
+                                    </div>
 
-                                <div>
-                                    <label for="showResultsAsPosts">Show as posts:</label>
-                                    <input data-originalvalue="" id="showResultsAsPosts" name="showResultsAsPosts"
-                                           type="checkbox">
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="showResultsAsPosts">Show as posts:</label>
+                                        <input data-originalvalue="" id="showResultsAsPosts" name="showResultsAsPosts"
+                                               type="checkbox">
+                                    </div>
 
-                                <div>
-                                    <label for="limitToPrevious">Limit to previous days:</label>
-                                    <input data-originalvalue="" type="number" id="limitToPrevious"
-                                           name="limitToPrevious">
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="limitToPrevious">Limit to previous days:</label>
+                                        <input data-originalvalue="" type="number" id="limitToPrevious"
+                                               name="limitToPrevious">
+                                    </div>
 
-                                <div>
-                                    <label for="returnFirst">Return first characters of posts:</label>
-                                    <input data-originalvalue="" type="number" id="returnFirst" name="returnFirst"
-                                           title="Write -1 to return all characters in the post">
-                                </div>
-                                <div>
-                                    <label for="showFriends">Display your friends list in author search:</label>
-                                    <input data-originalvalue="" id="showFriends" name="showFriends" need-connected="true"
-                                           type="checkbox">
-                                </div>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="returnFirst">Return first characters of posts:</label>
+                                        <input data-originalvalue="" type="number" id="returnFirst" name="returnFirst"
+                                               title="Write -1 to return all characters in the post">
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="showFriends">Display your friends list in author search:</label>
+                                        <input data-originalvalue="" id="showFriends" name="showFriends"
+                                               need-connected="true" type="checkbox">
+                                    </div>
                                 </fieldset>
                             </div>
                         </td>
