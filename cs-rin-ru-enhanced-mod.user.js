@@ -988,7 +988,7 @@ async function colorizeFriendsMe() {
         links.forEach(link => {
             let nickname = link.innerText;
             if (link.classList.contains('quotetitle')) nickname = nickname.substring(0, nickname.length - 7)
-            if (USERNAME === nickname && options.colorize_friends_me === 1 || USERNAME === nickname && options.colorize_friends_me === 3) {
+            if (USERNAME === nickname && (options.colorize_friends_me === 1 || options.colorize_friends_me === 3)) {
                 link.id = "colorize";
                 link.style.color = color.color_of_me;
             }
