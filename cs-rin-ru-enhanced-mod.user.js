@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.5
+// @version         0.13.6
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -33,7 +33,7 @@ Creator: Royalgamer06 (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u
 Contributor: SubZeroPL (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=505897) who has now taken over the project
 Contributor: Redpoint (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1365721) has created some functionality
 Contributor: Altansar (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1280185) has created some functionality
-Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=582752) created the original function for the special search. We have kindly given his permission to use his work
+Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=582752) has created the original function for the special search. We have kindly given his permission to use his work
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
@@ -123,7 +123,7 @@ const specialSearchParameters = JSON.stringify({
 let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
-    "mentioning": true,
+    "mentioning": 1, //0=nothing, 1=the author, 2=author and the post
     "dynamic_function": true,
     "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "add_profile_button": true,
@@ -187,7 +187,7 @@ function loadConfigButton() {
             $("body").append(r.responseText);
             $("input#script_enabled")[0].checked = options.script_enabled;
             $("input#infinite_scrolling")[0].checked = options.infinite_scrolling;
-            $("input#mentioning")[0].checked = options.mentioning;
+            $("select#mentioning")[0].options.selectedIndex = options.mentioning;
             $("input#steam_db_link")[0].checked = options.steam_db_link;
             $("input#copy_link_button")[0].checked = options.copy_link_button;
             $("input#dynamic_function")[0].checked = options.dynamic_function;
@@ -405,10 +405,13 @@ hideScs();
 
 // MENTIONING
 if (URLContains("posting.php" && "do=mention") && options.mentioning) {
-    // const p = URLParam("p");
+    const p = URLParam("p");
     const u = URLParam("u");
     const a = URLParam("a");
-    const postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${decodeURI(a)}[/url], `;
+    var postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${decodeURI(a)}[/url], `;
+    if(options.mentioning==2) { //Author and post
+        postBody += `[url=http://cs.rin.ru/forum/viewtopic.php?p=${p}#p${p}]Post[/url]. `;
+    }
     $("[name=message]").val(postBody);
 }
 mentionify();
@@ -473,7 +476,7 @@ function dynamicFunction(data) {
 
 // FUNCTIONS
 function mentionify() {
-    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning) {
+    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning >= 1) {
         const replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
             const postElem = $(this).parents().eq(7);
