@@ -1134,12 +1134,20 @@ async function specialSearch() {
             }
         });
 
+        // Add event listener for the Esc key to hide search options
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") { // Check if the pressed key is Escape
+                searchOptions.style.display = "none"; // Hide the search options
+            }
+        });
+
         // Redirect to search on Enter key press
         searchBar.addEventListener("keydown", function (ev) {
             if (ev.code === "Enter") {
                 searchURL()
             }
         });
+
         if (specialSearchParametersJSON.showFriends) {
             // Add functionality for search button
             document.querySelector("#searchButton").addEventListener("click", searchURL);
