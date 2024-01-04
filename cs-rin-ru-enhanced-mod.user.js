@@ -84,7 +84,11 @@ async function retrievesFriendsLists() {
                     // Parse the answer to extract the list of friends
                     let parser = new DOMParser();
                     let doc = parser.parseFromString(text, "text/html");
-                    FRIENDS_LIST.push(...Array.from(doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select').children, node => node.innerText));
+                    const friendsListContainer = doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select');
+                    if (friendsListContainer) {
+                        FRIENDS_LIST.push(...Array.from(friendsListContainer.children, node => node.innerText));
+                    }
+
                     // Solve the promise
                     resolve();
                 } catch (error) {
@@ -1150,6 +1154,11 @@ async function specialSearch() {
             // Add content to paragraph
             friendTitle.textContent = "Friends (" + FRIENDS_LIST.length + "):";
             const friendsLists = document.createElement("ul");
+            if (FRIENDS_LIST.length === 0) {
+                const friendItem = document.createElement("li");
+                friendItem.textContent = "Go make some friends :)";
+                friendsLists.appendChild(friendItem);
+            }
             // Browse the friends table and create a list item for each word
             FRIENDS_LIST.forEach(friend => {
                 const friendItem = document.createElement("li");
