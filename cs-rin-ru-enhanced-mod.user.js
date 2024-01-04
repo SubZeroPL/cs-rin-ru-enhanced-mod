@@ -49,7 +49,7 @@ const AJAX_LOADER = `
 
 const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
 
-const navBarSize = "1.0em" //In em
+const navBarSize = "1.0em";
 
 function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
