@@ -1075,36 +1075,36 @@ async function specialSearch() {
         container.innerHTML = `
             <input id="searchBar" type="text" placeholder="Special search">
             <div id="searchOptions" style="display: none; position: absolute; background-color:#1c1c1c; border-top:0.5em solid black; text-align: left;">
-                <div style="padding-bottom: 1em;">
+                <div style="padding: 0.5em;">
                     <label for="searchScope" style="color: white;">Search:</label>
                     <select id="searchScope" name="searchScope">
                         ${searchScopeOptions}
                     </select>
                 </div>
-                <div style="padding-bottom: 1em;">
+                <div style="padding: 0.5em;">
                     <label for="searchTerms" style="color: white;">Search for:</label>
                     <select id="searchTerms" name="searchTerms">
                         <option value="any" ${searchTermsSelected === 'any' ? 'selected' : ''}>Any term</option>
                         <option value="all" ${searchTermsSelected === 'all' ? 'selected' : ''}>All terms</option>
                     </select>
                 </div>
-                <div style="padding-bottom: 1em;">
+                <div style="padding: 0.5em;">
                     <input type="checkbox" id="searchLocation" name="searchLocation" value="firstPost" ${searchLocationChecked}>
                     <label for="searchLocation" style="color: white;">Search first post/titles only</label>
                 </div>
-                <div style="padding-bottom: 1em;">
+                <div style="padding: 0.5em;">
                     <input type="checkbox" id="showAsPosts" name="showAsPosts" ${showAsPostsChecked}>
                     <label for="showAsPosts" style="color: white;">Show as posts</label>
                 </div>
-                <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
+                <div style="display: flex; align-items: center; justify-content: center; padding: 0.5em;">
                     <label for="searchAuthor" style="color: white;">By: </label>
                     <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author's name">
                 </div>
-                <div style="display: flex; align-items: center; justify-content: center; padding-bottom: 1em;">
+                <div style="display: flex; align-items: center; justify-content: center; padding: 0.5em;">
                     <button id="searchButton">Search</button>
                 </div>
             </div>
-        `;
+            `;
 
         cell.prepend(container);
 
