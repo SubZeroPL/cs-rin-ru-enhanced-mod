@@ -37,7 +37,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
+const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/beta/config.html"
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
@@ -49,7 +49,7 @@ const AJAX_LOADER = `
 
 const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
 
-const navBarSize = 1.0 //In em
+const navBarSize = "1.0em" //In em
 
 function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
@@ -68,6 +68,7 @@ const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)
 
 // Declare a promise to wait for the variable to be updated
 let updatePromise = null;
+
 //Retrieve friends list
 async function retrievesFriendsLists() {
     // Checks if the promise is already being executed
@@ -270,9 +271,8 @@ INFINITE SCROLLING
 */
 if (options.infinite_scrolling && $("[title='Click to jump to page…']").length > 0) {
     const styleElement = document.querySelector("style");
-    styleElement.textContent = "[name=\"page_nav\"] {font-size:"+navBarSize+"em;}" //Increase size of the nav bar
-    const selectors = [
-        "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
+    styleElement.textContent = "[name=\"page_nav\"] {font-size:" + navBarSize + ";}" //Increase size of the nav bar
+    const selectors = ["#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
         "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']", // search.php
         "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)", // search.php (user messages) and memberlist.php
         "#pagecontent > form > table.tablebg > tbody > tr:not(:first)", // inbox
@@ -857,23 +857,23 @@ function fetchChat() {
     fetch(FORUM_BASE_URL + "chat.php")
         .then(response => response.text())
         .then(text => {
-        let chatContainer = document.getElementById("chatDiv");
-        chatContainer.innerHTML = "";
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(text, "text/html");
-        let originalScript = doc.querySelector("#wrapcentre > script");
-        let chatElement = doc.querySelector("#wrapcentre > div > table > tbody");
-        if (chatElement) {
-            chatContainer.appendChild(chatElement);
-        }
-        chatContainer.style.backgroundColor = "#1c1c1c";
-        let script = document.createElement("script");
-        script.innerHTML = originalScript.innerHTML;
-        chatContainer.appendChild(script);
-    })
+            let chatContainer = document.getElementById("chatDiv");
+            chatContainer.innerHTML = "";
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(text, "text/html");
+            let originalScript = doc.querySelector("#wrapcentre > script");
+            let chatElement = doc.querySelector("#wrapcentre > div > table > tbody");
+            if (chatElement) {
+                chatContainer.appendChild(chatElement);
+            }
+            chatContainer.style.backgroundColor = "#1c1c1c";
+            let script = document.createElement("script");
+            script.innerHTML = originalScript.innerHTML;
+            chatContainer.appendChild(script);
+        })
         .then(() => {
-        colorizeFriendsMe();
-    });
+            colorizeFriendsMe();
+        });
 }
 
 /*
@@ -1136,7 +1136,7 @@ async function specialSearch() {
                 searchURL()
             }
         });
-        if(specialSearchParametersJSON.showFriends) {
+        if (specialSearchParametersJSON.showFriends) {
             // Add functionality for search button
             document.querySelector("#searchButton").addEventListener("click", searchURL);
             await retrievesFriendsLists();
@@ -1148,14 +1148,14 @@ async function specialSearch() {
             // Create a new paragraph element
             const friendTitle = document.createElement('p');
             // Add content to paragraph
-            friendTitle.textContent = "Friends (" +FRIENDS_LIST.length+ "):";
+            friendTitle.textContent = "Friends (" + FRIENDS_LIST.length + "):";
             const friendsLists = document.createElement("ul");
             // Browse the friends table and create a list item for each word
             FRIENDS_LIST.forEach(friend => {
                 const friendItem = document.createElement("li");
                 friendItem.textContent = friend;
                 // Add a click event listener to each list item
-                friendItem.addEventListener("click", function() {
+                friendItem.addEventListener("click", function () {
                     searchAuthorInput.value = friend;
                 });
                 friendsLists.appendChild(friendItem);
@@ -1169,7 +1169,7 @@ async function specialSearch() {
             const selectedChildren = children.slice(0, children.length - 2);
             // Add event listener to all first child of the special search bar (disappear you click on element on the special search bar who are not the friend list, the button or the input)
             selectedChildren.forEach(option => {
-                option.addEventListener('click', function() {
+                option.addEventListener('click', function () {
                     friendsClass.style.display = "none"; //Hide the friend lists
                 });
             });
@@ -1180,12 +1180,12 @@ async function specialSearch() {
             friendsClass.style.display = "none"; // Hide the friend list by default
 
 
-                    document.addEventListener("click", function () {
-            // Hides the search options when click is outside the search bar
-            if (searchOptions.style.display === "block") {
-                friendsClass.style.display = "none"; //Hide the friend lists
-            }
-        });
+            document.addEventListener("click", function () {
+                // Hides the search options when click is outside the search bar
+                if (searchOptions.style.display === "block") {
+                    friendsClass.style.display = "none"; //Hide the friend lists
+                }
+            });
         }
     }
 

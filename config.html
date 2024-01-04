@@ -155,13 +155,9 @@
     }
 
     function toggleParams() {
-        const paramsDiv = document.getElementById('params');
-        if (paramsDiv.style.display === '' || paramsDiv.style.display === 'none') {
-            paramsDiv.style.display = 'block';
-        } else {
-            paramsDiv.style.display = 'none';
-        }
+        $('#params').toggle();
     }
+
 </script>
 <style>
     /* fallback */
