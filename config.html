@@ -110,7 +110,7 @@
             const data = {
                 "script_enabled": $("#script_enabled")[0].checked,
                 "infinite_scrolling": $("#infinite_scrolling")[0].checked,
-                "mentioning": $("#mentioning")[0].checked,
+                "mentioning": Number($("#mentioning")[0].value),
                 "steam_db_link": $("#steam_db_link")[0].checked,
                 "copy_link_button": $("#copy_link_button")[0].checked,
                 "dynamic_function": $("#dynamic_function")[0].checked,
@@ -285,9 +285,13 @@
                             <input data-originalValue="" id="infinite_scrolling" type="checkbox">
                             <label for="infinite_scrolling">Infinite scrolling</label>
                         </td>
-                        <td>
-                            <input data-originalValue="" id="mentioning" type="checkbox">
+                        <td title="0=nothing, 1=the author, 2=author and the post">
                             <label for="mentioning">Mentioning</label>
+                            <select data-originalValue="" id="mentioning">
+                                <option value="0">Nothing</option>
+                                <option value="1">Mentions the author</option>
+                                <option value="2">Mention author and post</option>
+                            </select>
                         </td>
                     </tr>
                     <tr>
