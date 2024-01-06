@@ -1,3 +1,5 @@
+/* eslint-env jquery */
+
 function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
     let base = path.slice(0, path.lastIndexOf('/') + 1);
