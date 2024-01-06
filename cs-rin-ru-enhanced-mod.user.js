@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.6
+// @version         0.13.7
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -38,8 +38,10 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE_JS = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/Separate-config-file/config.js";
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/Separate-config-file/config.html"
+const BRANCH = "master"
+const CONFIG_PAGE_CSS = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/"+BRANCH+"/config.css";
+const CONFIG_PAGE_JS = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/"+BRANCH+"/config.js";
+const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/"+BRANCH+"/config.html"
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
@@ -181,11 +183,7 @@ function receiveConfigMessage(event) {
 }
 
 function loadConfigButton() {
-    // GM_addElement('script', {
-    //     src: 'https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/Separate-config-file/config.js',
-    //     type: 'text/javascript'
-    // });
-    GM_xmlhttpRequest({
+    GM_xmlhttpRequest({ //Js of config file
         url: CONFIG_PAGE_JS, onerror: (r) => {
             console.log("Error loading config page script: " + r);
             GM_notification("Error loading config page script: " + r, "Error");
@@ -196,7 +194,18 @@ function loadConfigButton() {
             console.log("Appended");
         }
     });
-    GM_xmlhttpRequest({
+    GM_xmlhttpRequest({ //CSS of config file
+        url: CONFIG_PAGE_CSS, onerror: (r) => {
+            console.log("Error loading config page script: " + r);
+            GM_notification("Error loading config page script: " + r, "Error");
+        }, onload: (r) => {
+            const script = document.createElement('style');
+            script.textContent = r.responseText;
+            $("body").append(script);
+            console.log("Appended");
+        }
+    });
+    GM_xmlhttpRequest({ //html of config file
         url: CONFIG_PAGE, onerror: (r) => {
             console.log("Error loading config page: " + r);
             GM_notification("Error loading config page: " + r, "Error");
