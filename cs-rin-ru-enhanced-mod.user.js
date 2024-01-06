@@ -20,6 +20,7 @@
 // @grant           GM_getValue
 // @grant           GM_deleteValue
 // @grant           GM_notification
+// @grant           GM_addElement
 // @run-at          document-idle
 // @homepageURL     https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod
 // @supportURL      https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
@@ -37,7 +38,12 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
+GM_addElement('script', {
+  src: 'https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/Separate-config-file/config.js',
+  type: 'text/javascript'
+});
+
+const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/Separate-config-file/config.html"
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
