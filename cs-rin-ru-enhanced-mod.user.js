@@ -39,9 +39,9 @@ Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1
 */
 
 const BRANCH = "master"
-const CONFIG_PAGE_CSS = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/"+BRANCH+"/config.css";
-const CONFIG_PAGE_JS = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/"+BRANCH+"/config.js";
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/"+BRANCH+"/config.html"
+const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
+const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
+const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
@@ -183,7 +183,7 @@ function receiveConfigMessage(event) {
 }
 
 function loadConfigButton() {
-    GM_xmlhttpRequest({ //Js of config file
+    GM_xmlhttpRequest({ // JS of config file
         url: CONFIG_PAGE_JS, onerror: (r) => {
             console.log("Error loading config page script: " + r);
             GM_notification("Error loading config page script: " + r, "Error");
@@ -191,10 +191,9 @@ function loadConfigButton() {
             const script = document.createElement('script');
             script.textContent = r.responseText;
             $("body").append(script);
-            console.log("Appended");
         }
     });
-    GM_xmlhttpRequest({ //CSS of config file
+    GM_xmlhttpRequest({ // CSS of config file
         url: CONFIG_PAGE_CSS, onerror: (r) => {
             console.log("Error loading config page script: " + r);
             GM_notification("Error loading config page script: " + r, "Error");
