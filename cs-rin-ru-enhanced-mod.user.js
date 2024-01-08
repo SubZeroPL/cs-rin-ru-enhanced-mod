@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.7
+// @version         0.13.8
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -201,10 +201,9 @@ function loadConfigButton() {
             const script = document.createElement('style');
             script.textContent = r.responseText;
             $("body").append(script);
-            console.log("Appended");
         }
     });
-    GM_xmlhttpRequest({ //html of config file
+    GM_xmlhttpRequest({ // HTML of config file
         url: CONFIG_PAGE, onerror: (r) => {
             console.log("Error loading config page: " + r);
             GM_notification("Error loading config page: " + r, "Error");
@@ -501,7 +500,7 @@ function dynamicFunction(data) {
 
 // FUNCTIONS
 function mentionify() {
-    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning >= 1) {
+    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning >= 1 && !document.querySelector('a[href^="./posting.php?mode=reply"] img').alt.includes('locked')) {
         const replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
             const postElem = $(this).parents().eq(7);
