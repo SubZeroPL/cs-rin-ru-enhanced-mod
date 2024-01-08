@@ -139,3 +139,7 @@ function enableScript() {
 function openForum() {
     window.open("https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717", "blank");
 }
+
+function toggleParams() {
+        $('#params').toggle();
+    }
