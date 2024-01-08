@@ -102,7 +102,7 @@ function sendConfig() {
             "steam_db_link": $("#steam_db_link")[0].checked,
             "copy_link_button": $("#copy_link_button")[0].checked,
             "dynamic_function": $("#dynamic_function")[0].checked,
-            "colorize_friends": $("#colorize_friends")[0].checked,
+            "colorize_friends_me": Number($("#colorize_friends_me")[0].value),
             "add_profile_button": $("#add_profile_button")[0].checked,
             "colorize_new_messages": $("#colorize_new_messages")[0].checked,
             "colorize_the_page": $("#colorize_the_page")[0].checked,
