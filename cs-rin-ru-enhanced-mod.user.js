@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.10.10
+// @version         0.13.7
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -20,6 +20,7 @@
 // @grant           GM_getValue
 // @grant           GM_deleteValue
 // @grant           GM_notification
+// @grant           GM_addElement
 // @run-at          document-idle
 // @homepageURL     https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod
 // @supportURL      https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
@@ -33,10 +34,14 @@ Creator: Royalgamer06 (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u
 Contributor: SubZeroPL (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=505897) who has now taken over the project
 Contributor: Redpoint (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1365721) has created some functionality
 Contributor: Altansar (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1280185) has created some functionality
+Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=582752) has created the original function for the special search. We have kindly given his permission to use his work
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const CONFIG_PAGE = "https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/config.html"
+const BRANCH = "master"
+const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
+const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
+const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
 
 const AJAX_LOADER = `
 <div style="margin-left: 50%;">
@@ -47,6 +52,8 @@ const AJAX_LOADER = `
 </div>`;
 
 const FORUM_NAME = 'CS.RIN.RU - Steam Underground Community';
+
+const navBarSize = "1.0em";
 
 function getBaseUrl() {
     let path = window.location.origin + window.location.pathname;
@@ -59,30 +66,70 @@ const FORUM_BASE_URL = getBaseUrl();
 //Contains the list of friends
 const FRIENDS_LIST = [];
 
-const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
+const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)").lastElementChild.getAttribute("href").match("mode=login") == null
 
 const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
 
+// Declare a promise to wait for the variable to be updated
+let updatePromise = null;
+
 //Retrieve friends list
 async function retrievesFriendsLists() {
-    await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends")
-        .then(response => response.text())
-        .then(text => {
-            let parser = new DOMParser();
-            let doc = parser.parseFromString(text, "text/html");
-            FRIENDS_LIST.push(...Array.from(doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select').children, node => node.innerText));
+    // Checks if the promise is already being executed
+    if (!updatePromise) {
+        // Create a new promise
+        updatePromise = new Promise(async (resolve, reject) => {
+            // Check if the friends list has already been updated
+            if (FRIENDS_LIST.length === 0) {
+                try {
+                    // Performs the query to retrieve the list of friends
+                    const response = await fetch(FORUM_BASE_URL + "ucp.php?i=zebra&mode=friends");
+                    const text = await response.text();
+                    // Parse the answer to extract the list of friends
+                    let parser = new DOMParser();
+                    let doc = parser.parseFromString(text, "text/html");
+                    const friendsListContainer = doc.querySelector('#ucp > table > tbody > tr:nth-child(3) > td.row2 > select');
+                    if (friendsListContainer) {
+                        FRIENDS_LIST.push(...Array.from(friendsListContainer.children, node => node.innerText));
+                    }
+
+                    // Solve the promise
+                    resolve();
+                } catch (error) {
+                    // Reject the promise in case of error
+                    reject(error);
+                }
+            } else {
+                // Resolves the promise if the list has already been updated
+                resolve();
+            }
         });
+    }
+    // Waits for variable update
+    await updatePromise;
 }
 
 /*
 Configuration array with default values.
 */
+const specialSearchParameters = JSON.stringify({
+    "searchTermsSpecificity": "any",
+    "searchSubforums": true,
+    "searchTopicLocation": "titleonly",
+    "sortResultsBy": "t",
+    "sortOrderBy": "d",
+    "showResultsAsPosts": false,
+    "limitToPrevious": 0,
+    "returnFirst": "300",
+    "showFriends": true,
+});
+
 let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
-    "mentioning": true,
+    "mentioning": 1, //0=nothing, 1=the author, 2=author and the post
     "dynamic_function": true,
-    "colorize_friends": true,
+    "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "add_profile_button": true,
     "colorize_new_messages": true,
     "colorize_the_page": true,
@@ -93,6 +140,8 @@ let options = {
     "title_format": "%C %S - %T", // %C: CS.RIN.RU - Steam Underground Community •, %S: Section title (e.g. View topic), %T: Page title, %RT Page title without tags
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
+    "special_search": true,
+    "special_search_parameter": specialSearchParameters,
     "steam_db_link": true,
     "copy_link_button": true,
     "add_small_shoutbox": true,
@@ -104,7 +153,7 @@ let options = {
 Color used in this script
 */
 let color = {
-    "pink": '#f4169b'
+    "color_of_friends": '#f4169b', "color_of_me": '#ff4c4c'
 };
 
 /*
@@ -112,13 +161,14 @@ Functions that need to be connected must be added here and you must also add the
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
-    options = { ...options, ...savedOptions };
+    options = {...options, ...savedOptions};
     if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
         options.colorize_new_messages = false;
         options.add_small_shoutbox = false;
-        options.colorize_friends = false;
+        options.colorize_friends_me = 0;
+        specialSearchParameters.showFriends = false;
     }
 }
 
@@ -133,7 +183,28 @@ function receiveConfigMessage(event) {
 }
 
 function loadConfigButton() {
-    GM_xmlhttpRequest({
+    GM_xmlhttpRequest({ // JS of config file
+        url: CONFIG_PAGE_JS, onerror: (r) => {
+            console.log("Error loading config page script: " + r);
+            GM_notification("Error loading config page script: " + r, "Error");
+        }, onload: (r) => {
+            const script = document.createElement('script');
+            script.textContent = r.responseText;
+            $("body").append(script);
+        }
+    });
+    GM_xmlhttpRequest({ // CSS of config file
+        url: CONFIG_PAGE_CSS, onerror: (r) => {
+            console.log("Error loading config page script: " + r);
+            GM_notification("Error loading config page script: " + r, "Error");
+        }, onload: (r) => {
+            const script = document.createElement('style');
+            script.textContent = r.responseText;
+            $("body").append(script);
+            console.log("Appended");
+        }
+    });
+    GM_xmlhttpRequest({ //html of config file
         url: CONFIG_PAGE, onerror: (r) => {
             console.log("Error loading config page: " + r);
             GM_notification("Error loading config page: " + r, "Error");
@@ -141,11 +212,11 @@ function loadConfigButton() {
             $("body").append(r.responseText);
             $("input#script_enabled")[0].checked = options.script_enabled;
             $("input#infinite_scrolling")[0].checked = options.infinite_scrolling;
-            $("input#mentioning")[0].checked = options.mentioning;
+            $("select#mentioning")[0].options.selectedIndex = options.mentioning;
             $("input#steam_db_link")[0].checked = options.steam_db_link;
             $("input#copy_link_button")[0].checked = options.copy_link_button;
             $("input#dynamic_function")[0].checked = options.dynamic_function;
-            $("input#colorize_friends")[0].checked = options.colorize_friends;
+            $("select#colorize_friends_me")[0].options.selectedIndex = options.colorize_friends_me;
             $("input#add_profile_button")[0].checked = options.add_profile_button;
             $("input#colorize_new_messages")[0].checked = options.colorize_new_messages;
             $("input#colorize_the_page")[0].checked = options.colorize_the_page;
@@ -159,6 +230,17 @@ function loadConfigButton() {
             $("input#title_format")[0].value = options.title_format;
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
+            $("input#special_search")[0].checked = options.special_search;
+            let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+            $("select#searchTermsSpecificity")[0].value = specialSearchParametersJSON.searchTermsSpecificity;
+            $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
+            $("select#searchTopicLocation")[0].value = specialSearchParametersJSON.searchTopicLocation;
+            $("select#sortResultsBy")[0].value = specialSearchParametersJSON.sortResultsBy;
+            $("select#sortOrderBy")[0].value = specialSearchParametersJSON.sortOrderBy;
+            $("input#showResultsAsPosts")[0].checked = specialSearchParametersJSON.showResultsAsPosts;
+            $("input#limitToPrevious")[0].value = specialSearchParametersJSON.limitToPrevious;
+            $("input#returnFirst")[0].value = specialSearchParametersJSON.returnFirst;
+            $("input#showFriends")[0].checked = specialSearchParametersJSON.showFriends;
 
             if (!options.script_enabled) {
                 $("fieldset#config").hide();
@@ -187,11 +269,15 @@ if (navBar) {
         $("[method='post']:not(#search)").get(0).before(div); // For search.php, memberlist.php
     }
 
+    let bgColour = getComputedStyle(document.querySelector("body")).getPropertyValue("background-color");
+    let matches = bgColour.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    const bgRgb = [parseInt(matches[1]), parseInt(matches[2]), parseInt(matches[3])]
+    let colour = bgRgb[0] + bgRgb[1] + bgRgb[2] > 600 ? "white" : "black";
     GM_addStyle(`[name="page_nav"] {
         position: sticky !important;
         top: 0px;
         width: 500px;
-        background: linear-gradient(90deg, black 90%, transparent 95%);
+        background: linear-gradient(90deg, ${colour} 90%, transparent 95%);
     }`);
 }
 
@@ -213,28 +299,27 @@ Reply button added by Altansar
 INFINITE SCROLLING
 */
 if (options.infinite_scrolling && $("[title='Click to jump to page…']").length > 0) {
-    let selector = "#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))"; // viewforum.php
-    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']"; // search.php
-    if ($(selector).length === 0) selector = "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)"; // search.php (user messages) and memberlist.php
-    if ($(selector).length === 0) selector = "#pagecontent > form > table.tablebg > tbody > tr:not(:first)"; // inbox
-    if ($(selector).length === 0) selector = "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))"; // viewtopic.php
+    const styleElement = document.querySelector("style");
+    styleElement.textContent = "[name=\"page_nav\"] {font-size:" + navBarSize + ";}" //Increase size of the nav bar
+    const selectors = ["#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
+        "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']", // search.php
+        "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)", // search.php (user messages) and memberlist.php
+        "#pagecontent > form > table.tablebg > tbody > tr:not(:first)", // inbox
+        "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))" // viewtopic.php
+    ];
 
-    const navElem = $("[title='Click to jump to page…']").first().parent();
-    let nextElem = $(navElem).find("strong").next().next();
-    let nextPage = $(nextElem).attr("href"); // Will be undefined if there is no next element but only the length of nextElem will be used
-    let previousElem = $(navElem).find("strong").prev().prev();
-    let prevPage = $(previousElem).attr("href"); // Will be undefined if there is no previous element
+    const selector = selectors.find(select => $(select).length !== 0);
+
     let ajaxDone = true;
-
-    // Stuff for infinite scrolling backwards
+    const navElem = $("[title='Click to jump to page…']").first().parent();
+    const initialPageElem = $(navElem).find("strong");
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
-
-    let navElems = {}; // Dictionary for storing nav elements for each page (page number: {Html: HTML of that page's nav element)
-    navElems[$(navElem).find("strong").text()] = { Html: navElem.html() }; // Add the current nav element to the dictionary
+    let navElems = {}; // Dictionary for storing nav bar elements for each page (page number: {Html: HTML of that page's nav element})
+    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
-        if (nextElem.length !== 0) { // If we're not on the last page
+        if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
             $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").parent().parent().parent());
             $("[title='Reply to topic']").last().parents().eq(4).remove();
         }
@@ -242,77 +327,82 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
         $(selector).parent().prepend($(".cat:has(.btnlite)").parent());
     }
 
-    $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number attribute to posts on the page upon loading
+    $(selector).attr("page_number", $(navElem).find("strong").text()); // Add page number attribute to initial posts on the page
+
     function infiniteScroll(e) {
-        if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && nextElem.length > 0 && ajaxDone) {
-            ajaxDone = false;
-            $.get(nextPage, function (data) {
-                let page = $(selector, data).attr("page_number", $(nextElem).text());
-                if (page.length === 0) {
-                    ajaxDone = true;
-                } else {
-                    $(page[0]).find("tbody:first").find("tr:first").remove();
-                    $(selector).last().after(page);
-                    const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(nextElem).text()] = { Html: nextNavElemHTML };
-                    functionsCalledByInfiniteScrolls(data);
-                    nextElem = $(navElem).find("strong").next().next().next().next();
-                    nextPage = $(nextElem).attr("href");
-                    ajaxDone = true;
-                }
-            });
+        // Update nav element
+        const posts = [...$(selector)]; // Get all posts on page
+        const topElement = posts.find(post => window.getComputedStyle(post).display !== "none" && post.getBoundingClientRect().top >= 0); // Get the first element at the top of the screen that is not hidden
+        let currentPageNumber = $(navElem).find("strong").text(); // Get the bolded number in the nav bar
+        if (topElement) {
+            currentPageNumber = $(topElement).attr("page_number"); // Get page number of the top element
+            $(navElem).html(navElems[currentPageNumber].Html); // Replace the nav element with the one stored in the dictionary
+
+            // Update number next to "post reply" button in topics
+            if (URLContains("viewtopic.php")) {
+                const pageIndicator = document.getElementsByClassName("nav")[0];
+                pageIndicator.querySelector("strong:nth-child(1)").innerHTML = `${currentPageNumber}`;
+            }
         }
 
-        const currentPosition = window.scrollY || window.document.documentElement.scrollTop;
-        if (currentPosition === 0 && e.deltaY < 0) {
+        // Min and max page numbers that have already been visited
+        const navElemsKeys = Object.keys(navElems).map(Number);
+        let earliestPageNumber = Math.min(...navElemsKeys).toString();
+        let latestPageNumber = Math.max(...navElemsKeys).toString();
+        // Backward scroll
+        if ((window.scrollY || window.document.documentElement.scrollTop) === 0 && e.deltaY < 0) {
             scrollLength += Math.abs(e.deltaY);
-            if (scrollLength >= scrollThreshold && previousElem.length > 0 && ajaxDone) {
+            if (scrollLength >= scrollThreshold && currentPageNumber === earliestPageNumber && ajaxDone) {
                 ajaxDone = false;
-                $.get(prevPage, function (data) {
-                    let element = $(selector);
-                    if (element.length === 0) {
-                        ajaxDone = true;
-                    } else {
-                        $(element[0]).find("tbody:first").find("tr:first").remove();
-                        $($(selector)[0]).before($(selector, data).attr("page_number", $(previousElem).text()));
-                        let top = $(element[0]).offset().top + $(element[0]).height();
-                        const scrollPosition = top - $(window).height();
-                        $('html, body').animate({ scrollTop: scrollPosition }, 0);
-                        const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                        navElems[$(previousElem).text()] = { Html: prevNavElemHTML };
-                        functionsCalledByInfiniteScrolls(data);
-                        previousElem = $(navElem).find("strong").prev().prev().prev().prev();
-                        prevPage = $(previousElem).attr("href");
-                        ajaxDone = true;
-                    }
+                let previousPageElem = $(navElem).find(`:contains('${earliestPageNumber}')`).first().prev().prev(); // Find the previous page
+                let previousPageLink = $(previousPageElem).attr("href"); // Get the link to the page
+                // If there is no suitable link then stop
+                if (!previousPageLink) {
+                    ajaxDone = true;
+                    return;
+                }
+
+                $.get(previousPageLink, function (data) {
+                    let currentPage = $(selector); // Posts on current page
+                    $($(selector)[0]).before($(selector, data).attr("page_number", $(previousPageElem).text())); // Add the new content to the front as well as page number
+                    $(currentPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from current page - this element will be added back with the new content
+                    let scrollPosition = $(currentPage[0]).offset().top + $(currentPage[0]).height() - $(window).height();
+                    $("html, body").animate({scrollTop: scrollPosition}, 0); // Move to new content
+                    const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
+                    navElems[$(previousPageElem).text()] = {Html: prevNavElemHTML};
+                    functionsCalledByInfiniteScrolls(data); // Run functions
+                    earliestPageNumber = $($.parseHTML(prevNavElemHTML)).find("strong").text();
+                    ajaxDone = true;
                 });
-                scrollLength = 0;
+                scrollLength = 0; // Reset scrollLength
             }
         } else {
-            scrollLength = 0
+            scrollLength = 0; // Reset scrollLength if not actively trying to go to previous page
         }
 
-        const posts = $(selector).toArray();
-        let topElement;
-        for (let i = 0; i < posts.length; i++) {
-            if (window.getComputedStyle(posts[i]).display === "none") {
-                continue;
+        // Forward scroll
+        if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && currentPageNumber === latestPageNumber && ajaxDone) {
+            ajaxDone = false;
+            let nextPageElem = $(navElem).find(`:contains('${latestPageNumber}')`).next().next(); // Find the next page
+            let nextPageLink = $(nextPageElem).attr("href"); // Get the link to the page
+            // If there is no suitable link then stop
+            if (!nextPageLink) {
+                ajaxDone = true;
+                return;
             }
-            const rect = posts[i].getBoundingClientRect();
-            if (rect.top >= 0) {
-                topElement = posts[i];
-                break;
-            }
-        }
-        if (topElement) {
-            const pageNumber = $(topElement).attr('page_number'); // Get page number of top element
-            $(navElem).html(navElems[pageNumber].Html); // Update nav element
 
-            // Update number next to "Post Reply"
-            if (URLContains("viewtopic.php")) {
-                const element = document.getElementsByClassName("nav")[0];
-                element.querySelector('strong:nth-child(1)').innerHTML = pageNumber;
-            }
+            $.get(nextPageLink, function (data) {
+                let newPage = $(selector, data).attr("page_number", $(nextPageElem).text()); // Selected next page content
+                $(newPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from the new content
+                $(selector).last().after(newPage) // Add the new page content to the end
+                const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html(); // Get the nav bar of the new page
+                navElems[$(nextPageElem).text()] = {Html: nextNavElemHTML}; // Store it for use when the user scrolls over the new content
+                functionsCalledByInfiniteScrolls(data); // Run functions
+                if ($($.parseHTML(nextNavElemHTML)).find("strong").text()) {
+                    latestPageNumber = ($.parseHTML(nextNavElemHTML)).find("strong").text(); // Update position
+                }
+                ajaxDone = true;
+            });
         }
     }
 
@@ -330,7 +420,7 @@ function functionsCalledByInfiniteScrolls(data) {
     steamDBLink();
     addUsersTag();
     goToUnreadPosts();
-    colorizeFriends();
+    colorizeFriendsMe();
 }
 
 
@@ -340,10 +430,13 @@ hideScs();
 
 // MENTIONING
 if (URLContains("posting.php" && "do=mention") && options.mentioning) {
-    // const p = URLParam("p");
+    const p = URLParam("p");
     const u = URLParam("u");
     const a = URLParam("a");
-    const postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${decodeURI(a)}[/url], `;
+    let postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${decodeURI(a)}[/url], `;
+    if (options.mentioning === 2) { //Author and post
+        postBody += `Re: [url=http://cs.rin.ru/forum/viewtopic.php?p=${p}#p${p}]Post[/url]. `;
+    }
     $("[name=message]").val(postBody);
 }
 mentionify();
@@ -394,7 +487,7 @@ function dynamicFunction(data) {
         $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)").html(html); //Message
     }
     changeColorOfNewMessage();//Colorize messages
-    colorizeFriends();
+    colorizeFriendsMe();
     if (URLContains("viewtopic.php")) { //Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
@@ -408,7 +501,7 @@ function dynamicFunction(data) {
 
 // FUNCTIONS
 function mentionify() {
-    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning) {
+    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning >= 1) {
         const replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
             const postElem = $(this).parents().eq(7);
@@ -811,7 +904,7 @@ function fetchChat() {
             chatContainer.appendChild(script);
         })
         .then(() => {
-            colorizeFriends();
+            colorizeFriendsMe();
         });
 }
 
@@ -902,15 +995,15 @@ function colorizeThePages() {
 
 colorizeThePages();
 
-//Color friends pink
-async function colorizeFriends() {
-    if (options.colorize_friends) {
+//Color friends
+async function colorizeFriendsMe() {
+    if (options.colorize_friends_me > 0) {
         //Add legends friends
-        if (URLContains("index.php")) {
+        if (URLContains("index.php") && options.colorize_friends_me > 1) {
             if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
                 const friends = document.createElement('a');
                 friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
-                friends.style.color = color.pink;
+                friends.style.color = color.color_of_friends;
                 friends.innerText = 'Friends';
                 const selector = document.querySelectorAll(".gensmall")[3];
                 selector.append(", ");
@@ -923,16 +1016,235 @@ async function colorizeFriends() {
         links.forEach(link => {
             let nickname = link.innerText;
             if (link.classList.contains('quotetitle')) nickname = nickname.substring(0, nickname.length - 7)
-            if (USERNAME === nickname) {
+            if (USERNAME === nickname && (options.colorize_friends_me === 1 || options.colorize_friends_me === 3)) {
                 link.id = "colorize";
-                link.style.color = '#ff4c4c';
+                link.style.color = color.color_of_me;
             }
-            if (FRIENDS_LIST.includes(nickname)) {
+            if (FRIENDS_LIST.includes(nickname) && options.colorize_friends_me > 1) {
                 link.id = "colorize";
-                link.style.color = color.pink;
+                link.style.color = color.color_of_friends;
             }
         });
     }
 }
 
-colorizeFriends();
+colorizeFriendsMe();
+
+function searchURL() {
+    const searchBar = document.querySelector("#searchBar");
+    // Config values
+    let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+    const searchSubforums = specialSearchParametersJSON.searchSubforums;
+    const searchTopicLocation = specialSearchParametersJSON.searchTopicLocation;
+    const sortResultsBy = specialSearchParametersJSON.sortResultsBy;
+    const sortOrderBy = specialSearchParametersJSON.sortOrderBy;
+    const limitToPrevious = specialSearchParametersJSON.limitToPrevious;
+    const returnFirst = specialSearchParametersJSON.returnFirst;
+    // Fetch the values from search options
+    let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This topic
+    let searchTerms = document.getElementById("searchTerms").value; // Any/All
+    let searchLocation = document.getElementById("searchLocation").checked ? "firstpost" : (searchTopicLocation === "all" || searchTopicLocation === "msgonly") ? searchTopicLocation : "all"; // Search
+    let showResultsAsPosts = document.getElementById("showAsPosts").checked ? "posts" : "topics"; // Display
+    let searchAuthor = document.getElementById("searchAuthor").value; // Author
+    let forumID = "";
+    let topicID = "0";
+
+    // Check the searchScope and parse URL if required
+    if (searchScope === "thisForum") {
+        let urlParams = new URLSearchParams(window.location.search);
+        forumID = urlParams.get("f");
+        if (forumID) {
+            forumID = "&fid%5B%5D=" + forumID;
+        }
+    }
+
+    if (searchScope === "thisTopic") {
+        let urlParams = new URLSearchParams(window.location.search);
+        topicID = urlParams.get("t");
+    }
+
+    window.location.href = `./search.php?keywords=${encodeURIComponent(searchBar.value).replace(/%20/g, "+")}&terms=${searchTerms}&author=${encodeURIComponent(searchAuthor).replace(/%20/g, "+")}${forumID}&sc=${searchSubforums}&sf=${searchLocation}&sk=${sortResultsBy}&sd=${sortOrderBy}&sr=${showResultsAsPosts}&st=${limitToPrevious}&ch=${returnFirst}&t=${topicID}`;
+}
+
+async function specialSearch() {
+    if (options.special_search) {
+        // Get row to insert searchBar
+        const cell = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)");
+        const container = document.createElement("div");
+        container.style.position = "relative";
+        container.style.display = "inline-block";
+
+        // Different locations based on which page the user is on
+        let searchScopeOptions;
+        if (window.location.href.includes("viewtopic.php")) {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+                <option value="thisForum">This forum</option>
+                <option value="thisTopic">This topic</option>
+            `;
+        } else if (window.location.href.includes("viewforum.php")) {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+                <option value="thisForum">This forum</option>
+            `;
+        } else {
+            searchScopeOptions = `
+                <option value="everywhere">Everywhere</option>
+            `;
+        }
+
+        // Getting config values
+        let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+        const searchLocationChecked = specialSearchParametersJSON.searchTopicLocation === "titleonly" || specialSearchParametersJSON.searchTopicLocation === "firstpost" ? "checked" : "";
+        const showAsPostsChecked = specialSearchParametersJSON.showResultsAsPosts ? "checked" : "";
+        const searchTermsSelected = specialSearchParametersJSON.searchTermsSpecificity;
+
+        // Creating search bar and search options
+        container.innerHTML = `
+            <input id="searchBar" type="text" placeholder="Special search">
+            <div id="searchOptions" style="display: none; position: absolute; background-color:#1c1c1c; border-top:0.5em solid black; text-align: left;">
+                <div style="padding: 0.5em;">
+                    <label for="searchScope" style="color: white;">Search:</label>
+                    <select id="searchScope" name="searchScope">
+                        ${searchScopeOptions}
+                    </select>
+                </div>
+                <div style="padding: 0.5em;">
+                    <label for="searchTerms" style="color: white;">Search for:</label>
+                    <select id="searchTerms" name="searchTerms">
+                        <option value="any" ${searchTermsSelected === 'any' ? 'selected' : ''}>Any term</option>
+                        <option value="all" ${searchTermsSelected === 'all' ? 'selected' : ''}>All terms</option>
+                    </select>
+                </div>
+                <div style="padding: 0.5em;">
+                    <input type="checkbox" id="searchLocation" name="searchLocation" value="firstPost" ${searchLocationChecked}>
+                    <label for="searchLocation" style="color: white;">Search first post/titles only</label>
+                </div>
+                <div style="padding: 0.5em;">
+                    <input type="checkbox" id="showAsPosts" name="showAsPosts" ${showAsPostsChecked}>
+                    <label for="showAsPosts" style="color: white;">Show as posts</label>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; padding: 0.5em;">
+                    <label for="searchAuthor" style="color: white;">By: </label>
+                    <input type="text" id="searchAuthor" name="searchAuthor" placeholder="Author's name">
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; padding: 0.5em;">
+                    <button id="searchButton">Search</button>
+                </div>
+            </div>
+            `;
+
+        cell.prepend(container);
+
+        // Getting reference of the search bar and the search options
+        const searchBar = document.querySelector("#searchBar");
+        const searchOptions = document.querySelector("#searchOptions");
+
+        // Add event listener for search bar
+        searchBar.addEventListener("click", function (event) {
+            // Makes it so search options will not disappear first
+            event.stopPropagation();
+            // Toggles the display of search options when search bar is clicked
+            searchOptions.style.display = "block";
+        });
+
+
+        // Add event listener for search options so search options will not disappear when clicked on
+        searchOptions.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+        // Add event listener to document (disappear when anything other than the search bar/options is clicked)
+        document.addEventListener("click", function () {
+            // Hides the search options when click is outside the search bar
+            if (searchOptions.style.display === "block") {
+                searchOptions.style.display = "none";
+            }
+        });
+
+        // Add event listener for the Esc key to hide search options
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") { // Check if the pressed key is Escape
+                searchOptions.style.display = "none"; // Hide the search options
+            }
+        });
+
+        // Redirect to search on Enter key press
+        searchBar.addEventListener("keydown", function (ev) {
+            if (ev.code === "Enter") {
+                searchURL()
+            }
+        });
+
+        if (specialSearchParametersJSON.showFriends) {
+            // Add functionality for search button
+            document.querySelector("#searchButton").addEventListener("click", searchURL);
+            await retrievesFriendsLists();
+            // Retrieve reference to "searchAuthor" input
+            const searchAuthorInput = document.querySelector("#searchAuthor");
+            // Create friends list
+            const friendsClass = document.createElement("class")
+            friendsClass.id = "friends-lists-search"
+            // Create a new paragraph element
+            const friendTitle = document.createElement('p');
+            // Add content to paragraph
+            friendTitle.textContent = "Friends (" + FRIENDS_LIST.length + "):";
+            const friendsLists = document.createElement("ul");
+            if (FRIENDS_LIST.length === 0) {
+                const friendItem = document.createElement("li");
+                friendItem.textContent = "Go make some friends :)";
+                friendsLists.appendChild(friendItem);
+            }
+            // Browse the friends table and create a list item for each word
+            FRIENDS_LIST.forEach(friend => {
+                const friendItem = document.createElement("li");
+                friendItem.textContent = friend;
+                // Add a click event listener to each list item
+                friendItem.addEventListener("click", function () {
+                    searchAuthorInput.value = friend;
+                });
+                friendsLists.appendChild(friendItem);
+            });
+            // When you click on search author input
+            searchAuthorInput.addEventListener("click", function (event) {
+                friendsClass.style.display = "block"; //Display list of friends
+            });
+            const parentElement = document.getElementById('searchOptions');
+            const children = Array.from(parentElement.children);
+            const selectedChildren = children.slice(0, children.length - 2);
+            // Add event listener to all first child of the special search bar (disappear you click on element on the special search bar who are not the friend list, the button or the input)
+            selectedChildren.forEach(option => {
+                option.addEventListener('click', function () {
+                    friendsClass.style.display = "none"; //Hide the friend lists
+                });
+            });
+            // Add paragraph to specific class
+            friendsClass.appendChild(friendTitle);
+            friendsClass.appendChild(friendsLists);
+            searchOptions.appendChild(friendsClass); // Append the friend list by default
+            friendsClass.style.display = "none"; // Hide the friend list by default
+
+
+            document.addEventListener("click", function () {
+                // Hides the search options when click is outside the search bar
+                if (searchOptions.style.display === "block") {
+                    friendsClass.style.display = "none"; //Hide the friend lists
+                }
+            });
+        }
+    }
+
+}
+
+specialSearch();
+
+/*
+function addFriendButton() {
+    if(true) {
+        if (URLContains("viewtopic.php")) {
+            //<a href="ucp.php?i=zebra&amp;add=hal210"><img src="./styles/rinDark/imageset/en/icon_user_profile.gif" alt="Profile" title="Profile"></a>
+
+        }
+    }
+}
+*/

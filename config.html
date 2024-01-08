@@ -1,251 +1,4 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" type="text/javascript"></script>
-<script>
-    function getBaseUrl() {
-        let path = window.location.origin + window.location.pathname;
-        let base = path.slice(0, path.lastIndexOf('/') + 1);
-        return base ?? 'https://cs.rin.ru/forum/';
-    }
-
-    const FORUM_BASE_URL = getBaseUrl();
-
-    const RELOAD = 0;
-    const WARNING = 1;
-
-    const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").text !== ' Login';
-
-    const WARNING_MSG = `
-   You need to be <a href='${FORUM_BASE_URL}ucp.php?mode=login' target='blank' class='forum_link'>logged in to the forum</a> to use the greyed-out functions.<br>
-   If you don't have an account yet, you need to <a href='${FORUM_BASE_URL}ucp.php?mode=register' target='blank' class='forum_link'>register</a>.
-    `;
-
-    /**
-     * will match one and only one of the string 'true','1', or 'on' regardless
-     * of capitalization and regardless off surrounding white-space.
-     **/
-    function strToBool(s) {
-        let regex = /^\s*(true|1|on)\s*$/i;
-
-        return regex.test(s);
-    }
-
-    function showMessage(id, text) {
-        const container = $("#messages")[0];
-        if ($(`div#msg${id}`).length === 0) {
-            const msg = document.createElement('div');
-            msg.id = `msg${id}`;
-            msg.className = 'message';
-            $(msg).html(text);
-            container.appendChild(msg);
-        }
-        $(container).show();
-    }
-
-    function hideMessage(id) {
-        $(`div#msg${id}`).remove();
-        if ($(".message").length === 0) {
-            $("#messages").hide();
-        }
-    }
-
-    function showConfigPage() {
-        $("#configButton").hide();
-        $("#wholeWindow").show();
-
-        $("[data-originalValue]").each((i, e) => {
-            switch (e.type) {
-                case 'checkbox':
-                    e.setAttribute("data-originalValue", e.checked);
-                    break;
-                case 'select-one':
-                case 'text':
-                case 'number':
-                    e.setAttribute("data-originalValue", e.value);
-                    break;
-            }
-        });
-        if (!CONNECTED) {
-            document.querySelectorAll('[need-connected="true"]').forEach(checkbox => {
-                checkbox.disabled = true;
-            });
-            showMessage(WARNING, WARNING_MSG)
-        }
-
-        $("[data-originalValue]").change((e) => {
-            let changed = false;
-            $("[data-originalValue]").each((i, e) => {
-                switch (e.type) {
-                    case 'checkbox':
-                        changed = changed || (e.checked !== strToBool(e.getAttribute("data-originalValue")));
-                        break;
-                    case 'select-one':
-                    case 'text':
-                    case 'number':
-                        changed = changed || (e.value !== e.getAttribute("data-originalValue"));
-                        break;
-                }
-            });
-            if (changed) {
-                // Display a warning if something changed in configuration
-                showMessage(RELOAD, "Clicking OK will reload current page");
-            } else {
-                hideMessage(RELOAD);
-            }
-        });
-    }
-
-    function sendConfig() {
-        if ($("#messages").is(":visible")) {
-            const data = {
-                "script_enabled": $("#script_enabled")[0].checked,
-                "infinite_scrolling": $("#infinite_scrolling")[0].checked,
-                "mentioning": $("#mentioning")[0].checked,
-                "steam_db_link": $("#steam_db_link")[0].checked,
-                "copy_link_button": $("#copy_link_button")[0].checked,
-                "dynamic_function": $("#dynamic_function")[0].checked,
-                "colorize_friends": $("#colorize_friends")[0].checked,
-                "add_profile_button": $("#add_profile_button")[0].checked,
-                "colorize_new_messages": $("#colorize_new_messages")[0].checked,
-                "colorize_the_page": $("#colorize_the_page")[0].checked,
-                "display_ajax_loader": $("#display_ajax_loader")[0].checked,
-                "custom_tags": $("#custom_tags")[0].checked,
-                "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
-                "add_users_tag": $("#add_users_tag")[0].checked,
-                "go_to_unread_posts": Number($("#go_to_unread_posts")[0].value),
-                "hide_scs": Number($("#hide_scs")[0].value),
-                "apply_in_scs": $("#apply_in_scs")[0].checked,
-                "title_format": $("#title_format")[0].value,
-                "topic_preview": $("#topic_preview")[0].checked,
-                "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value)
-            };
-            window.postMessage(JSON.stringify(data), "*");
-            window.location.reload();
-        }
-        configWindowClose();
-    }
-
-    function configWindowClose() {
-        $("#wholeWindow").hide();
-        $("#configButton").show();
-    }
-
-    function enableScript() {
-        if ($("input#script_enabled")[0].checked) {
-            $("fieldset#config").fadeIn();
-        } else {
-            $("fieldset#config").fadeOut();
-        }
-    }
-
-    function openForum() {
-        window.open("https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717", "blank");
-    }
-</script>
-<style>
-    /* fallback */
-    @font-face {
-        font-family: 'Material Icons';
-        font-style: normal;
-        font-weight: 400;
-        src: url(https://fonts.gstatic.com/s/materialicons/v85/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
-    }
-
-    .material-icons {
-        font-family: 'Material Icons';
-        font-weight: normal;
-        font-style: normal;
-        font-size: 24px;
-        line-height: 1;
-        letter-spacing: normal;
-        text-transform: none;
-        display: inline-block;
-        white-space: nowrap;
-        word-wrap: normal;
-        direction: ltr;
-        -moz-font-feature-settings: 'liga';
-        font-feature-settings: 'liga';
-        -moz-osx-font-smoothing: grayscale;
-    }
-
-    a.forum_link {
-        color: black;
-    }
-
-    a.forum_link:hover {
-        color: darkmagenta;
-    }
-
-    a.forum_link:visited {
-        color: darkviolet;
-    }
-
-    #wholeWindow {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(128, 128, 128, 0.5);
-        backdrop-filter: blur(10px);
-        color: black;
-    }
-
-    #configWindow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        padding: 5px;
-        transform: translate(-50%, -50%);
-        background-color: darkgray;
-        border: solid 1px black;
-        border-radius: 5px;
-    }
-
-    fieldset {
-        padding: 2px;
-        border-radius: 5px;
-    }
-
-    #messages {
-        padding: 2px;
-        border: 0.1px solid white;
-        border-radius: 5px;
-        margin-top: 2px;
-        text-align: center;
-        display: none;
-    }
-
-    .message {
-        color: darkred;
-        border: 0.1px solid white;
-        border-radius: 5px;
-    }
-
-    .buttons {
-        margin-top: 5px;
-        width: 100%;
-    }
-
-    .buttons tr td:first-child {
-        text-align: left;
-    }
-
-    .buttons tr td:last-child {
-        text-align: right;
-    }
-
-    #configButton {
-        position: fixed;
-        top: 5px;
-        right: 5px;
-        cursor: pointer;
-    }
-
-    #warning {
-        display: none;
-        color: red;
-    }
-</style>
 <div id="wholeWindow">
     <div id="configWindow">
         <fieldset>
@@ -266,9 +19,13 @@
                             <input data-originalValue="" id="infinite_scrolling" type="checkbox">
                             <label for="infinite_scrolling">Infinite scrolling</label>
                         </td>
-                        <td>
-                            <input data-originalValue="" id="mentioning" type="checkbox">
+                        <td title="0=nothing, 1=the author, 2=author and the post">
                             <label for="mentioning">Mentioning</label>
+                            <select data-originalValue="" id="mentioning">
+                                <option value="0">Nothing</option>
+                                <option value="1">Mentions the author</option>
+                                <option value="2">Mention author and post</option>
+                            </select>
                         </td>
                     </tr>
                     <tr>
@@ -325,11 +82,17 @@
                             <label for="add_users_tag">Add users tag</label>
                         </td>
                     </tr>
-                    <td title="Colour your friends in pink">
-                        <input data-originalValue="" id="colorize_friends" need-connected="true"
-                               type="checkbox">
-                        <label for="colorize_friends">Colorize friends</label>
-                    </td>
+                    <tr title="0=nothing, 1=your in red, 2=your friends in pink, 3=both">
+                        <td>
+                            <label for="colorize_friends_me">Colorize friends</label>
+                            <select data-originalValue="" id="colorize_friends_me" need-connected="true">
+                                <option value="0">Nothing</option>
+                                <option value="1">Me</option>
+                                <option value="2">My friends</option>
+                                <option value="3">Me and my friends</option>
+                            </select>
+                        </td>
+                    </tr>
                     <tr title="• First post -> means that clicking on a topic title will take you to the first page.&#10;• Unread post -> means that clicking on a topic title will lead to unread posts.&#10;• Unread post + preview -> means that clicking on a topic title will lead to the unread posts and that moving the mouse over it with the 'show topic preview' option will display the unread posts.">
                         <td>
                             <label for="go_to_unread_posts">Change topic link</label>
@@ -348,6 +111,86 @@
                             <input data-originalValue="" id="topic_preview_timeout" maxlength="2" min="1" size="3"
                                    type="number" value="5"/>
                             <span>seconds</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <label for="special_search">Activate the special search bar</label>
+                            <input data-originalvalue="" id="special_search" name="special_search" type="checkbox">
+
+                            <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
+                            <div id="params" style="display: none;">
+                                <fieldset>
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="searchTermsSpecificity">Search for:</label>
+                                        <select data-originalvalue="" id="searchTermsSpecificity"
+                                                name="searchTermsSpecificity">
+                                            <option value="any">Any term</option>
+                                            <option value="all">All terms</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="searchSubforums">Search subforums:</label>
+                                        <input data-originalvalue="" id="searchSubforums" name="searchSubforums"
+                                               type="checkbox">
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="sortResultsBy">Sort results by:</label>
+                                        <select data-originalvalue="" id="sortResultsBy" name="sortResultsBy">
+                                            <option value="a">Author</option>
+                                            <option value="t">Post Time</option>
+                                            <option value="f">Forum</option>
+                                            <option value="i">Topic title</option>
+                                            <option value="s">Post subject</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="sortOrderBy">Sort order by:</label>
+                                        <select data-originalvalue="" id="sortOrderBy" name="sortOrderBy">
+                                            <option value="a">Ascending</option>
+                                            <option value="d">Descending</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="searchTopicLocation">Search within:</label>
+                                        <select data-originalvalue="" id="searchTopicLocation"
+                                                name="searchTopicLocation">
+                                            <option value="all">Post subjects and message text</option>
+                                            <option value="msgonly">Message text only</option>
+                                            <option value="titleonly">Topic titles only</option>
+                                            <option value="firstpost">First post of topics only</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="showResultsAsPosts">Show as posts:</label>
+                                        <input data-originalvalue="" id="showResultsAsPosts" name="showResultsAsPosts"
+                                               type="checkbox">
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="limitToPrevious">Limit to previous days:</label>
+                                        <input data-originalvalue="" type="number" id="limitToPrevious"
+                                               name="limitToPrevious">
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="returnFirst">Return first characters of posts:</label>
+                                        <input data-originalvalue="" type="number" id="returnFirst" name="returnFirst"
+                                               title="Write -1 to return all characters in the post">
+                                    </div>
+
+                                    <div style="padding-bottom: 5px;">
+                                        <label for="showFriends">Display your friends list in author search:</label>
+                                        <input data-originalvalue="" id="showFriends" name="showFriends"
+                                               need-connected="true" type="checkbox">
+                                    </div>
+                                </fieldset>
+                            </div>
                         </td>
                     </tr>
                     <tr title="• Green means that all games in the respective topic are available for download&#10;• Yellow means that some, but not all titles (of a series) are available for download&#10;• Red means that no game is available for download.">
