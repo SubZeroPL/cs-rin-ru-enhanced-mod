@@ -95,6 +95,17 @@ function showConfigPage() {
 
 function sendConfig() {
     if ($("#messages").is(":visible")) {
+        const special_search = {
+            "searchTermsSpecificity": $("#searchTermsSpecificity")[0].value,
+            "searchSubforums": $("#searchSubforums")[0].checked,
+            "sortResultsBy": $("#sortResultsBy")[0].value,
+            "sortOrderBy": $("#sortOrderBy")[0].value,
+            "searchTopicLocation": $("#searchTopicLocation")[0].value,
+            "showResultsAsPosts": $("#showResultsAsPosts")[0].checked,
+            "limitToPrevious": Number($("#limitToPrevious")[0].value),
+            "returnFirst": Number($("#returnFirst")[0].value),
+            "showFriends": $("#showFriends")[0].checked
+        };
         const data = {
             "script_enabled": $("#script_enabled")[0].checked,
             "infinite_scrolling": $("#infinite_scrolling")[0].checked,
@@ -102,7 +113,6 @@ function sendConfig() {
             "steam_db_link": $("#steam_db_link")[0].checked,
             "copy_link_button": $("#copy_link_button")[0].checked,
             "dynamic_function": $("#dynamic_function")[0].checked,
-            "colorize_friends_me": Number($("#colorize_friends_me")[0].value),
             "add_profile_button": $("#add_profile_button")[0].checked,
             "colorize_new_messages": $("#colorize_new_messages")[0].checked,
             "colorize_the_page": $("#colorize_the_page")[0].checked,
@@ -110,14 +120,17 @@ function sendConfig() {
             "custom_tags": $("#custom_tags")[0].checked,
             "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
             "add_users_tag": $("#add_users_tag")[0].checked,
+            "colorize_friends_me": Number($("#colorize_friends_me")[0].value),
             "go_to_unread_posts": Number($("#go_to_unread_posts")[0].value),
+            "topic_preview": $("#topic_preview")[0].checked,
+            "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value),
+            "special_search": $("#special_search")[0].checked,
+            "special_search_parameter": special_search,
             "hide_scs": Number($("#hide_scs")[0].value),
             "apply_in_scs": $("#apply_in_scs")[0].checked,
-            "title_format": $("#title_format")[0].value,
-            "topic_preview": $("#topic_preview")[0].checked,
-            "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value)
+            "title_format": $("#title_format")[0].value
         };
-        window.postMessage(JSON.stringify(data), "*");
+        window.postMessage(data, "/");
         window.location.reload();
     }
     configWindowClose();
@@ -141,5 +154,5 @@ function openForum() {
 }
 
 function toggleParams() {
-        $('#params').toggle();
-    }
+    $('#params').toggle();
+}
