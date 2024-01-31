@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         0.13.8
+// @version         1.0.0
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -38,7 +38,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const BRANCH = "master"
+const BRANCH = "65-problems-with-saving-configuration"
 const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
 const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
 const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
@@ -112,7 +112,7 @@ async function retrievesFriendsLists() {
 /*
 Configuration array with default values.
 */
-const specialSearchParameters = JSON.stringify({
+let specialSearchParameters = {
     "searchTermsSpecificity": "any",
     "searchSubforums": true,
     "searchTopicLocation": "titleonly",
@@ -121,32 +121,32 @@ const specialSearchParameters = JSON.stringify({
     "showResultsAsPosts": false,
     "limitToPrevious": 0,
     "returnFirst": "300",
-    "showFriends": true,
-});
+    "showFriends": true
+};
 
 let options = {
     "script_enabled": true,
     "infinite_scrolling": true,
     "mentioning": 1, //0=nothing, 1=the author, 2=author and the post
+    "steam_db_link": true,
+    "copy_link_button": true,
     "dynamic_function": true,
-    "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "add_profile_button": true,
     "colorize_new_messages": true,
     "colorize_the_page": true,
     "display_ajax_loader": true,
     "custom_tags": true,
-    "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
-    "apply_in_scs": false,
-    "title_format": "%C %S - %T", // %C: CS.RIN.RU - Steam Underground Community •, %S: Section title (e.g. View topic), %T: Page title, %RT Page title without tags
+    "add_small_shoutbox": true,
+    "add_users_tag": true,
+    "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
+    "go_to_unread_posts": 0, //0= dont go, 1=go to, 2=go to + preview
     "topic_preview": false,
     "topic_preview_timeout": 5, // in seconds
     "special_search": true,
     "special_search_parameter": specialSearchParameters,
-    "steam_db_link": true,
-    "copy_link_button": true,
-    "add_small_shoutbox": true,
-    "add_users_tag": true,
-    "go_to_unread_posts": 0 //0= dont go, 1=go to, 2=go to + preview
+    "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
+    "apply_in_scs": false,
+    "title_format": "%C %S - %T" // %C: CS.RIN.RU - Steam Underground Community •, %S: Section title (e.g. View topic), %T: Page title, %RT Page title without tags
 };
 
 /*
@@ -161,7 +161,7 @@ Functions that need to be connected must be added here and you must also add the
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
-    options = {...options, ...savedOptions};
+    options = { ...options, ...savedOptions };
     if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
@@ -177,7 +177,9 @@ loadConfig();
 window.addEventListener("message", receiveConfigMessage, false);
 
 function receiveConfigMessage(event) {
-    options = JSON.parse(event.data);
+    if (!event.data) return;
+    if (event.data.script_enabled === undefined) return;
+    options = event.data;
     GM_setValue("options", options);
     GM_notification("Configuration saved", "Info");
 }
@@ -230,7 +232,7 @@ function loadConfigButton() {
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
             $("input#special_search")[0].checked = options.special_search;
-            let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+            const specialSearchParametersJSON = options.special_search_parameter;
             $("select#searchTermsSpecificity")[0].value = specialSearchParametersJSON.searchTermsSpecificity;
             $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
             $("select#searchTopicLocation")[0].value = specialSearchParametersJSON.searchTopicLocation;
@@ -315,7 +317,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
     let navElems = {}; // Dictionary for storing nav bar elements for each page (page number: {Html: HTML of that page's nav element})
-    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
+    navElems[$(navElem).find("strong").text()] = { Html: navElem.html() }; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
         if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
@@ -366,9 +368,9 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     $($(selector)[0]).before($(selector, data).attr("page_number", $(previousPageElem).text())); // Add the new content to the front as well as page number
                     $(currentPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from current page - this element will be added back with the new content
                     let scrollPosition = $(currentPage[0]).offset().top + $(currentPage[0]).height() - $(window).height();
-                    $("html, body").animate({scrollTop: scrollPosition}, 0); // Move to new content
+                    $("html, body").animate({ scrollTop: scrollPosition }, 0); // Move to new content
                     const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(previousPageElem).text()] = {Html: prevNavElemHTML};
+                    navElems[$(previousPageElem).text()] = { Html: prevNavElemHTML };
                     functionsCalledByInfiniteScrolls(data); // Run functions
                     earliestPageNumber = $($.parseHTML(prevNavElemHTML)).find("strong").text();
                     ajaxDone = true;
@@ -395,7 +397,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 $(newPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from the new content
                 $(selector).last().after(newPage) // Add the new page content to the end
                 const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html(); // Get the nav bar of the new page
-                navElems[$(nextPageElem).text()] = {Html: nextNavElemHTML}; // Store it for use when the user scrolls over the new content
+                navElems[$(nextPageElem).text()] = { Html: nextNavElemHTML }; // Store it for use when the user scrolls over the new content
                 functionsCalledByInfiniteScrolls(data); // Run functions
                 if ($($.parseHTML(nextNavElemHTML)).find("strong").text()) {
                     latestPageNumber = ($.parseHTML(nextNavElemHTML)).find("strong").text(); // Update position
@@ -1093,7 +1095,7 @@ async function specialSearch() {
         }
 
         // Getting config values
-        let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
+        let specialSearchParametersJSON = options.special_search_parameter;
         const searchLocationChecked = specialSearchParametersJSON.searchTopicLocation === "titleonly" || specialSearchParametersJSON.searchTopicLocation === "firstpost" ? "checked" : "";
         const showAsPostsChecked = specialSearchParametersJSON.showResultsAsPosts ? "checked" : "";
         const searchTermsSelected = specialSearchParametersJSON.searchTermsSpecificity;
