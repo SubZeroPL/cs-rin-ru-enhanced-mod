@@ -51,7 +51,7 @@
                     <tr>
                         <td title="Activate to change the color of messages (if any) to red">
                             <input data-originalValue="" id="colorize_new_messages" need-connected="true"
-                                type="checkbox">
+                                   type="checkbox">
                             <label for="colorize_new_messages">Colorize new messages received in red</label>
                         </td>
                         <td title="Activate to add a bit of color to the page">
@@ -90,24 +90,28 @@
                             </select>
                         </td>
                     </tr>
-                    <tr
-                        title="• First post -> means that clicking on a topic title will take you to the first page.&#10;• Unread post -> means that clicking on a topic title will lead to unread posts.&#10;• Unread post + preview -> means that clicking on a topic title will lead to the unread posts and that moving the mouse over it with the 'show topic preview' option will display the unread posts.">
+                    <tr title="Change topic link behavior when clicking on a topic title.">
                         <td>
-                            <label for="go_to_unread_posts">Change topic link</label>
-                            <select data-originalValue="" id="go_to_unread_posts">
+                            <label for="change_topic_link">Change topic link</label>
+                            <select data-originalValue="" id="change_topic_link">
                                 <option value="0">First post</option>
                                 <option value="1">Unread post</option>
-                                <option value="2">Unread post + preview</option>
+                                <option value="2">Last post</option>
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td colspan="2">
+                    <tr title="Display a topic's posts on mouse hover after a specified delay in seconds.">
+                        <td>
                             <input data-originalValue="" id="topic_preview" type="checkbox">
-                            <label for="topic_preview">Show topic preview on mouse hover</label>
-                            <span>after</span>
-                            <input data-originalValue="" id="topic_preview_timeout" maxlength="2" min="1" size="3"
-                                type="number" value="5" />
+                            <label for="topic_preview">Show</label>
+                            <select data-originalValue="" id="topic_preview_option">
+                                <option value="0">First post</option>
+                                <option value="1">Unread post</option>
+                                <option value="2">Last post</option>
+                            </select>
+                            <label for="topic_preview_timeout"> preview on mouse hover after</label>
+                            <input data-originalValue="" id="topic_preview_timeout" maxlength="2" min="1" max="99"
+                                   size="3" type="number" value="5" style="width: 50px;"/>
                             <span>seconds</span>
                         </td>
                     </tr>
@@ -122,7 +126,7 @@
                                     <div style="padding-bottom: 5px;">
                                         <label for="searchTermsSpecificity">Search for:</label>
                                         <select data-originalvalue="" id="searchTermsSpecificity"
-                                            name="searchTermsSpecificity">
+                                                name="searchTermsSpecificity">
                                             <option value="any">Any term</option>
                                             <option value="all">All terms</option>
                                         </select>
@@ -131,7 +135,7 @@
                                     <div style="padding-bottom: 5px;">
                                         <label for="searchSubforums">Search subforums:</label>
                                         <input data-originalvalue="" id="searchSubforums" name="searchSubforums"
-                                            type="checkbox">
+                                               type="checkbox">
                                     </div>
 
                                     <div style="padding-bottom: 5px;">
@@ -156,7 +160,7 @@
                                     <div style="padding-bottom: 5px;">
                                         <label for="searchTopicLocation">Search within:</label>
                                         <select data-originalvalue="" id="searchTopicLocation"
-                                            name="searchTopicLocation">
+                                                name="searchTopicLocation">
                                             <option value="all">Post subjects and message text</option>
                                             <option value="msgonly">Message text only</option>
                                             <option value="titleonly">Topic titles only</option>
@@ -167,25 +171,25 @@
                                     <div style="padding-bottom: 5px;">
                                         <label for="showResultsAsPosts">Show as posts:</label>
                                         <input data-originalvalue="" id="showResultsAsPosts" name="showResultsAsPosts"
-                                            type="checkbox">
+                                               type="checkbox">
                                     </div>
 
                                     <div style="padding-bottom: 5px;">
                                         <label for="limitToPrevious">Limit to previous days:</label>
                                         <input data-originalvalue="" type="number" id="limitToPrevious"
-                                            name="limitToPrevious">
+                                               name="limitToPrevious">
                                     </div>
 
                                     <div style="padding-bottom: 5px;">
                                         <label for="returnFirst">Return first characters of posts:</label>
                                         <input data-originalvalue="" type="number" id="returnFirst" name="returnFirst"
-                                            title="Write -1 to return all characters in the post">
+                                               title="Write -1 to return all characters in the post">
                                     </div>
 
                                     <div style="padding-bottom: 5px;">
                                         <label for="showFriends">Display your friends list in author search:</label>
                                         <input data-originalvalue="" id="showFriends" name="showFriends"
-                                            need-connected="true" type="checkbox">
+                                               need-connected="true" type="checkbox">
                                     </div>
                                 </fieldset>
                             </div>
@@ -211,8 +215,8 @@
                         <td colspan="2">
                             <label for="title_format">Window/tab title for topic pages</label>
                             <input data-originalValue="" id="title_format"
-                                title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %C - standard forum name (CS.RIN.RU - Steam Underground Community •)&#10; %S - Section title&#10; %T - Page title &#10;%RT - Page title without tags"
-                                type="text" value="%C %S - %T">
+                                   title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %C - standard forum name (CS.RIN.RU - Steam Underground Community •)&#10; %S - Section title&#10; %T - Page title &#10;%RT - Page title without tags"
+                                   type="text" value="%C %S - %T">
                         </td>
                     </tr>
                 </table>
