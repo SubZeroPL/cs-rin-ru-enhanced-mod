@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.1
+// @version         1.0.2
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -139,7 +139,7 @@ let options = {
     "add_small_shoutbox": true,
     "add_users_tag": true,
     "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
-    "change_topic_link": 0,  // 0 = first post, 1 = unread post, 2 = last post
+    "change_topic_link": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview": false,
     "topic_preview_option": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview_timeout": 5, // in seconds
@@ -312,7 +312,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     ];
 
     const selector = selectors.find(select => $(select).length !== 0);
-
+    let replyButton=false;
     let ajaxDone = true;
     const navElem = $("[title='Click to jump to page…']").first().parent();
     const initialPageElem = $(navElem).find("strong");
@@ -382,7 +382,6 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
         } else {
             scrollLength = 0; // Reset scrollLength if not actively trying to go to previous page
         }
-
         // Forward scroll
         if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && currentPageNumber === latestPageNumber && ajaxDone) {
             ajaxDone = false;
@@ -390,6 +389,16 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
             let nextPageLink = $(nextPageElem).attr("href"); // Get the link to the page
             // If there is no suitable link then stop
             if (!nextPageLink) {
+                if(!replyButton) {
+                    const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
+                    const copiedElement = originalElement.cloneNode(true);
+                    document.querySelector("#pagecontent").appendChild(copiedElement);
+                    //Retrieve the correct nav
+                    const element = document.getElementsByClassName("nav")[3];
+                    // Replace the first number with the second in the HTML code
+                    element.querySelector('strong:nth-child(1)').innerHTML = element.querySelector('strong:nth-child(2)').textContent;
+                    replyButton=true;
+                }
                 ajaxDone = true;
                 return;
             }
