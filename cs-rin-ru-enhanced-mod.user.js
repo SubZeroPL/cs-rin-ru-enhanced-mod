@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.2
+// @version         1.0.3
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -229,11 +229,11 @@ function loadConfigButton() {
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#title_format")[0].value = options.title_format;
-            $("select#change_topic_link")[0].options.selectedIndex = options.change_topic_link;
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("select#topic_preview_option")[0].options.selectedIndex = options.topic_preview_option;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
             $("input#special_search")[0].checked = options.special_search;
+            $("select#change_topic_link")[0].options.selectedIndex = options.change_topic_link;
             const specialSearchParametersJSON = options.special_search_parameter;
             $("select#searchTermsSpecificity")[0].value = specialSearchParametersJSON.searchTermsSpecificity;
             $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
@@ -312,7 +312,6 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     ];
 
     const selector = selectors.find(select => $(select).length !== 0);
-    let replyButton=false;
     let ajaxDone = true;
     const navElem = $("[title='Click to jump to page…']").first().parent();
     const initialPageElem = $(navElem).find("strong");
@@ -389,7 +388,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
             let nextPageLink = $(nextPageElem).attr("href"); // Get the link to the page
             // If there is no suitable link then stop
             if (!nextPageLink) {
-                if(!replyButton) {
+                if(!document.querySelector("#pagecontent > table:last-child > tbody > tr > td > a")) {
                     const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
                     const copiedElement = originalElement.cloneNode(true);
                     document.querySelector("#pagecontent").appendChild(copiedElement);
@@ -397,7 +396,6 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     const element = document.getElementsByClassName("nav")[3];
                     // Replace the first number with the second in the HTML code
                     element.querySelector('strong:nth-child(1)').innerHTML = element.querySelector('strong:nth-child(2)').textContent;
-                    replyButton=true;
                 }
                 ajaxDone = true;
                 return;
@@ -1203,10 +1201,9 @@ async function specialSearch() {
                 searchURL()
             }
         });
-
-        if (specialSearchParametersJSON.showFriends) {
             // Add functionality for search button
             document.querySelector("#searchButton").addEventListener("click", searchURL);
+        if (specialSearchParametersJSON.showFriends) {
             await retrievesFriendsLists();
             // Retrieve reference to "searchAuthor" input
             const searchAuthorInput = document.querySelector("#searchAuthor");
