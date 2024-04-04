@@ -38,7 +38,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const BRANCH = "master"
+const BRANCH = "beta"
 const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
 const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
 const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
@@ -306,9 +306,9 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     styleElement.textContent = "[name=\"page_nav\"] {font-size:" + navBarSize + ";}" //Increase size of the nav bar
     const selectors = ["#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
         "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']", // search.php
+        "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))", // viewtopic.php
         "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)", // search.php (user messages) and memberlist.php
-        "#pagecontent > form > table.tablebg > tbody > tr:not(:first)", // inbox
-        "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))" // viewtopic.php
+        "#pagecontent > form > table.tablebg > tbody > tr:not(:first)" // inbox
     ];
 
     const selector = selectors.find(select => $(select).length !== 0);
@@ -322,7 +322,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
 
     if (URLContains("viewtopic.php")) {
         if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
-            $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").parent().parent().parent());
+            $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").first().parent().parent().parent());
             $("[title='Reply to topic']").last().parents().eq(4).remove();
         }
     } else if (!URLContains("ucp.php")) {
