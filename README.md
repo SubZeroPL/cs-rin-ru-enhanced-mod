@@ -46,10 +46,11 @@ see: [issues](https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/issues)
 
 **Notes:** The script supports automatic updates, which means you don't have to download it again each time it's updated.
 
-*Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) and [Tampermonkey](https://www.tampermonkey.net/) on [Firefox](https://www.mozilla.org/) and Chromium ([Brave](https://brave.com/)).*
+*Developed & tested with [Violentmonkey](https://violentmonkey.github.io/) and [Tampermonkey](https://www.tampermonkey.net/)\* on [Firefox](https://www.mozilla.org/) and Chromium ([Brave](https://brave.com/)).*  
+\**On some browsers, you may need to [activate developer mode](https://www.quora.com/How-do-I-enable-developer-mode-in-Google-Chrome) to run usescripts via Tampermonkey.*
 
 ## 🔢 Versioning
-This project is following semantic versioning schema.
+This project is following [semantic versioning schema](https://semver.org/).
 
 ## 🤝 Credits
 - [RoyalGamer06](https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=477885) - Has created the original project (now retired)
