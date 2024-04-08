@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.5
+// @version         1.0.6
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -445,7 +445,7 @@ if (URLContains("posting.php" && "do=mention") && options.mentioning) {
     const a = URLParam("a");
     let postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${decodeURI(a)}[/url], `;
     if (options.mentioning === 2) { //Author and post
-        postBody += `Re: [url=https://cs.rin.ru/forum/viewtopic.php?p=${p}#p${p}]Post[/url]. `;
+        postBody += `Re: [url=${FORUM_BASE_URL}viewtopic.php?p=${p}#p${p}]Post[/url]. `;
     }
     $("[name=message]").val(postBody);
 }
