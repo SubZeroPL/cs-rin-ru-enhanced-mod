@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.1
+// @version         1.0.6
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -115,9 +115,9 @@ Configuration array with default values.
 let specialSearchParameters = {
     "searchTermsSpecificity": "any",
     "searchSubforums": true,
-    "searchTopicLocation": "titleonly",
     "sortResultsBy": "t",
     "sortOrderBy": "d",
+    "searchTopicLocation": "titleonly",
     "showResultsAsPosts": false,
     "limitToPrevious": 0,
     "returnFirst": "300",
@@ -139,8 +139,9 @@ let options = {
     "add_small_shoutbox": true,
     "add_users_tag": true,
     "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
-    "go_to_unread_posts": 0, //0= dont go, 1=go to, 2=go to + preview
+    "change_topic_link": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview": false,
+    "topic_preview_option": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview_timeout": 5, // in seconds
     "special_search": true,
     "special_search_parameter": specialSearchParameters,
@@ -225,13 +226,14 @@ function loadConfigButton() {
             $("input#custom_tags")[0].checked = options.custom_tags;
             $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
             $("input#add_users_tag")[0].checked = options.add_users_tag;
-            $("select#go_to_unread_posts")[0].options.selectedIndex = options.go_to_unread_posts;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#title_format")[0].value = options.title_format;
             $("input#topic_preview")[0].checked = options.topic_preview;
+            $("select#topic_preview_option")[0].options.selectedIndex = options.topic_preview_option;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
             $("input#special_search")[0].checked = options.special_search;
+            $("select#change_topic_link")[0].options.selectedIndex = options.change_topic_link;
             const specialSearchParametersJSON = options.special_search_parameter;
             $("select#searchTermsSpecificity")[0].value = specialSearchParametersJSON.searchTermsSpecificity;
             $("input#searchSubforums")[0].checked = specialSearchParametersJSON.searchSubforums;
@@ -304,13 +306,12 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     styleElement.textContent = "[name=\"page_nav\"] {font-size:" + navBarSize + ";}" //Increase size of the nav bar
     const selectors = ["#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
         "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']", // search.php
+        "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))", // viewtopic.php
         "#wrapcentre > form > table.tablebg > tbody > tr:not(:has(.cat)):not(:first)", // search.php (user messages) and memberlist.php
-        "#pagecontent > form > table.tablebg > tbody > tr:not(:first)", // inbox
-        "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))" // viewtopic.php
+        "#pagecontent > form > table.tablebg > tbody > tr:not(:first)" // inbox
     ];
 
     const selector = selectors.find(select => $(select).length !== 0);
-
     let ajaxDone = true;
     const navElem = $("[title='Click to jump to page…']").first().parent();
     const initialPageElem = $(navElem).find("strong");
@@ -321,7 +322,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
 
     if (URLContains("viewtopic.php")) {
         if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
-            $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").parent().parent().parent());
+            $("[title='Subscribe topic']").first().parents().eq(7).after($(".cat:has(.btnlite)").first().parent().parent().parent());
             $("[title='Reply to topic']").last().parents().eq(4).remove();
         }
     } else if (!URLContains("ucp.php")) {
@@ -380,7 +381,6 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
         } else {
             scrollLength = 0; // Reset scrollLength if not actively trying to go to previous page
         }
-
         // Forward scroll
         if (window.innerHeight + window.scrollY + 1500 >= document.body.scrollHeight && currentPageNumber === latestPageNumber && ajaxDone) {
             ajaxDone = false;
@@ -388,6 +388,15 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
             let nextPageLink = $(nextPageElem).attr("href"); // Get the link to the page
             // If there is no suitable link then stop
             if (!nextPageLink) {
+                if(!document.querySelector("#pagecontent > table:last-child > tbody > tr > td > a > img")) {
+                    const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
+                    const copiedElement = originalElement.cloneNode(true);
+                    document.querySelector("#pagecontent").appendChild(copiedElement);
+                    //Retrieve the correct nav
+                    const element = document.getElementsByClassName("nav")[3];
+                    // Replace the first number with the second in the HTML code
+                    element.querySelector('strong:nth-child(1)').innerHTML = element.querySelector('strong:nth-child(2)').textContent;
+                }
                 ajaxDone = true;
                 return;
             }
@@ -420,7 +429,7 @@ function functionsCalledByInfiniteScrolls(data) {
     addLink();
     steamDBLink();
     addUsersTag();
-    goToUnreadPosts();
+    changeTopicLink();
     colorizeFriendsMe();
 }
 
@@ -436,7 +445,7 @@ if (URLContains("posting.php" && "do=mention") && options.mentioning) {
     const a = URLParam("a");
     let postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${u}]${decodeURI(a)}[/url], `;
     if (options.mentioning === 2) { //Author and post
-        postBody += `Re: [url=http://cs.rin.ru/forum/viewtopic.php?p=${p}#p${p}]Post[/url]. `;
+        postBody += `Re: [url=${FORUM_BASE_URL}viewtopic.php?p=${p}#p${p}]Post[/url]. `;
     }
     $("[name=message]").val(postBody);
 }
@@ -485,7 +494,7 @@ function dynamicFunction(data) {
     $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
     const html = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html();
     if ($(html)[0].src.endsWith("theme/images/icon_mini_message.gif")) {
-        $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(3)").html(html); //Message
+        $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(" + (2 + options.add_profile_button) + ")").html(html) // Message
     }
     changeColorOfNewMessage();//Colorize messages
     colorizeFriendsMe();
@@ -506,7 +515,7 @@ function mentionify() {
         const replyLink = $("[title='Reply to topic']").parent().attr("href");
         $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
             const postElem = $(this).parents().eq(7);
-            const postID = $(postElem).find("a[name]").attr("name").slice(1);
+            const postID = $(postElem).find("a[name]").last().attr("name").slice(1);
             const author = $(postElem).find(".postauthor").text();
             const authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
             $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
@@ -641,12 +650,17 @@ function setupTopicPreview() {
             $("div#topic_preview").hide();
             tid = setTimeout(() => {
                 if (!showPreview) return;
+
                 const previewWidth = window.innerWidth * 0.75;
                 const previewHeight = window.innerHeight * 0.75;
                 const x = (window.innerWidth / 2) - (previewWidth / 2);
                 const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
-                let link = topic.href;
-                if (options.go_to_unread_posts === 1) link = link.substring(0, link.length - 19);
+
+                const topicLink = topic.href.split("&view=unread")[0].split("&p=")[0];
+                let link = options.topic_preview_option === 0 ? topicLink :
+                    options.topic_preview_option === 1 ? topicLink + "&view=unread#unread" :
+                        options.topic_preview_option === 2 ? $(topic).parent().next().next().next().next().children().next().children().next().attr("href"):
+                            'Invalid option';
                 GM_xmlhttpRequest({
                     url: link, onerror: (r) => {
                         console.log("Error loading page: " + r);
@@ -654,7 +668,9 @@ function setupTopicPreview() {
                         if (!showPreview) return;
                         const parser = new DOMParser();
                         const dom = parser.parseFromString(r.responseText, "text/html").body.children;
-                        const body = $(dom).find("div#pagecontent table.tablebg")[1].outerHTML;
+                        const posts = $(dom).find("div#pagecontent table.tablebg");
+                        const index = options.topic_preview_option === 2 ? posts.length - 2 : 1;
+                        const body = posts[index].outerHTML;
                         // Use custom parseHTML function instead of $.parseHTML
                         const bodyObj = parser.parseFromString(body, "text/html").body.children[0];
                         if ($("div#topic_preview").length > 0) {
@@ -912,20 +928,30 @@ function fetchChat() {
 /*
 Made by Altansar
 */
-function goToUnreadPosts() {
-    if (options.go_to_unread_posts >= 1) {
+function changeTopicLink() {
+    if (options.change_topic_link === 1) {
         document.querySelectorAll(".titles:not(:first-child), .topictitle").forEach(element => {
-            if (element.getAttribute('href')) {
-                if (element.getAttribute('href').substring(element.getAttribute('href').length - 19) !== '&view=unread#unread') {
+            if (element.getAttribute("href")) {
+                if (!element.getAttribute("href").includes("&view=unread#unread")) {
                     //If we don't already have added unread
-                    element.setAttribute('href', element.getAttribute('href') + "&view=unread#unread")
+                    element.setAttribute("href", element.getAttribute('href') + "&view=unread#unread")
+                }
+            }
+        });
+    }
+
+    if (options.change_topic_link === 2) {
+        document.querySelectorAll(".titles:not(:first-child), .topictitle").forEach(element => {
+            if (element.getAttribute("href")) {
+                if (!element.getAttribute("href").includes("&p=")) {
+                    element.setAttribute("href", $(element).parent().next().next().next().next().children().next().children().next().attr("href"))
                 }
             }
         });
     }
 }
 
-goToUnreadPosts();
+changeTopicLink();
 
 function addProfileButton() {
     if (!options.add_profile_button) return;
@@ -1034,13 +1060,12 @@ colorizeFriendsMe();
 function searchURL() {
     const searchBar = document.querySelector("#searchBar");
     // Config values
-    let specialSearchParametersJSON = JSON.parse(options.special_search_parameter);
-    const searchSubforums = specialSearchParametersJSON.searchSubforums;
-    const searchTopicLocation = specialSearchParametersJSON.searchTopicLocation;
-    const sortResultsBy = specialSearchParametersJSON.sortResultsBy;
-    const sortOrderBy = specialSearchParametersJSON.sortOrderBy;
-    const limitToPrevious = specialSearchParametersJSON.limitToPrevious;
-    const returnFirst = specialSearchParametersJSON.returnFirst;
+    const searchSubforums = options.special_search_parameter.searchSubforums;
+    const searchTopicLocation = options.special_search_parameter.searchTopicLocation;
+    const sortResultsBy = options.special_search_parameter.sortResultsBy;
+    const sortOrderBy = options.special_search_parameter.sortOrderBy;
+    const limitToPrevious = options.special_search_parameter.limitToPrevious;
+    const returnFirst = options.special_search_parameter.returnFirst;
     // Fetch the values from search options
     let searchScope = document.getElementById("searchScope").value; // Everywhere/This forum/This topic
     let searchTerms = document.getElementById("searchTerms").value; // Any/All
@@ -1176,10 +1201,9 @@ async function specialSearch() {
                 searchURL()
             }
         });
-
-        if (specialSearchParametersJSON.showFriends) {
             // Add functionality for search button
             document.querySelector("#searchButton").addEventListener("click", searchURL);
+        if (specialSearchParametersJSON.showFriends) {
             await retrievesFriendsLists();
             // Retrieve reference to "searchAuthor" input
             const searchAuthorInput = document.querySelector("#searchAuthor");
