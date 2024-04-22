@@ -388,7 +388,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
             let nextPageLink = $(nextPageElem).attr("href"); // Get the link to the page
             // If there is no suitable link then stop
             if (!nextPageLink) {
-                if(!document.querySelector("#pagecontent > table:last-child > tbody > tr > td > a > img")) {
+                if(!document.querySelector("#pagecontent > table:last-child > tbody > tr > td > a > img")&&!URLContains("ucp.php")) {
                     const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
                     const copiedElement = originalElement.cloneNode(true);
                     document.querySelector("#pagecontent").appendChild(copiedElement);
