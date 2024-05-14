@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.6
+// @version         1.0.7
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -284,6 +284,14 @@ if (navBar) {
     }`);
 }
 
+// Quick reply panel
+GM_addStyle(
+    `[id="postform"] {
+        position: sticky !important;
+        bottom: 0px;
+        background-color:#1c1c1c;
+    }`);
+
 if (options.display_ajax_loader) {
     $("body").prepend(AJAX_LOADER);
     $.ajaxSetup({
@@ -388,7 +396,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
             let nextPageLink = $(nextPageElem).attr("href"); // Get the link to the page
             // If there is no suitable link then stop
             if (!nextPageLink) {
-                if(!document.querySelector("#pagecontent > table:last-child > tbody > tr > td > a > img")&&!URLContains("ucp.php")) {
+                if (!document.querySelector("#pagecontent > table:last-child > tbody > tr > td > a > img") && !URLContains("ucp.php")) {
                     const originalElement = document.querySelector("#pagecontent > table:nth-child(1)");
                     const copiedElement = originalElement.cloneNode(true);
                     document.querySelector("#pagecontent").appendChild(copiedElement);
@@ -1201,8 +1209,8 @@ async function specialSearch() {
                 searchURL()
             }
         });
-            // Add functionality for search button
-            document.querySelector("#searchButton").addEventListener("click", searchURL);
+        // Add functionality for search button
+        document.querySelector("#searchButton").addEventListener("click", searchURL);
         if (specialSearchParametersJSON.showFriends) {
             await retrievesFriendsLists();
             // Retrieve reference to "searchAuthor" input
