@@ -118,6 +118,7 @@ function sendConfig() {
             "colorize_the_page": $("#colorize_the_page")[0].checked,
             "display_ajax_loader": $("#display_ajax_loader")[0].checked,
             "custom_tags": $("#custom_tags")[0].checked,
+            "add_link_quote": $("#add_link_quote")[0].checked,
             "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
             "add_users_tag": $("#add_users_tag")[0].checked,
             "show_all_spoilers": $("#show_all_spoilers")[0].checked,
