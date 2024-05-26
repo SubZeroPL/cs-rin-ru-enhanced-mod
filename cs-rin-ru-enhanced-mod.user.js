@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.8
+// @version         1.0.9
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -522,15 +522,17 @@ function dynamicFunction(data) {
 
 // FUNCTIONS
 function mentionify() {
-    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning >= 1 && !document.querySelector('a[href^="./posting.php?mode=reply"] img').alt.includes('locked')) {
-        const replyLink = $("[title='Reply to topic']").parent().attr("href");
-        $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
-            const postElem = $(this).parents().eq(7);
-            const postID = $(postElem).find("a[name]").last().attr("name").slice(1);
-            const author = $(postElem).find(".postauthor").text();
-            const authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
-            $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
-        });
+    if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning >= 1 && document.querySelector('a[href^="./posting.php?mode=reply"] img')) {
+        if(!document.querySelector('a[href^="./posting.php?mode=reply"] img').alt.includes('locked')) {
+            const replyLink = $("[title='Reply to topic']").parent().attr("href");
+            $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
+                const postElem = $(this).parents().eq(7);
+                const postID = $(postElem).find("a[name]").last().attr("name").slice(1);
+                const author = $(postElem).find(".postauthor").text();
+                const authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
+                $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
+            });
+        }
     }
 }
 
