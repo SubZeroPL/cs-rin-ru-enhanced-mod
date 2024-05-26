@@ -120,6 +120,7 @@ function sendConfig() {
             "custom_tags": $("#custom_tags")[0].checked,
             "add_small_shoutbox": $("#add_small_shoutbox")[0].checked,
             "add_users_tag": $("#add_users_tag")[0].checked,
+            "show_all_spoilers": $("#show_all_spoilers")[0].checked,
             "colorize_friends_me": Number($("#colorize_friends_me")[0].value),
             "change_topic_link": Number($("#change_topic_link")[0].value),
             "topic_preview": $("#topic_preview")[0].checked,
