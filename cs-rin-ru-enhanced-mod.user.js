@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.7
+// @version         1.0.8
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -138,6 +138,7 @@ let options = {
     "custom_tags": true,
     "add_small_shoutbox": true,
     "add_users_tag": true,
+    "show_all_spoilers": false,
     "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "change_topic_link": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview": false,
@@ -226,6 +227,7 @@ function loadConfigButton() {
             $("input#custom_tags")[0].checked = options.custom_tags;
             $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
             $("input#add_users_tag")[0].checked = options.add_users_tag;
+            $("input#show_all_spoilers")[0].checked = options.show_all_spoilers;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#title_format")[0].value = options.title_format;
@@ -439,6 +441,7 @@ function functionsCalledByInfiniteScrolls(data) {
     addUsersTag();
     changeTopicLink();
     colorizeFriendsMe();
+    ShowAllSpoilers();
 }
 
 
@@ -1270,6 +1273,21 @@ async function specialSearch() {
 }
 
 specialSearch();
+
+function ShowAllSpoilers() {
+    if (options.show_all_spoilers) { //If show all spoilers is active
+        setTimeout(function() {
+            var spoilers = document.querySelectorAll('input[type="button"][value="Show"]');
+            if (spoilers.length > 0) {
+                for (var i = 0; i < spoilers.length; i++) {
+                    spoilers[i].click();
+                }
+            }
+        }, 20);
+    }
+}
+
+ShowAllSpoilers();
 
 /*
 function addFriendButton() {
