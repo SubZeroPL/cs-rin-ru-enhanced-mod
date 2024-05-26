@@ -139,6 +139,7 @@ let options = {
     "add_small_shoutbox": true,
     "add_users_tag": true,
     "show_all_spoilers": false,
+    "add_link_quote": true,
     "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "change_topic_link": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview": false,
@@ -170,6 +171,7 @@ function loadConfig() {
         options.colorize_new_messages = false;
         options.add_small_shoutbox = false;
         options.colorize_friends_me = 0;
+        options.add_link_quote = false;
         specialSearchParameters.showFriends = false;
     }
 }
@@ -228,6 +230,7 @@ function loadConfigButton() {
             $("input#add_small_shoutbox")[0].checked = options.add_small_shoutbox;
             $("input#add_users_tag")[0].checked = options.add_users_tag;
             $("input#show_all_spoilers")[0].checked = options.show_all_spoilers;
+            $("input#add_link_quote")[0].checked = options.add_link_quote;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#title_format")[0].value = options.title_format;
@@ -1276,6 +1279,10 @@ async function specialSearch() {
 
 specialSearch();
 
+/*
+Originally made by ucsanytaef
+And adapted for cs.rin.ru enhanced by Altansar (nothing to adapt xD)
+*/
 function ShowAllSpoilers() {
     if (options.show_all_spoilers) { //If show all spoilers is active
         setTimeout(function() {
@@ -1290,6 +1297,28 @@ function ShowAllSpoilers() {
 }
 
 ShowAllSpoilers();
+
+function AddLinkQuote() {
+    if(options.add_link_quote) {
+        const number = new URLSearchParams(new URL(window.location.href).search).get('p');
+        const messageTextarea = document.querySelector('textarea[name="message"]');
+        if (messageTextarea) {
+            let message = messageTextarea.value;
+            const link = `https://cs.rin.ru/forum/viewtopic.php?p=${number}#p${number}`; //Only cs.rin url unfortunatly can't do relative link for work with onion
+            const firstQuoteIndex = message.indexOf('[quote');
+            const firstQuoteEndIndex = message.indexOf(']', firstQuoteIndex) + 1;
+            if (firstQuoteIndex !== -1) {
+                const beforeQuote = message.slice(0, firstQuoteIndex);
+                const quoteTag = message.slice(firstQuoteIndex, firstQuoteEndIndex);
+                const afterQuote = message.slice(firstQuoteEndIndex);
+                message = `${beforeQuote}[url=${link}]${quoteTag}[/url]${afterQuote}`;
+                messageTextarea.value = message;
+            }
+        }
+    }
+}
+
+AddLinkQuote();
 
 /*
 function addFriendButton() {
