@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.9
+// @version         1.0.10
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -1042,7 +1042,7 @@ colorizeThePages();
 async function colorizeFriendsMe() {
     if (options.colorize_friends_me > 0) {
         //Add legends friends
-        if (URLContains("index.php") && options.colorize_friends_me > 1) {
+        if ((URLContains("index.php") || (window.location.pathname.startsWith('/forum/') && window.location.pathname.endsWith('/forum/'))) && options.colorize_friends_me > 1) {
             if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
                 const friends = document.createElement('a');
                 friends.setAttribute('href', './ucp.php?i=zebra&mode=friends');
