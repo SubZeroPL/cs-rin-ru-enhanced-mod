@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.14
+// @version         1.0.16
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -266,6 +266,9 @@ function loadConfigButton() {
 loadConfigButton();
 
 if (!options.script_enabled) return;
+
+// Quick reply panel
+const quickReplyPanel = document.getElementById("postform");
 
 // Navigation bar
 let navBar = $("[title='Click to jump to page…']").parent().parent().first()[0]; // Gets the first navigation bar
@@ -532,7 +535,30 @@ function mentionify() {
                 const postID = $(postElem).find("a[name]").last().attr("name").slice(1);
                 const author = $(postElem).find(".postauthor").text();
                 const authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
-                $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
+                if (!quickReplyPanel) {
+                    $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
+                } else {
+                    $(this).append("<a href='javascript:void(0);'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
+                    const child = $(this).find("[href='javascript:void(0);']");
+                    $(this).find('[title="Reply with mentioning"]').on("click", function () {
+                        let postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${authorID}]${decodeURI(author)}[/url], `;
+                        if (options.mentioning === 2) { //Author and post
+                            postBody += `Re: [url=${FORUM_BASE_URL}viewtopic.php?p=${postID}#p${postID}]Post[/url]. `;
+                        }
+                        $("[name=message]")[0].value += postBody;
+                        const mentioned = $('<span class="mentioned">Mentioned!</span>');
+                        // const child = $(bar).find("[href='javascript:void(0);']");
+                        mentioned.css({
+                            'position': 'absolute',
+                            'top': child.offset().top - mentioned.outerHeight() - 20,
+                            'left': child.offset().left + (child.outerWidth() / 2) - (mentioned.outerWidth() / 2) - 12
+                        });
+                        $('body').append(mentioned);
+                        setTimeout(function () {
+                            mentioned.fadeOut();
+                        }, 2000);
+                    });
+                }
             });
         }
     }
@@ -951,7 +977,6 @@ function addLink() {
                     copied.fadeOut();
                 }, 2000);
             });
-
         });
     }
 }
@@ -1430,12 +1455,11 @@ AddLinkQuote();
 
 
 // Quick reply panel
-if (options.quick_reply && document.getElementById("postform")) {
+if (options.quick_reply && quickReplyPanel) {
     let button = document.createElement("button");
     button.innerHTML = "Show Quick Reply Panel";
     button.style.cssText = "position: fixed; bottom: 0%; left: 0%; min-height: 40px; min-width: 50px; width: 5%; height: 3%; z-index: 9999;";
     button.addEventListener("click", function () {
-        let quickReplyPanel = document.getElementById("postform");
         if (quickReplyPanel.style.position !== "sticky") {
             quickReplyPanel.style.position = "sticky";
             quickReplyPanel.style.bottom = "0px";
@@ -1447,8 +1471,7 @@ if (options.quick_reply && document.getElementById("postform")) {
     });
     document.body.appendChild(button);
 }
-/*
-*/
+
 /*
 function addFriendButton() {
     if(true) {
