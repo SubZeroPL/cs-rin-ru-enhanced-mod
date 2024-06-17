@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.10
+// @version         1.0.11
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -38,7 +38,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const BRANCH = "master"
+const BRANCH = "beta"
 const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
 const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
 const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
@@ -145,6 +145,8 @@ let options = {
     "topic_preview": false,
     "topic_preview_option": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview_timeout": 5, // in seconds
+    "post_preview": false,
+    "profile_preview": false,
     "special_search": true,
     "special_search_parameter": specialSearchParameters,
     "hide_scs": 0, // 0=not hide, 1=hide all, 2=hide only green, 3=show only red
@@ -164,7 +166,7 @@ Functions that need to be connected must be added here and you must also add the
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
-    options = { ...options, ...savedOptions };
+    options = {...options, ...savedOptions};
     if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
@@ -331,7 +333,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
     let navElems = {}; // Dictionary for storing nav bar elements for each page (page number: {Html: HTML of that page's nav element})
-    navElems[$(navElem).find("strong").text()] = { Html: navElem.html() }; // Add the current nav element to the dictionary
+    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
         if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
@@ -382,9 +384,9 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     $($(selector)[0]).before($(selector, data).attr("page_number", $(previousPageElem).text())); // Add the new content to the front as well as page number
                     $(currentPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from current page - this element will be added back with the new content
                     let scrollPosition = $(currentPage[0]).offset().top + $(currentPage[0]).height() - $(window).height();
-                    $("html, body").animate({ scrollTop: scrollPosition }, 0); // Move to new content
+                    $("html, body").animate({scrollTop: scrollPosition}, 0); // Move to new content
                     const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(previousPageElem).text()] = { Html: prevNavElemHTML };
+                    navElems[$(previousPageElem).text()] = {Html: prevNavElemHTML};
                     functionsCalledByInfiniteScrolls(data); // Run functions
                     earliestPageNumber = $($.parseHTML(prevNavElemHTML)).find("strong").text();
                     ajaxDone = true;
@@ -419,7 +421,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 $(newPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from the new content
                 $(selector).last().after(newPage) // Add the new page content to the end
                 const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html(); // Get the nav bar of the new page
-                navElems[$(nextPageElem).text()] = { Html: nextNavElemHTML }; // Store it for use when the user scrolls over the new content
+                navElems[$(nextPageElem).text()] = {Html: nextNavElemHTML}; // Store it for use when the user scrolls over the new content
                 functionsCalledByInfiniteScrolls(data); // Run functions
                 if ($($.parseHTML(nextNavElemHTML)).find("strong").text()) {
                     latestPageNumber = ($.parseHTML(nextNavElemHTML)).find("strong").text(); // Update position
@@ -526,7 +528,7 @@ function dynamicFunction(data) {
 // FUNCTIONS
 function mentionify() {
     if ($(".postbody").length > 0 && URLContains("viewtopic.php") && options.mentioning >= 1 && document.querySelector('a[href^="./posting.php?mode=reply"] img')) {
-        if(!document.querySelector('a[href^="./posting.php?mode=reply"] img').alt.includes('locked')) {
+        if (!document.querySelector('a[href^="./posting.php?mode=reply"] img').alt.includes('locked')) {
             const replyLink = $("[title='Reply to topic']").parent().attr("href");
             $(".gensmall div+ div:not(:has([title='Reply with mentioning']))").each(function () {
                 const postElem = $(this).parents().eq(7);
@@ -656,80 +658,187 @@ setupPageTitle();
 Made by SubZeroPL
 displays preview of first post from topic that mouse cursor points
 */
+function previewElement(element, link, getIndex) {
+    let tid, showPreview;
+    $(element).off("mouseover").on("mouseover", () => {
+        showPreview = true;
+        $("div#topic_preview").hide();
+        tid = setTimeout(() => {
+            if (!showPreview) return;
+
+            const previewWidth = window.innerWidth * 0.75;
+            const previewHeight = window.innerHeight * 0.75;
+            const x = (window.innerWidth / 2) - (previewWidth / 2);
+            const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
+
+            GM_xmlhttpRequest({
+                url: link, onerror: (r) => {
+                    console.log("Error loading page: " + r);
+                }, onload: (r) => {
+                    if (!showPreview) return;
+                    const parser = new DOMParser();
+                    const dom = parser.parseFromString(r.responseText, "text/html").body.children;
+                    const posts = $(dom).find("div#pagecontent table.tablebg");
+                    const body = posts[getIndex(posts, link)].outerHTML;
+                    // Use custom parseHTML function instead of $.parseHTML
+                    const bodyObj = parser.parseFromString(body, "text/html").body.children[0];
+                    if ($("div#topic_preview").length > 0) {
+                        const tip = $("div#topic_preview");
+                        tip.html(bodyObj);
+                        tip.css('left', `${x}px`);
+                        tip.css('top', `${y}px`);
+                        tip.css('width', `${previewWidth}px`);
+                        tip.css('height', `${previewHeight}px`);
+                        tip.show();
+                        tip.scrollTop(0);
+                    } else {
+                        const tip = document.createElement('div');
+                        tip.id = "topic_preview";
+                        tip.appendChild(bodyObj);
+                        tip.style.position = "absolute";
+                        tip.style.top = `${y}px`;
+                        tip.style.left = `${x}px`;
+                        tip.style.width = `${previewWidth}px`;
+                        tip.style.maxWidth = `${previewWidth}px`;
+                        tip.style.height = `${previewHeight}px`;
+                        tip.style.maxHeight = `${previewHeight}px`;
+                        tip.style.overflow = "auto";
+                        $("body").append(tip);
+                        $(tip).on("mouseleave", () => {
+                            $(tip).hide();
+                            clearTimeout(tid);
+                        });
+                    }
+                    addUsersTag();
+                    steamDBLink();
+                }
+            });
+        }, options.topic_preview_timeout * 1000);
+    });
+    $(element).off("mouseleave").on("mouseleave", () => {
+        clearTimeout(tid);
+        showPreview = false;
+    });
+}
+
 function setupTopicPreview() {
     if (!options.topic_preview) return;
     $("a.topictitle").each((_, e) => {
         const topic = $(e)[0];
-        let tid, showPreview;
-        $(topic).off("mouseover").on("mouseover", () => {
-            showPreview = true;
-            $("div#topic_preview").hide();
-            tid = setTimeout(() => {
-                if (!showPreview) return;
-
-                const previewWidth = window.innerWidth * 0.75;
-                const previewHeight = window.innerHeight * 0.75;
-                const x = (window.innerWidth / 2) - (previewWidth / 2);
-                const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
-
-                const topicLink = topic.href.split("&view=unread")[0].split("&p=")[0];
-                let link = options.topic_preview_option === 0 ? topicLink :
-                    options.topic_preview_option === 1 ? topicLink + "&view=unread#unread" :
-                        options.topic_preview_option === 2 ? $(topic).parent().next().next().next().next().children().next().children().next().attr("href"):
-                            'Invalid option';
-                GM_xmlhttpRequest({
-                    url: link, onerror: (r) => {
-                        console.log("Error loading page: " + r);
-                    }, onload: (r) => {
-                        if (!showPreview) return;
-                        const parser = new DOMParser();
-                        const dom = parser.parseFromString(r.responseText, "text/html").body.children;
-                        const posts = $(dom).find("div#pagecontent table.tablebg");
-                        const index = options.topic_preview_option === 2 ? posts.length - 2 : 1;
-                        const body = posts[index].outerHTML;
-                        // Use custom parseHTML function instead of $.parseHTML
-                        const bodyObj = parser.parseFromString(body, "text/html").body.children[0];
-                        if ($("div#topic_preview").length > 0) {
-                            const tip = $("div#topic_preview");
-                            tip.html(bodyObj);
-                            tip.css('left', `${x}px`);
-                            tip.css('top', `${y}px`);
-                            tip.css('width', `${previewWidth}px`);
-                            tip.css('height', `${previewHeight}px`);
-                            tip.show();
-                            tip.scrollTop(0);
-                        } else {
-                            const tip = document.createElement('div');
-                            tip.id = "topic_preview";
-                            tip.appendChild(bodyObj);
-                            tip.style.position = "absolute";
-                            tip.style.top = `${y}px`;
-                            tip.style.left = `${x}px`;
-                            tip.style.width = `${previewWidth}px`;
-                            tip.style.maxWidth = `${previewWidth}px`;
-                            tip.style.height = `${previewHeight}px`;
-                            tip.style.maxHeight = `${previewHeight}px`;
-                            tip.style.overflow = "auto";
-                            $("body").append(tip);
-                            $(tip).on("mouseleave", () => {
-                                $(tip).hide();
-                                clearTimeout(tid);
-                            });
-                        }
-                        addUsersTag();
-                        steamDBLink();
-                    }
-                });
-            }, options.topic_preview_timeout * 1000);
-        });
-        $(topic).off("mouseleave").on("mouseleave", () => {
-            clearTimeout(tid);
-            showPreview = false;
-        });
+        const topicLink = topic.href.split("&view=unread")[0].split("&p=")[0];
+        let link = options.topic_preview_option === 0 ? topicLink :
+            options.topic_preview_option === 1 ? topicLink + "&view=unread#unread" :
+                options.topic_preview_option === 2 ? $(topic).parent().next().next().next().next().children().next().children().next().attr("href") :
+                    'Invalid option';
+        const getIndex = () => options.topic_preview_option === 2 ? posts.length - 2 : 1;
+        previewElement(topic, link, getIndex);
     });
+    // $("a.topictitle").each((_, e) => {
+    //     const topic = $(e)[0];
+    //     let tid, showPreview;
+    //     $(topic).off("mouseover").on("mouseover", () => {
+    //         showPreview = true;
+    //         $("div#topic_preview").hide();
+    //         tid = setTimeout(() => {
+    //             if (!showPreview) return;
+    //
+    //             const previewWidth = window.innerWidth * 0.75;
+    //             const previewHeight = window.innerHeight * 0.75;
+    //             const x = (window.innerWidth / 2) - (previewWidth / 2);
+    //             const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
+    //
+    //             const topicLink = topic.href.split("&view=unread")[0].split("&p=")[0];
+    //             let link = options.topic_preview_option === 0 ? topicLink :
+    //                 options.topic_preview_option === 1 ? topicLink + "&view=unread#unread" :
+    //                     options.topic_preview_option === 2 ? $(topic).parent().next().next().next().next().children().next().children().next().attr("href") :
+    //                         'Invalid option';
+    //             GM_xmlhttpRequest({
+    //                 url: link, onerror: (r) => {
+    //                     console.log("Error loading page: " + r);
+    //                 }, onload: (r) => {
+    //                     if (!showPreview) return;
+    //                     const parser = new DOMParser();
+    //                     const dom = parser.parseFromString(r.responseText, "text/html").body.children;
+    //                     const posts = $(dom).find("div#pagecontent table.tablebg");
+    //                     const index = options.topic_preview_option === 2 ? posts.length - 2 : 1;
+    //                     const body = posts[index].outerHTML;
+    //                     // Use custom parseHTML function instead of $.parseHTML
+    //                     const bodyObj = parser.parseFromString(body, "text/html").body.children[0];
+    //                     if ($("div#topic_preview").length > 0) {
+    //                         const tip = $("div#topic_preview");
+    //                         tip.html(bodyObj);
+    //                         tip.css('left', `${x}px`);
+    //                         tip.css('top', `${y}px`);
+    //                         tip.css('width', `${previewWidth}px`);
+    //                         tip.css('height', `${previewHeight}px`);
+    //                         tip.show();
+    //                         tip.scrollTop(0);
+    //                     } else {
+    //                         const tip = document.createElement('div');
+    //                         tip.id = "topic_preview";
+    //                         tip.appendChild(bodyObj);
+    //                         tip.style.position = "absolute";
+    //                         tip.style.top = `${y}px`;
+    //                         tip.style.left = `${x}px`;
+    //                         tip.style.width = `${previewWidth}px`;
+    //                         tip.style.maxWidth = `${previewWidth}px`;
+    //                         tip.style.height = `${previewHeight}px`;
+    //                         tip.style.maxHeight = `${previewHeight}px`;
+    //                         tip.style.overflow = "auto";
+    //                         $("body").append(tip);
+    //                         $(tip).on("mouseleave", () => {
+    //                             $(tip).hide();
+    //                             clearTimeout(tid);
+    //                         });
+    //                     }
+    //                     addUsersTag();
+    //                     steamDBLink();
+    //                 }
+    //             });
+    //         }, options.topic_preview_timeout * 1000);
+    //     });
+    //     $(topic).off("mouseleave").on("mouseleave", () => {
+    //         clearTimeout(tid);
+    //         showPreview = false;
+    //     });
+    // });
 }
 
 setupTopicPreview();
+
+function setupPostPreview() {
+    $("a.postlink-local").each((_, e) => {
+        const post = $(e)[0]
+        const link = post.href;
+        if (!link.includes("viewtopic.php")) return;
+        const getIndex = (posts, link) => {
+            for (let i = 0; i < posts.length; i++) {
+                const postLink = $(posts[i]).find("a[href*='viewtopic.php']:not([class])")[0]
+                if (postLink.href === link) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        previewElement(post, link, getIndex)
+    });
+}
+
+setupPostPreview()
+
+function setupProfilePreview() {
+    $("a.postlink-local").each((_, e) => {
+        const profile = $(e)[0]
+        const link = profile.href;
+        if (!link.includes("memberlist.php")) return;
+        const getIndex = () => 0;
+
+        previewElement(profile, link, getIndex)
+    });
+}
+
+setupProfilePreview()
 
 /*
 Made by Redpoint
@@ -1285,7 +1394,7 @@ And adapted for cs.rin.ru enhanced by Altansar (nothing to adapt xD)
 */
 function ShowAllSpoilers() {
     if (options.show_all_spoilers) { //If show all spoilers is active
-        setTimeout(function() {
+        setTimeout(function () {
             var spoilers = document.querySelectorAll('input[type="button"][value="Show"]');
             if (spoilers.length > 0) {
                 for (var i = 0; i < spoilers.length; i++) {
@@ -1299,7 +1408,7 @@ function ShowAllSpoilers() {
 ShowAllSpoilers();
 
 function AddLinkQuote() {
-    if(options.add_link_quote) {
+    if (options.add_link_quote) {
         const number = new URLSearchParams(new URL(window.location.href).search).get('p');
         const messageTextarea = document.querySelector('textarea[name="message"]');
         if (messageTextarea) {

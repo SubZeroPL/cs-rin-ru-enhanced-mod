@@ -127,6 +127,8 @@ function sendConfig() {
             "topic_preview": $("#topic_preview")[0].checked,
             "topic_preview_option": Number($("#topic_preview_option")[0].value),
             "topic_preview_timeout": Number($("#topic_preview_timeout")[0].value),
+            "post_preview": $("#post_preview")[0].checked,
+            "profile_preview": $("#profile_preview")[0].checked,
             "special_search": $("#special_search")[0].checked,
             "special_search_parameter": special_search,
             "hide_scs": Number($("#hide_scs")[0].value),
