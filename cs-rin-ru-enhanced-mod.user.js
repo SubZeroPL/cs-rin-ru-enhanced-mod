@@ -438,6 +438,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
 function functionsCalledByInfiniteScrolls(data) {
     dynamicFunction(data);
     mentionify();
+    quotify();
     tagify();
     hideScs();
     setupTopicPreview();
@@ -539,7 +540,7 @@ function mentionify() {
                     $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
                 } else {
                     $(this).append("<a href='javascript:void(0);'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
-                    const child = $(this).find("[href='javascript:void(0);']");
+                    const child = $(this).find("[title='Reply with mentioning']");
                     $(this).find('[title="Reply with mentioning"]').on("click", function () {
                         let postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${authorID}]${decodeURI(author)}[/url], `;
                         if (options.mentioning === 2) { //Author and post
@@ -547,7 +548,6 @@ function mentionify() {
                         }
                         $("[name=message]")[0].value += postBody;
                         const mentioned = $('<span class="mentioned">Mentioned!</span>');
-                        // const child = $(bar).find("[href='javascript:void(0);']");
                         mentioned.css({
                             'position': 'absolute',
                             'top': child.offset().top - mentioned.outerHeight() - 20,
@@ -966,7 +966,7 @@ function addLink() {
                 const url = FORUM_BASE_URL + `viewtopic.php?p=${postId}#p${postId}`;
                 navigator.clipboard.writeText(url);
                 const copied = $('<span class="copied">Copied!</span>');
-                const child = $(bar).find("[href='javascript:void(0);']");
+                const child = $(bar).find("[title='Copy the link into the clipboard']");
                 copied.css({
                     'position': 'absolute',
                     'top': child.offset().top - copied.outerHeight() - 20,
@@ -1139,7 +1139,7 @@ function addProfileButton() {
 addProfileButton();
 
 /*
-Made by Altansar
+Made by Altansar/
 */
 function changeColorOfNewMessage() {
     if (options.colorize_new_messages) {
@@ -1431,22 +1431,28 @@ function ShowAllSpoilers() {
 
 ShowAllSpoilers();
 
+
+function addLinkToQuote(message, id) {
+    const link = `${FORUM_BASE_URL}viewtopic.php?p=${id}#p${id}`;
+    const firstQuoteIndex = message.indexOf('[quote');
+    const firstQuoteEndIndex = message.indexOf(']', firstQuoteIndex) + 1;
+    if (firstQuoteIndex !== -1) {
+        const beforeQuote = message.slice(0, firstQuoteIndex);
+        const quoteTag = message.slice(firstQuoteIndex, firstQuoteEndIndex);
+        const afterQuote = message.slice(firstQuoteEndIndex);
+        message = `${beforeQuote}[url=${link}]${quoteTag}[/url]${afterQuote}`;
+    }
+    return message
+}
+
 function AddLinkQuote() {
     if (options.add_link_quote) {
-        const number = new URLSearchParams(new URL(window.location.href).search).get('p');
-        const messageTextarea = document.querySelector('textarea[name="message"]');
-        if (messageTextarea) {
-            let message = messageTextarea.value;
-            const link = `${FORUM_BASE_URL}viewtopic.php?p=${number}#p${number}`;
-            const firstQuoteIndex = message.indexOf('[quote');
-            const firstQuoteEndIndex = message.indexOf(']', firstQuoteIndex) + 1;
-            if (firstQuoteIndex !== -1) {
-                const beforeQuote = message.slice(0, firstQuoteIndex);
-                const quoteTag = message.slice(firstQuoteIndex, firstQuoteEndIndex);
-                const afterQuote = message.slice(firstQuoteEndIndex);
-                message = `${beforeQuote}[url=${link}]${quoteTag}[/url]${afterQuote}`;
-                messageTextarea.value = message;
-            }
+        const id = new URLSearchParams(new URL(window.location.href).search).get('p');
+        const messageTextArea = document.querySelector('textarea[name="message"]');
+        if (messageTextArea) {
+            let message = messageTextArea.value;
+            message = addLinkToQuote(message, id)
+            messageTextArea.value = message
         }
     }
 }
@@ -1471,6 +1477,52 @@ if (options.quick_reply && quickReplyPanel) {
     });
     document.body.appendChild(button);
 }
+
+function quotify() {
+    if (quickReplyPanel) {
+
+        $("a:has([title='Reply with quote'])").each(function () {
+            const quoteLink = this.href;
+            if (!quoteLink.includes("posting.php")) return;
+            this.href = "javascript:void(0)";
+
+            const postElem = $(this).parents().eq(7);
+            const postID = $(postElem).find("a[name]").last().attr("name").slice(1);
+            const author = $(postElem).find(".postauthor").text();
+            const authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
+
+            const child = $(this).find("[title='Reply with quote']");
+            $(this).find('[title="Reply with quote"]').on("click", function () {
+                console.log(postID);
+                console.log(quoteLink);
+                GM_xmlhttpRequest({
+                    url: quoteLink,
+                    onload: function (response) {
+                        let postBody = $(response.responseText).find("[name=message]").text();
+                        if (options.add_link_quote) {
+                            postBody = addLinkToQuote(postBody, postID)
+                        }
+                        $("[name=message]")[0].value += postBody;
+                        const quoted = $('<span class="quoted">Quoted!</span>');
+                        quoted.css({
+                            'position': 'absolute',
+                            'top': child.offset().top - quoted.outerHeight() - 20,
+                            'left': child.offset().left + (child.outerWidth() / 2) - (quoted.outerWidth() / 2) - 12
+                        });
+                        $('body').append(quoted);
+                        setTimeout(function () {
+                            quoted.fadeOut();
+                        }, 2000);
+                    }
+                });
+
+
+            });
+        });
+    }
+}
+
+quotify()
 
 /*
 function addFriendButton() {
