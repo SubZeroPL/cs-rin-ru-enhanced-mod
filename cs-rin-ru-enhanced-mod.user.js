@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.13
+// @version         1.0.14
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -1412,7 +1412,7 @@ function AddLinkQuote() {
         const messageTextarea = document.querySelector('textarea[name="message"]');
         if (messageTextarea) {
             let message = messageTextarea.value;
-            const link = `https://cs.rin.ru/forum/viewtopic.php?p=${number}#p${number}`; //Only cs.rin url unfortunatly can't do relative link for work with onion
+            const link = `${FORUM_BASE_URL}viewtopic.php?p=${number}#p${number}`;
             const firstQuoteIndex = message.indexOf('[quote');
             const firstQuoteEndIndex = message.indexOf(']', firstQuoteIndex) + 1;
             if (firstQuoteIndex !== -1) {
