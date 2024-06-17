@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.16
+// @version         1.1.0
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -1464,7 +1464,7 @@ AddLinkQuote();
 if (options.quick_reply && quickReplyPanel) {
     let button = document.createElement("button");
     button.innerHTML = "Show Quick Reply Panel";
-    button.style.cssText = "position: fixed; bottom: 0%; left: 0%; min-height: 40px; min-width: 50px; width: 5%; height: 3%; z-index: 9999;";
+    button.style.cssText = "position: fixed; bottom: 0%; left: 0%; min-height: 40px; min-width: 50px; width: 10%; height: 3%; z-index: 9999;";
     button.addEventListener("click", function () {
         if (quickReplyPanel.style.position !== "sticky") {
             quickReplyPanel.style.position = "sticky";
