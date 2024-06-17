@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.12
+// @version         1.0.13
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -38,7 +38,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const BRANCH = "beta"
+const BRANCH = "master"
 const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
 const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
 const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
@@ -140,6 +140,7 @@ let options = {
     "add_users_tag": true,
     "show_all_spoilers": false,
     "add_link_quote": true,
+    "quick_reply": true,
     "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "change_topic_link": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview": false,
@@ -233,6 +234,7 @@ function loadConfigButton() {
             $("input#add_users_tag")[0].checked = options.add_users_tag;
             $("input#show_all_spoilers")[0].checked = options.show_all_spoilers;
             $("input#add_link_quote")[0].checked = options.add_link_quote;
+            $("input#quick_reply")[0].checked = options.quick_reply;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#title_format")[0].value = options.title_format;
@@ -1428,13 +1430,24 @@ AddLinkQuote();
 
 
 // Quick reply panel
+if (options.quick_reply && document.getElementById("postform")) {
+    let button = document.createElement("button");
+    button.innerHTML = "Show Quick Reply Panel";
+    button.style.cssText = "position: fixed; bottom: 0%; left: 0%; min-height: 40px; min-width: 50px; width: 5%; height: 3%; z-index: 9999;";
+    button.addEventListener("click", function () {
+        let quickReplyPanel = document.getElementById("postform");
+        if (quickReplyPanel.style.position !== "sticky") {
+            quickReplyPanel.style.position = "sticky";
+            quickReplyPanel.style.bottom = "0px";
+            button.innerHTML = "Hide Quick Reply Panel";
+        } else {
+            quickReplyPanel.style.position = "static";
+            button.innerHTML = "Show Quick Reply Panel";
+        }
+    });
+    document.body.appendChild(button);
+}
 /*
-GM_addStyle(
-    `[id="postform"] {
-        position: sticky !important;
-        bottom: 0px;
-        background-color:#1c1c1c;
-    }`);
 */
 /*
 function addFriendButton() {
