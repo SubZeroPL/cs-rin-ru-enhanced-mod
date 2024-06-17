@@ -293,13 +293,6 @@ if (navBar) {
     }`);
 }
 
-// Quick reply panel
-GM_addStyle(
-    `[id="postform"] {
-        position: sticky !important;
-        bottom: 0px;
-        background-color:#1c1c1c;
-    }`);
 
 if (options.display_ajax_loader) {
     $("body").prepend(AJAX_LOADER);
@@ -1433,6 +1426,16 @@ function AddLinkQuote() {
 
 AddLinkQuote();
 
+
+// Quick reply panel
+/*
+GM_addStyle(
+    `[id="postform"] {
+        position: sticky !important;
+        bottom: 0px;
+        background-color:#1c1c1c;
+    }`);
+*/
 /*
 function addFriendButton() {
     if(true) {
