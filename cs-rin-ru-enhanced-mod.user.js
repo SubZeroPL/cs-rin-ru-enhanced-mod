@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.0.11
+// @version         1.0.12
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -239,6 +239,8 @@ function loadConfigButton() {
             $("input#topic_preview")[0].checked = options.topic_preview;
             $("select#topic_preview_option")[0].options.selectedIndex = options.topic_preview_option;
             $("input#topic_preview_timeout")[0].value = options.topic_preview_timeout;
+            $("input#post_preview")[0].checked = options.post_preview;
+            $("input#profile_preview")[0].checked = options.profile_preview;
             $("input#special_search")[0].checked = options.special_search;
             $("select#change_topic_link")[0].options.selectedIndex = options.change_topic_link;
             const specialSearchParametersJSON = options.special_search_parameter;
@@ -807,6 +809,7 @@ function setupTopicPreview() {
 setupTopicPreview();
 
 function setupPostPreview() {
+    if (!options.post_preview) return;
     $("a.postlink-local").each((_, e) => {
         const post = $(e)[0]
         const link = post.href;
@@ -828,6 +831,7 @@ function setupPostPreview() {
 setupPostPreview()
 
 function setupProfilePreview() {
+    if (!options.profile_preview) return;
     $("a.postlink-local").each((_, e) => {
         const profile = $(e)[0]
         const link = profile.href;
