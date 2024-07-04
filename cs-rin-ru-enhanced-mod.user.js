@@ -38,7 +38,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const BRANCH = "master"
+const BRANCH = "beta"
 const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
 const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
 const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
@@ -756,75 +756,6 @@ function setupTopicPreview() {
         const getIndex = () => options.topic_preview_option === 2 ? posts.length - 2 : 1;
         previewElement(topic, link, getIndex);
     });
-    // $("a.topictitle").each((_, e) => {
-    //     const topic = $(e)[0];
-    //     let tid, showPreview;
-    //     $(topic).off("mouseover").on("mouseover", () => {
-    //         showPreview = true;
-    //         $("div#topic_preview").hide();
-    //         tid = setTimeout(() => {
-    //             if (!showPreview) return;
-    //
-    //             const previewWidth = window.innerWidth * 0.75;
-    //             const previewHeight = window.innerHeight * 0.75;
-    //             const x = (window.innerWidth / 2) - (previewWidth / 2);
-    //             const y = (window.innerHeight / 2) - (previewHeight / 2) + window.scrollY;
-    //
-    //             const topicLink = topic.href.split("&view=unread")[0].split("&p=")[0];
-    //             let link = options.topic_preview_option === 0 ? topicLink :
-    //                 options.topic_preview_option === 1 ? topicLink + "&view=unread#unread" :
-    //                     options.topic_preview_option === 2 ? $(topic).parent().next().next().next().next().children().next().children().next().attr("href") :
-    //                         'Invalid option';
-    //             GM_xmlhttpRequest({
-    //                 url: link, onerror: (r) => {
-    //                     console.log("Error loading page: " + r);
-    //                 }, onload: (r) => {
-    //                     if (!showPreview) return;
-    //                     const parser = new DOMParser();
-    //                     const dom = parser.parseFromString(r.responseText, "text/html").body.children;
-    //                     const posts = $(dom).find("div#pagecontent table.tablebg");
-    //                     const index = options.topic_preview_option === 2 ? posts.length - 2 : 1;
-    //                     const body = posts[index].outerHTML;
-    //                     // Use custom parseHTML function instead of $.parseHTML
-    //                     const bodyObj = parser.parseFromString(body, "text/html").body.children[0];
-    //                     if ($("div#topic_preview").length > 0) {
-    //                         const tip = $("div#topic_preview");
-    //                         tip.html(bodyObj);
-    //                         tip.css('left', `${x}px`);
-    //                         tip.css('top', `${y}px`);
-    //                         tip.css('width', `${previewWidth}px`);
-    //                         tip.css('height', `${previewHeight}px`);
-    //                         tip.show();
-    //                         tip.scrollTop(0);
-    //                     } else {
-    //                         const tip = document.createElement('div');
-    //                         tip.id = "topic_preview";
-    //                         tip.appendChild(bodyObj);
-    //                         tip.style.position = "absolute";
-    //                         tip.style.top = `${y}px`;
-    //                         tip.style.left = `${x}px`;
-    //                         tip.style.width = `${previewWidth}px`;
-    //                         tip.style.maxWidth = `${previewWidth}px`;
-    //                         tip.style.height = `${previewHeight}px`;
-    //                         tip.style.maxHeight = `${previewHeight}px`;
-    //                         tip.style.overflow = "auto";
-    //                         $("body").append(tip);
-    //                         $(tip).on("mouseleave", () => {
-    //                             $(tip).hide();
-    //                             clearTimeout(tid);
-    //                         });
-    //                     }
-    //                     addUsersTag();
-    //                     steamDBLink();
-    //                 }
-    //             });
-    //         }, options.topic_preview_timeout * 1000);
-    //     });
-    //     $(topic).off("mouseleave").on("mouseleave", () => {
-    //         clearTimeout(tid);
-    //         showPreview = false;
-    //     });
-    // });
 }
 
 setupTopicPreview();
