@@ -38,7 +38,7 @@ Contributor: odusi (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=58
 Contributor: Mandus (https://cs.rin.ru/forum/memberlist.php?mode=viewprofile&u=1487447) has created the original function to copy the link from a message
 */
 
-const BRANCH = "beta"
+const BRANCH = "master"
 const CONFIG_PAGE_CSS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.css`;
 const CONFIG_PAGE_JS = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.js`;
 const CONFIG_PAGE = `https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/${BRANCH}/config.html`
