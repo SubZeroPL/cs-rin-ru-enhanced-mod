@@ -681,6 +681,13 @@ setupPageTitle();
 Made by SubZeroPL
 displays preview of first post from topic that mouse cursor points
 */
+/*
+ * Displays a preview of the post.
+ * @param {HTMLElement} element - The element to attach the hover event listener to.
+ * @param {string} link - The link to the topic to be previewed.
+ * @param {function} getIndex - A predefined function that returns the correct index of the post given a list of posts.
+ * These are defined `setup{Type}Preview()` functions.
+*/
 function previewElement(element, link, getIndex) {
     let tid, showPreview;
     $(element).off("mouseover").on("mouseover", () => {
