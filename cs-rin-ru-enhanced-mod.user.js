@@ -539,9 +539,15 @@ function mentionify() {
                 const author = $(postElem).find(".postauthor").text();
                 const authorID = $(postElem).find("[title=Profile]").parent().attr("href").split("u=")[1];
                 if (!quickReplyPanel) {
-                    $(this).append("<a href='" + replyLink + "&do=mention&p=" + postID + "&u=" + authorID + "&a=" + encodeURIComponent(author) + "'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
+                    $(this).append(`<a href='${replyLink}&do=mention&p=${postID}&u=${authorID}&a=${encodeURIComponent(author)}'>
+                        <img src="https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/mention-image.png"
+                        alt='Reply with mentioning' title='Reply with mentioning'>
+                    </a>`);
                 } else {
-                    $(this).append("<a href='javascript:void(0);'><img src='https://i.imgur.com/uTA0dBI.png' alt='Reply with mentioning' title='Reply with mentioning'></a>");
+                    $(this).append(`<a href='javascript:void(0);'>
+                        <img src="https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/mention-image.png"
+                        alt='Reply with mentioning' title='Reply with mentioning'>
+                    </a>`);
                     const child = $(this).find("[title='Reply with mentioning']");
                     $(this).find('[title="Reply with mentioning"]').on("click", function () {
                         let postBody = `@[url=${FORUM_BASE_URL}memberlist.php?mode=viewprofile&u=${authorID}]${decodeURI(author)}[/url], `;
@@ -683,6 +689,7 @@ setupPageTitle();
 Made by SubZeroPL
 displays preview of first post from topic that mouse cursor points
 */
+
 /*
  * Displays a preview of the post.
  * @param {HTMLElement} element - The element to attach the hover event listener to.
@@ -900,7 +907,10 @@ function addLink() {
         $(".gensmall div+ div:not(:has([title='Copy the link into the clipboard']))").each(function () {
             const postElem = $(this).parents().eq(7);
             const postId = $(postElem).find("a[name]").attr("name").slice(1);
-            $(this).append("<a href='javascript:void(0);'><img src='https://i.imgur.com/WlKpJzR.png' alt='Copy the link into the clipboard' title='Copy the link into the clipboard'>");
+            $(this).append(`<a href='javascript:void(0);'>
+                <img src="https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/link-image.png"
+                alt='Copy the link into the clipboard' title='Copy the link into the clipboard'>
+            <a>`);
             const bar = this;
             $(this).find('[title="Copy the link into the clipboard"]').on("click", function () {
                 const url = FORUM_BASE_URL + `viewtopic.php?p=${postId}#p${postId}`;
