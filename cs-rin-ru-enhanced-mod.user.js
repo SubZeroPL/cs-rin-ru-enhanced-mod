@@ -442,6 +442,8 @@ function functionsCalledByInfiniteScrolls(data) {
     tagify();
     hideScs();
     setupTopicPreview();
+    setupPostPreview();
+    setupProfilePreview();
     addLink();
     steamDBLink();
     addUsersTag();
