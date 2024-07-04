@@ -449,7 +449,7 @@ function functionsCalledByInfiniteScrolls(data) {
     addUsersTag();
     changeTopicLink();
     colorizeFriendsMe();
-    ShowAllSpoilers();
+    showAllSpoilers();
 }
 
 
@@ -1356,20 +1356,16 @@ specialSearch();
 Originally made by ucsanytaef
 And adapted for cs.rin.ru enhanced by Altansar (nothing to adapt xD)
 */
-function ShowAllSpoilers() {
+function showAllSpoilers() {
     if (options.show_all_spoilers) { //If show all spoilers is active
-        setTimeout(function () {
-            var spoilers = document.querySelectorAll('input[type="button"][value="Show"]');
-            if (spoilers.length > 0) {
-                for (var i = 0; i < spoilers.length; i++) {
-                    spoilers[i].click();
-                }
-            }
-        }, 20);
+        const spoilers = document.querySelectorAll('input[type="button"][value="Show"]');
+        spoilers.forEach(spoiler => {
+            spoiler.click();
+        });
     }
 }
 
-ShowAllSpoilers();
+showAllSpoilers();
 
 
 function addLinkToQuote(message, id) {
