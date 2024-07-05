@@ -79,6 +79,22 @@
                             <label for="add_users_tag">Add users tag</label>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <input data-originalValue="" id="show_all_spoilers" type="checkbox">
+                            <label for="show_all_spoilers">Show all spoilers</label>
+                        </td>
+                        <td>
+                            <input data-originalValue="" id="add_link_quote" need-connected="true" type="checkbox">
+                            <label for="add_link_quote">Add link when quote</label>
+                        </td>
+                    </tr>
+                    <tr title="Enable `Display quick reply panel at topic view` under display options in board preferences. Preview your reply to access the full editor.">
+                        <td>
+                            <input data-originalValue="" id="quick_reply" type="checkbox">
+                            <label for="quick_reply">Floating Quick Reply panel</label>
+                        </td>
+                    </tr>
                     <tr title="0=nothing, 1=your in red, 2=your friends in pink, 3=both">
                         <td>
                             <label for="colorize_friends_me">Colorize friends</label>
@@ -115,10 +131,22 @@
                             <span>seconds</span>
                         </td>
                     </tr>
+                    <tr title="Display a post's preview using the same delay as the topic preview.">
+                        <td>
+                            <input data-originalValue="" id="post_preview" type="checkbox">
+                            <label for="post_preview">Show post preview</label>
+                        </td>
+                    </tr>
+                    <tr title="Display a profile's preview using the same delay as the topic preview.">
+                        <td>
+                            <input data-originalValue="" id="profile_preview" type="checkbox">
+                            <label for="profile_preview">Show profile preview</label>
+                        </td>
+                    </tr>
                     <tr>
                         <td colspan="2">
-                            <label for="special_search">Activate the special search bar</label>
                             <input data-originalvalue="" id="special_search" name="special_search" type="checkbox">
+                            <label for="special_search">Activate the special search bar</label>
 
                             <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
                             <div id="params" style="display: none;">
