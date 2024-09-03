@@ -123,6 +123,7 @@ function sendConfig() {
             "add_users_tag": $("#add_users_tag")[0].checked,
             "show_all_spoilers": $("#show_all_spoilers")[0].checked,
             "quick_reply": $("#quick_reply")[0].checked,
+            "collapse_quotes": $("#collapse_quotes")[0].checked,
             "colorize_friends_me": Number($("#colorize_friends_me")[0].value),
             "change_topic_link": Number($("#change_topic_link")[0].value),
             "topic_preview": $("#topic_preview")[0].checked,

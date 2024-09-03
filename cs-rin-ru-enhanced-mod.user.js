@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.1.0
+// @version         1.2.0
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -141,6 +141,7 @@ let options = {
     "show_all_spoilers": false,
     "add_link_quote": true,
     "quick_reply": true,
+    "collapse_quotes": false,
     "colorize_friends_me": 3, // 0=nothing, 1=your in red, 2=your friends in pink, 3=both
     "change_topic_link": 0, // 0 = first post, 1 = unread post, 2 = last post
     "topic_preview": false,
@@ -235,6 +236,7 @@ function loadConfigButton() {
             $("input#show_all_spoilers")[0].checked = options.show_all_spoilers;
             $("input#add_link_quote")[0].checked = options.add_link_quote;
             $("input#quick_reply")[0].checked = options.quick_reply;
+            $("input#collapse_quotes")[0].checked = options.collapse_quotes;
             $("select#hide_scs")[0].options.selectedIndex = options.hide_scs;
             $("input#apply_in_scs")[0].checked = options.apply_in_scs;
             $("input#title_format")[0].value = options.title_format;
@@ -450,6 +452,7 @@ function functionsCalledByInfiniteScrolls(data) {
     changeTopicLink();
     colorizeFriendsMe();
     showAllSpoilers();
+    collapseQuotes();
 }
 
 
@@ -1442,8 +1445,7 @@ function quotify() {
                 console.log(postID);
                 console.log(quoteLink);
                 GM_xmlhttpRequest({
-                    url: quoteLink,
-                    onload: function (response) {
+                    url: quoteLink, onload: function (response) {
                         let postBody = $(response.responseText).find("[name=message]").text();
                         if (options.add_link_quote) {
                             postBody = addLinkToQuote(postBody, postID)
@@ -1469,6 +1471,47 @@ function quotify() {
 }
 
 quotify()
+
+function collapseQuotes() {
+    if (!options.collapse_quotes) return;
+    const quoteDivs = $('.quotecontent');
+    quoteDivs.each(function() {
+        // Create the new divs
+        const outerDiv = $('<div></div>');
+        const innerDiv = $('<div style="margin-bottom: 2px;"></div>');
+        const button = $('<input value="Show" style="margin: 0px; padding: 0px; width: 60px; font-size: 10px;" type="button">');
+        const contentDiv = $('<div style="border: 1px inset; padding: 6px;"></div>');
+        const hiddenDiv = $('<div style="display: none;"></div>');
+
+        // Move the original quote content into the hidden div
+        hiddenDiv.append($(this).contents());
+
+        // Append elements to create the structure
+        innerDiv.append(button);
+        contentDiv.append(hiddenDiv);
+        outerDiv.append(innerDiv).append(contentDiv);
+
+        // Insert the new structure before the original div
+        $(this).before(outerDiv);
+
+        // Remove the original div
+        $(this).remove();
+
+        // Add click event to the button
+        button.click(function() {
+            const hiddenContent = $(this).parent().next().find('div').first();
+            if (hiddenContent.css('display') === 'none') {
+                hiddenContent.css('display', 'block');
+                $(this).val('Hide');
+            } else {
+                hiddenContent.css('display', 'none');
+                $(this).val('Show');
+            }
+        });
+    });
+}
+
+collapseQuotes()
 
 /*
 function addFriendButton() {
