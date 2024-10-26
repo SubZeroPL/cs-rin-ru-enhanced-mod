@@ -1396,12 +1396,12 @@ function addLinkToQuote(message, id) {
 
 function AddLinkQuote() {
     if (options.add_link_quote) {
-        const id = new URLSearchParams(new URL(window.location.href).search).get('p');
+        const searchParams = new URLSearchParams(window.location.search);
+        const id = searchParams.get('p');
+        const topic = searchParams.get('t'); // A new parameter appears when previewing a post
         const messageTextArea = document.querySelector('textarea[name="message"]');
-        if (messageTextArea) {
-            let message = messageTextArea.value;
-            message = addLinkToQuote(message, id)
-            messageTextArea.value = message
+        if (messageTextArea && id && !topic) { // Make sure the ID exists and the post is not a preview
+            messageTextArea.value = addLinkToQuote(messageTextArea.value, id);
         }
     }
 }
