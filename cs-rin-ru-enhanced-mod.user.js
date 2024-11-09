@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.2.1
+// @version         1.2.2
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -1399,8 +1399,9 @@ function AddLinkQuote() {
         const searchParams = new URLSearchParams(window.location.search);
         const id = searchParams.get('p');
         const topic = searchParams.get('t'); // A new parameter appears when previewing a post
+        const mode = searchParams.get('mode'); // Mode can be reply or edit
         const messageTextArea = document.querySelector('textarea[name="message"]');
-        if (messageTextArea && id && !topic) { // Make sure the ID exists and the post is not a preview
+        if (messageTextArea && id && !topic && mode !== "edit") { // Make sure the ID exists and the post is not a preview and is not being edited
             messageTextArea.value = addLinkToQuote(messageTextArea.value, id);
         }
     }
