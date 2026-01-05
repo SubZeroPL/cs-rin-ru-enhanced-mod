@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.2.3
+// @version         1.2.4
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -13,7 +13,7 @@
 // @match           *://cs.rin.ru/forum/*
 // @match           *://csrinrutkb3tshptdctl5lyei4et35itl22qvk5ktdcat6aeavy6nhid.onion/forum/*
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
-// @icon            https://i.ibb.co/p1k6cq6/image.png
+// @icon            https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/image.png
 // @grant           GM_addStyle
 // @grant           GM_xmlhttpRequest
 // @grant           GM_setValue
@@ -168,7 +168,7 @@ Functions that need to be connected must be added here and you must also add the
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
-    options = {...options, ...savedOptions};
+    options = { ...options, ...savedOptions };
     if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
@@ -335,7 +335,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
     let navElems = {}; // Dictionary for storing nav bar elements for each page (page number: {Html: HTML of that page's nav element})
-    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
+    navElems[$(navElem).find("strong").text()] = { Html: navElem.html() }; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
         if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
@@ -386,9 +386,9 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     $($(selector)[0]).before($(selector, data).attr("page_number", $(previousPageElem).text())); // Add the new content to the front as well as page number
                     $(currentPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from current page - this element will be added back with the new content
                     let scrollPosition = $(currentPage[0]).offset().top + $(currentPage[0]).height() - $(window).height();
-                    $("html, body").animate({scrollTop: scrollPosition}, 0); // Move to new content
+                    $("html, body").animate({ scrollTop: scrollPosition }, 0); // Move to new content
                     const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(previousPageElem).text()] = {Html: prevNavElemHTML};
+                    navElems[$(previousPageElem).text()] = { Html: prevNavElemHTML };
                     functionsCalledByInfiniteScrolls(data); // Run functions
                     earliestPageNumber = $($.parseHTML(prevNavElemHTML)).find("strong").text();
                     ajaxDone = true;
@@ -423,7 +423,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 $(newPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from the new content
                 $(selector).last().after(newPage) // Add the new page content to the end
                 const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html(); // Get the nav bar of the new page
-                navElems[$(nextPageElem).text()] = {Html: nextNavElemHTML}; // Store it for use when the user scrolls over the new content
+                navElems[$(nextPageElem).text()] = { Html: nextNavElemHTML }; // Store it for use when the user scrolls over the new content
                 functionsCalledByInfiniteScrolls(data); // Run functions
                 if ($($.parseHTML(nextNavElemHTML)).find("strong").text()) {
                     latestPageNumber = ($.parseHTML(nextNavElemHTML)).find("strong").text(); // Update position
@@ -1059,19 +1059,22 @@ function addProfileButton() {
     if (!options.add_profile_button) return;
     let profileLink = GM_getValue("profileLink", null);
     if (!profileLink) {
-        if ($(`p.gensmall > :contains(${USERNAME})`).length === 0) {
+        if ($(`a.username-coloured:contains(${USERNAME})`).length !== 0) {
+            profileLink = $(`a.username-coloured:contains(${USERNAME})`)[0].href;
+            GM_setValue("profileLink", profileLink);
+        } else if ($(`p.gensmall > :contains(${USERNAME})`).length !== 0) {
+            profileLink = $(`p.gensmall > :contains(${USERNAME})`)[0].href;
+            GM_setValue("profileLink", profileLink);
+        } else {
             GM_xmlhttpRequest({
-                method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
+                method: "GET", url: FORUM_BASE_URL + `memberlist.php?sk=c&sd=a&username=${USERNAME}&mode=searchuser`, onload: function (response) {
                     // Parse the response as HTML
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(response.responseText, "text/html");
-                    profileLink = $(doc).find(`p.gensmall > :contains(${USERNAME})`)[0].href;
+                    profileLink = $(doc).find(`table tbody tr.row2 td.genmed a:contains(${USERNAME})`)[0].href;
                     GM_setValue("profileLink", profileLink);
                 }
             });
-        } else {
-            profileLink = $(`p.gensmall > :contains(${USERNAME})`)[0].href;
-            GM_setValue("profileLink", profileLink);
         }
         GM_setValue("profileLink", profileLink);
     }
@@ -1402,7 +1405,7 @@ function AddLinkQuote() {
         const mode = searchParams.get('mode'); // Mode can be quote, reply or edit (for posts) or compose (for PMs)
         const sid = searchParams.get('sid'); // Appears when previewing PMs
         const messageTextArea = document.querySelector('textarea[name="message"]');
-        if (messageTextArea && id && !topic && mode !== "edit" && !sid ) { // Make sure the ID exists and the post is not a preview and is not being edited and it is not a PM being previewed
+        if (messageTextArea && id && !topic && mode !== "edit" && !sid) { // Make sure the ID exists and the post is not a preview and is not being edited and it is not a PM being previewed
             messageTextArea.value = addLinkToQuote(messageTextArea.value, id);
         }
     }
@@ -1477,7 +1480,7 @@ quotify()
 function collapseQuotes() {
     if (!options.collapse_quotes) return;
     const quoteDivs = $('.quotecontent');
-    quoteDivs.each(function() {
+    quoteDivs.each(function () {
         // Create the new divs
         const outerDiv = $('<div></div>');
         const innerDiv = $('<div style="margin-bottom: 2px;"></div>');
@@ -1500,7 +1503,7 @@ function collapseQuotes() {
         $(this).remove();
 
         // Add click event to the button
-        button.click(function() {
+        button.click(function () {
             const hiddenContent = $(this).parent().next().find('div').first();
             if (hiddenContent.css('display') === 'none') {
                 hiddenContent.css('display', 'block');
