@@ -1055,33 +1055,10 @@ function changeTopicLink() {
 
 changeTopicLink();
 
-function addProfileButton() {
-    if (!options.add_profile_button) return;
-    let profileLink = GM_getValue("profileLink", null);
-    if (!profileLink) {
-        if ($(`a.username-coloured:contains(${USERNAME})`).length !== 0) {
-            profileLink = $(`a.username-coloured:contains(${USERNAME})`)[0].href;
-            GM_setValue("profileLink", profileLink);
-        } else if ($(`p.gensmall > :contains(${USERNAME})`).length !== 0) {
-            profileLink = $(`p.gensmall > :contains(${USERNAME})`)[0].href;
-            GM_setValue("profileLink", profileLink);
-        } else {
-            GM_xmlhttpRequest({
-                method: "GET", url: FORUM_BASE_URL + `memberlist.php?sk=c&sd=a&username=${USERNAME}&mode=searchuser`, onload: function (response) {
-                    // Parse the response as HTML
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(response.responseText, "text/html");
-                    profileLink = $(doc).find(`table tbody tr.row2 td.genmed a:contains(${USERNAME})`)[0].href;
-                    GM_setValue("profileLink", profileLink);
-                }
-            });
-        }
-        GM_setValue("profileLink", profileLink);
-    }
-    profileLink = GM_getValue("profileLink", null);
+function createProfileLink(link) {
     const bar = $(".genmed")[2];
     const a = document.createElement("a");
-    a.href = profileLink;
+    a.href = link;
     const img = document.createElement("img");
     img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
     img.width = 12;
@@ -1090,6 +1067,32 @@ function addProfileButton() {
     a.appendChild(document.createTextNode(" Profile"));
     const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
     $(bar).find("a")[1].before(a, sep);
+}
+
+function addProfileButton() {
+    if (!options.add_profile_button) return;
+    let profileLink = GM_getValue("profileLink", null);
+    if (!profileLink) {
+        const username_coloured = $(`a.username-coloured:contains(${USERNAME})`)
+        if (username_coloured.length !== 0 && username_coloured[0].innerText === USERNAME) {
+            profileLink = username_coloured[0].href;
+            GM_setValue("profileLink", profileLink);
+            createProfileLink(profileLink);
+        } else {
+            GM_xmlhttpRequest({
+                method: "GET", url: FORUM_BASE_URL + `memberlist.php?sk=c&sd=a&username=${USERNAME}&mode=searchuser`, onload: function (response) {
+                    // Parse the response as HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response.responseText, "text/html");
+                    profileLink = $(doc).find(`table tbody tr.row2 td.genmed a:contains(${USERNAME})`)[0].href;
+                    GM_setValue("profileLink", profileLink);
+                    createProfileLink(profileLink);
+                }
+            });
+        }
+    } else {
+        createProfileLink(profileLink);
+    }
 }
 
 addProfileButton();
