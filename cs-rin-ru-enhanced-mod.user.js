@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.2.3
+// @version         1.2.4
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -13,7 +13,7 @@
 // @match           *://cs.rin.ru/forum/*
 // @match           *://csrinrutkb3tshptdctl5lyei4et35itl22qvk5ktdcat6aeavy6nhid.onion/forum/*
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
-// @icon            https://i.ibb.co/p1k6cq6/image.png
+// @icon            https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/image.png
 // @grant           GM_addStyle
 // @grant           GM_xmlhttpRequest
 // @grant           GM_setValue
@@ -69,6 +69,12 @@ const FRIENDS_LIST = [];
 const CONNECTED = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2)").lastElementChild.getAttribute("href").match("mode=login") == null
 
 const USERNAME = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)")[0].textContent.slice(10, -2);
+
+const SELECTORS = {
+    NEW_MESSAGES: "#menubar > table > tbody > tr > td > a[href$='ucp.php?i=pm&folder=inbox']",
+    USERNAME_ON_MAINPAGE: `table tr td span.genmed a:contains(${USERNAME})`,
+    USERNAME_ON_OTHER_PAGES: `table tr td span.gensmall a:contains(${USERNAME})`
+}
 
 // Declare a promise to wait for the variable to be updated
 let updatePromise = null;
@@ -168,7 +174,7 @@ Functions that need to be connected must be added here and you must also add the
 */
 function loadConfig() {
     const savedOptions = GM_getValue("options", options);
-    options = {...options, ...savedOptions};
+    options = { ...options, ...savedOptions };
     if (!CONNECTED) {
         options.dynamic_function = false;
         options.add_profile_button = false;
@@ -300,7 +306,6 @@ if (navBar) {
     }`);
 }
 
-
 if (options.display_ajax_loader) {
     $("body").prepend(AJAX_LOADER);
     $.ajaxSetup({
@@ -335,7 +340,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
     let scrollLength = 0; // How long the user has scrolled when at the top of the page
     const scrollThreshold = 1000; // Approximately 10 clicks of the scroll wheel
     let navElems = {}; // Dictionary for storing nav bar elements for each page (page number: {Html: HTML of that page's nav element})
-    navElems[$(navElem).find("strong").text()] = {Html: navElem.html()}; // Add the current nav element to the dictionary
+    navElems[$(navElem).find("strong").text()] = { Html: navElem.html() }; // Add the current nav element to the dictionary
 
     if (URLContains("viewtopic.php")) {
         if (initialPageElem.next().next().length !== 0) { // If we're not on the last page
@@ -386,9 +391,9 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                     $($(selector)[0]).before($(selector, data).attr("page_number", $(previousPageElem).text())); // Add the new content to the front as well as page number
                     $(currentPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from current page - this element will be added back with the new content
                     let scrollPosition = $(currentPage[0]).offset().top + $(currentPage[0]).height() - $(window).height();
-                    $("html, body").animate({scrollTop: scrollPosition}, 0); // Move to new content
+                    $("html, body").animate({ scrollTop: scrollPosition }, 0); // Move to new content
                     const prevNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html();
-                    navElems[$(previousPageElem).text()] = {Html: prevNavElemHTML};
+                    navElems[$(previousPageElem).text()] = { Html: prevNavElemHTML };
                     functionsCalledByInfiniteScrolls(data); // Run functions
                     earliestPageNumber = $($.parseHTML(prevNavElemHTML)).find("strong").text();
                     ajaxDone = true;
@@ -423,7 +428,7 @@ if (options.infinite_scrolling && $("[title='Click to jump to page…']").length
                 $(newPage[0]).find("tbody:first").find("tr:first").remove(); // Remove element from the new content
                 $(selector).last().after(newPage) // Add the new page content to the end
                 const nextNavElemHTML = $("[title='Click to jump to page…']", data).first().parent().html(); // Get the nav bar of the new page
-                navElems[$(nextPageElem).text()] = {Html: nextNavElemHTML}; // Store it for use when the user scrolls over the new content
+                navElems[$(nextPageElem).text()] = { Html: nextNavElemHTML }; // Store it for use when the user scrolls over the new content
                 functionsCalledByInfiniteScrolls(data); // Run functions
                 if ($($.parseHTML(nextNavElemHTML)).find("strong").text()) {
                     latestPageNumber = ($.parseHTML(nextNavElemHTML)).find("strong").text(); // Update position
@@ -454,7 +459,6 @@ function functionsCalledByInfiniteScrolls(data) {
     showAllSpoilers();
     collapseQuotes();
 }
-
 
 // CUSTOM TAGS
 tagify();
@@ -507,20 +511,18 @@ function startUpdating() {
 
 function dynamicFunction(data) {
     if (data == null) {
-        $.get(location.href, function (data) { //Every 60 seconds we update time and user list
+        $.get(location.href, function (data) { // Every 60 seconds we update time and user list
             dynamicFunction(data);
         });
     }
-    //Call every 60seconds as well as when using infinite scroll
-    $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); //Time
-    $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); //Users
-    const html = $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)", data).html();
-    if ($(html)[0].src.endsWith("theme/images/icon_mini_message.gif")) {
-        $("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(" + (2 + options.add_profile_button) + ")").html(html) // Message
-    }
-    changeColorOfNewMessage();//Colorize messages
+    // Call every 60seconds as well as when using infinite scroll
+    $("#datebar .gensmall+ .gensmall").html($("#datebar .gensmall+ .gensmall", data).html()); // Time
+    $("#wrapcentre > .tablebg").last().html($("#wrapcentre > .tablebg", data).last().html()); // Users
+    const html = $(SELECTORS.NEW_MESSAGES, data).html();
+    $(SELECTORS.NEW_MESSAGES).html(html) // Message
+    changeColorOfNewMessage(); // Colorize messages
     colorizeFriendsMe();
-    if (URLContains("viewtopic.php")) { //Dynamics posts
+    if (URLContains("viewtopic.php")) { // Dynamics posts
         /*
         var actualPostsOnThePage = $("#pagecontent > .tablebg:not(:first, :last)").length;
         var postsOnThePageAfterActualisation = $("#pagecontent > .tablebg:not(:first, :last)", data).length;
@@ -686,7 +688,6 @@ function setupPageTitle() {
 }
 
 setupPageTitle();
-
 
 /*
 Made by SubZeroPL
@@ -1055,30 +1056,11 @@ function changeTopicLink() {
 
 changeTopicLink();
 
-function addProfileButton() {
-    if (!options.add_profile_button) return;
-    let profileLink = GM_getValue("profileLink", null);
-    if (!profileLink) {
-        if ($(`p.gensmall > :contains(${USERNAME})`).length === 0) {
-            GM_xmlhttpRequest({
-                method: "GET", url: FORUM_BASE_URL + "viewforum.php?f=10", onload: function (response) {
-                    // Parse the response as HTML
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(response.responseText, "text/html");
-                    profileLink = $(doc).find(`p.gensmall > :contains(${USERNAME})`)[0].href;
-                    GM_setValue("profileLink", profileLink);
-                }
-            });
-        } else {
-            profileLink = $(`p.gensmall > :contains(${USERNAME})`)[0].href;
-            GM_setValue("profileLink", profileLink);
-        }
-        GM_setValue("profileLink", profileLink);
-    }
-    profileLink = GM_getValue("profileLink", null);
+function createProfileLink(link) {
     const bar = $(".genmed")[2];
     const a = document.createElement("a");
-    a.href = profileLink;
+    a.href = link;
+    a.id = "profile_link";
     const img = document.createElement("img");
     img.src = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1) > img").src;
     img.width = 12;
@@ -1087,6 +1069,38 @@ function addProfileButton() {
     a.appendChild(document.createTextNode(" Profile"));
     const sep = document.createTextNode(` ${String.fromCharCode(160)}:: ${String.fromCharCode(160)}`);
     $(bar).find("a")[1].before(a, sep);
+    colorizeThePages();
+}
+
+function addProfileButton() {
+    if (!options.add_profile_button) return;
+    let profileLink = GM_getValue("profileLink", null);
+    if (!profileLink) {
+        const username_element_mainpage = $(SELECTORS.USERNAME_ON_MAINPAGE)
+        const username_element_other = $(SELECTORS.USERNAME_ON_OTHER_PAGES)
+        if (username_element_mainpage.length !== 0 && username_element_mainpage[0].innerText === USERNAME) {
+            profileLink = username_element_mainpage[0].href;
+            GM_setValue("profileLink", profileLink);
+            createProfileLink(profileLink);
+        } else if (username_element_other.length !== 0 && username_element_other[0].innerText === USERNAME) {
+            profileLink = username_element_other[0].href;
+            GM_setValue("profileLink", profileLink);
+            createProfileLink(profileLink);
+        } else {
+            GM_xmlhttpRequest({
+                method: "GET", url: FORUM_BASE_URL + `memberlist.php?sk=c&sd=a&username=${USERNAME}&mode=searchuser`, onload: function (response) {
+                    // Parse the response as HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(response.responseText, "text/html");
+                    profileLink = $(doc).find(`table tbody tr.row2 td.genmed a:contains(${USERNAME})`)[0].href;
+                    GM_setValue("profileLink", profileLink);
+                    createProfileLink(profileLink);
+                }
+            });
+        }
+    } else {
+        createProfileLink(profileLink);
+    }
 }
 
 addProfileButton();
@@ -1096,11 +1110,13 @@ Made by Altansar/
 */
 function changeColorOfNewMessage() {
     if (options.colorize_new_messages) {
-        const menuBar = document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(" + (2 + options.add_profile_button) + ")");
-        if (!menuBar.text.startsWith(" 0 new messages")) { //If we have a new messages
-            menuBar.style.color = "red"; // We colorize in the color wanted by users
+        const messagesField = $(SELECTORS.NEW_MESSAGES)[0];
+        const defaultColor = getComputedStyle(messagesField).color;
+        const matches = messagesField.innerText.match(/^(?=.*\b[1-9]\d*\b).*/); // check if there is at least one number greater than 0 - this should be language-agnostic
+        if (matches) { // thet means there are either new or unread messages
+            messagesField.style.color = "red"; // We colorize in the color wanted by users
         } else {
-            menuBar.style.color = "#AAAAAA"; // We decolorize the messages
+            messagesField.style.color = defaultColor; // We decolorize the messages
         }
     }
 }
@@ -1115,7 +1131,10 @@ function colorizeThePages() {
         document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#90EE90"; // FAQ
         if (CONNECTED) document.querySelector("#menubar > table:nth-child(1) > tbody > tr > td:nth-child(2) > a:nth-child(3)").style.color = "#4169E1"; // Members
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(1)").style.color = "#87CEEB"; // User Control Panel
-        if (options.add_profile_button) document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(1) > a:nth-child(2)").style.color = "#F08080"; // Profile
+        const profileLink = document.querySelector("a#profile_link");
+        if (options.add_profile_button && profileLink) {
+            profileLink.style.color = "#F08080"; // Profile
+        }
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(1)").style.color = "#87CEFA"; // Search
         document.querySelector("#menubar > table:nth-child(3) > tbody > tr > td:nth-child(2) > a:nth-child(2)").style.color = "#FF0000"; // Logout
         document.querySelector("#logodesc > table > tbody > tr > td:nth-child(2) > h1").style.color = '#' + Math.floor(Math.random() * 16777215).toString(16); // Random colour for the title
@@ -1124,10 +1143,10 @@ function colorizeThePages() {
 
 colorizeThePages();
 
-//Color friends
+// Color friends
 async function colorizeFriendsMe() {
     if (options.colorize_friends_me > 0) {
-        //Add legends friends
+        // Add legends friends
         if ((URLContains("index.php") || (window.location.pathname.startsWith('/forum/') && window.location.pathname.endsWith('/forum/'))) && options.colorize_friends_me > 1) {
             if (document.querySelectorAll(".gensmall")[3].lastElementChild.text !== "Friends") {
                 const friends = document.createElement('a');
@@ -1139,7 +1158,7 @@ async function colorizeFriendsMe() {
                 selector.append(friends);
             }
         }
-        //Colorize friends
+        // Colorize friends
         await retrievesFriendsLists();
         const links = document.querySelectorAll("a[href^='./memberlist.php'], .postauthor, .gen, .postlink-local, .quotetitle");
         links.forEach(link => {
@@ -1402,14 +1421,13 @@ function AddLinkQuote() {
         const mode = searchParams.get('mode'); // Mode can be quote, reply or edit (for posts) or compose (for PMs)
         const sid = searchParams.get('sid'); // Appears when previewing PMs
         const messageTextArea = document.querySelector('textarea[name="message"]');
-        if (messageTextArea && id && !topic && mode !== "edit" && !sid ) { // Make sure the ID exists and the post is not a preview and is not being edited and it is not a PM being previewed
+        if (messageTextArea && id && !topic && mode !== "edit" && !sid) { // Make sure the ID exists and the post is not a preview and is not being edited and it is not a PM being previewed
             messageTextArea.value = addLinkToQuote(messageTextArea.value, id);
         }
     }
 }
 
 AddLinkQuote();
-
 
 // Quick reply panel
 if (options.quick_reply && quickReplyPanel) {
@@ -1477,7 +1495,7 @@ quotify()
 function collapseQuotes() {
     if (!options.collapse_quotes) return;
     const quoteDivs = $('.quotecontent');
-    quoteDivs.each(function() {
+    quoteDivs.each(function () {
         // Create the new divs
         const outerDiv = $('<div></div>');
         const innerDiv = $('<div style="margin-bottom: 2px;"></div>');
@@ -1500,7 +1518,7 @@ function collapseQuotes() {
         $(this).remove();
 
         // Add click event to the button
-        button.click(function() {
+        button.click(function () {
             const hiddenContent = $(this).parent().next().find('div').first();
             if (hiddenContent.css('display') === 'none') {
                 hiddenContent.css('display', 'block');
