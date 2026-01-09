@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.2.4
+// @version         1.2.5
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -1111,7 +1111,7 @@ Made by Altansar/
 function changeColorOfNewMessage() {
     if (options.colorize_new_messages) {
         const messagesField = $(SELECTORS.NEW_MESSAGES)[0];
-        const defaultColor = getComputedStyle(messagesField).color;
+        const defaultColor = getComputedStyle($('div#wrapcentre p.searchbar span a')[0]).color;
         const matches = messagesField.innerText.match(/^(?=.*\b[1-9]\d*\b).*/); // check if there is at least one number greater than 0 - this should be language-agnostic
         if (matches) { // thet means there are either new or unread messages
             messagesField.style.color = "red"; // We colorize in the color wanted by users
