@@ -13,7 +13,7 @@
 // @match           *://cs.rin.ru/forum/*
 // @match           *://csrinrutkb3tshptdctl5lyei4et35itl22qvk5ktdcat6aeavy6nhid.onion/forum/*
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
-// @icon            https://github.com/SubZeroPL/cs-rin-ru-enhanced-mod/blob/master/image.png
+// @icon            https://raw.githubusercontent.com/SubZeroPL/cs-rin-ru-enhanced-mod/master/image.png
 // @grant           GM_addStyle
 // @grant           GM_xmlhttpRequest
 // @grant           GM_setValue
