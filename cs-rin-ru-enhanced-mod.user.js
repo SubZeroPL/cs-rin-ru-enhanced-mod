@@ -5,7 +5,7 @@
 // @name:fr         CS.RIN.RU Amélioré
 // @name:pt         CS.RIN.RU Melhorado
 // @namespace       Royalgamer06
-// @version         1.2.8
+// @version         1.2.9
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -325,7 +325,10 @@ INFINITE SCROLLING
 */
 if (options.infinite_scrolling && $("[title='Click to jump to page…']").length > 0) {
     const styleElement = document.querySelector("style");
-    styleElement.textContent = "[name=\"page_nav\"] {font-size:" + navBarSize + ";}" //Increase size of the nav bar
+    if (styleElement) {
+        // Increase size of the nav bar - append to style so it doesn't interfere with other forum styling
+        styleElement.textContent += `\n[name="page_nav"] {font-size: ${navBarSize};}`;
+    }
     const selectors = ["#pagecontent > table.tablebg > tbody > tr:has(.row4 > img:not([src*=global], [src*=announce], [src*=sticky]))", // viewforum.php
         "#wrapcentre > form > table.tablebg > tbody > tr[valign='middle']", // search.php
         "#pagecontent > .tablebg:not(:has(tbody > tr > .cat))", // viewtopic.php
