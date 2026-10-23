@@ -3,7 +3,7 @@
 
 Enhance your experience at CS.RIN.RU
 
-**v2.0 test branch:** this is `2.0.0-beta.1`. Install this branch using the link below; its automatic updates follow `v2.0`.
+**v2.0 test branch:** this is `2.0.0-beta.2`. Install this branch using the link below; its automatic updates follow `v2.0`.
 
 Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 
@@ -19,7 +19,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 ## 🆕 Added features
 - SCS topics filtering (hide_scs).
 - Filtering also in SCS section (apply_in_scs).
-- Forum-styled configuration window with reading, reply, community and search tabs. Open it with the embedded gear icon in the bottom-right toolbar.
+- Compact forum-styled configuration window with reading, reply, community and search tabs. Open it with the gear icon at the top right, in its original position.
 - English and Russian interface (`ui_language`): follow the forum language automatically or choose one in settings. Forum controls are identified by URLs and markup rather than translated labels.
 - Option to enable/disable whole script (script_enabled).
 - Option for custom title formatting (title_format).
@@ -32,7 +32,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - Collapse quotes without changing native spoilers or code blocks inside them (collapse_quotes). Nested quotes keep independent toggles, and loading more posts preserves their open/closed state. Show all spoilers leaves collapsed quotes unchanged.
 - Quote only the selected text within a message using its native Quote button. Without a selection, quoting works normally. Quick replies retain the existing draft; opening the full editor transfers the selection for that quote only.
 - Add several quotes from private-message history to the current reply without losing the draft or nested BBCode. Each history message gets an Add quote to reply button.
-- Forum-styled Show Chat toggle (add_small_shoutbox). Closing the embedded native chat stops its background activity.
+- Forum-styled Show Chat toggle (add_small_shoutbox). The panel uses the forum's native chat requests directly, because the forum blocks iframes. Closing it stops its background activity and preserves the draft for reopening on the same page.
 - Adds popular user tags below the official steam tags under a game presentation (add_users_tag).
 - Goes to unread posts directly by clicking on a topic title (go_to_unread_posts).
 - Dynamically refresh: the current time, who is online, received messages (dynamic_function).

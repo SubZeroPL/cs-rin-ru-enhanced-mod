@@ -17,7 +17,8 @@ module.exports = {
             "FORUM_BASE_URL": "readonly", "options": "readonly", "CONNECTED": "readonly",
             "FRIENDS_LIST": "readonly", "USERNAME": "readonly", "rinText": "readonly",
             "contentItemKey": "readonly", "getPagination": "readonly", "rinPaginationState": "readonly",
-            "enhanceContent": "readonly", "addLinkToQuote": "readonly"
+            "enhanceContent": "readonly", "addLinkToQuote": "readonly",
+            "fetchForumDocument": "readonly", "parseForumDocument": "readonly"
         }
     }]
 };

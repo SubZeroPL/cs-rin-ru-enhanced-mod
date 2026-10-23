@@ -24,6 +24,7 @@ ${read('config.js').split('\n').map(line => line ? '    ' + line : '').join('\n'
 
 ${read('src/live-features.js')}
 ${read('src/quote-extras.js')}
+${read('src/chat-runtime.js')}
 ${end}
 `;
 const built = source.trimEnd() + '\n\n' + assets;

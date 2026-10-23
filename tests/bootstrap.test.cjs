@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
+const { chatPage } = require('../test-support/chat-fixtures.cjs');
 
 const source = fs.readFileSync(path.join(__dirname, '../cs-rin-ru-enhanced-mod.user.js'), 'utf8');
 const base = 'https://cs.rin.ru/forum/';
@@ -83,6 +84,9 @@ async function boot(t, settings = {}) {
         if (url.pathname === '/forum/ucp.php' && url.searchParams.get('i') === 'zebra' && url.searchParams.get('mode') === 'friends') {
             return { ok: true, status: 200, url: url.href, text: async () => '<div id="ucp"><select name="usernames[]"><option>Алиса</option></select></div>' };
         }
+        if (url.pathname === '/forum/chat.php') {
+            return { ok: true, status: 200, url: url.href, text: async () => chatPage };
+        }
         throw new Error(`Unexpected forum request: ${url.href}`);
     };
     window.XMLHttpRequest = class { constructor() { throw new Error('Unexpected XMLHttpRequest'); } };
@@ -147,22 +151,25 @@ test('complete Russian connected bootstrap loads bundled settings, icons, transl
     ctx.verifyClean();
 });
 
-test('complete bootstrap chat toggle uses a native isolated iframe and preserves language', async t => {
+test('complete bootstrap chat uses the native DOM without an iframe and preserves language', async t => {
     const ctx = await boot(t);
     const button = ctx.document.getElementById('rin-chat-toggle');
     assert.equal(button.textContent, 'Показать чат');
     assert.equal(button.classList.contains('rin-forum-button'), true);
     button.click();
-    const frame = ctx.document.querySelector('#chatDiv iframe');
-    assert.equal(frame.name, 'rin-enhanced-chat');
-    assert.equal(new URL(frame.src).pathname, '/forum/chat.php');
-    assert.equal(new URL(frame.src).searchParams.get('lang'), 'ru');
+    await ctx.flush();
+    assert.equal(ctx.document.querySelector('#chatDiv iframe, #chatDiv script'), null);
+    assert.ok(ctx.document.querySelector('#chatDiv #rin-chat-chat'));
+    const request = ctx.fetches.find(item => item.url.pathname === '/forum/chat.php');
+    assert.equal(request.url.searchParams.get('lang'), 'ru');
+    assert.equal(ctx.document.querySelector('#chatDiv .rin-chat-header a').textContent, 'Открыть полный чат');
     assert.equal(button.textContent, 'Скрыть чат');
     assert.equal(ctx.storage.get('chatActive'), true);
     button.click();
     assert.equal(ctx.document.getElementById('chatDiv'), null);
     assert.equal(button.textContent, 'Показать чат');
     assert.equal(ctx.storage.get('chatActive'), false);
+    assert.equal(ctx.timers.size, 0, 'closing chat cancels its polling timer');
     await ctx.flush();
     ctx.verifyClean();
 });
@@ -216,12 +223,9 @@ test('disabled script leaves forum and draft untouched while keeping settings av
     ctx.verifyClean();
 });
 
-test('embedded chat frame skips all enhancement bootstrap and configuration injection', async t => {
+test('native chat page never adds another compact chat toggle', async t => {
     const ctx = await boot(t, { name: 'rin-enhanced-chat', path: 'chat.php?lang=ru' });
-    assert.equal(ctx.document.querySelector('#wholeWindow, #configButton, #rin-toolbar, .rin-mention-link'), null);
-    assert.equal(ctx.document.querySelectorAll('style').length, 0);
-    assert.equal(ctx.fetches.length, 0);
-    assert.equal(ctx.intervals.size, 0);
-    assert.equal(ctx.writes.length, 0);
+    assert.equal(ctx.document.querySelector('#rin-chat-toggle, #chatDiv'), null);
+    assert.ok(ctx.document.getElementById('configButton'));
     ctx.verifyClean();
 });
