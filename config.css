@@ -1,104 +1,99 @@
-/* fallback */
-@font-face {
-    font-family: 'Material Icons';
-    font-style: normal;
-    font-weight: 400;
-    src: url(https://fonts.gstatic.com/s/materialicons/v85/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
-             }
-
-.material-icons {
-    font-family: 'Material Icons';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -moz-font-feature-settings: 'liga';
-    font-feature-settings: 'liga';
-    -moz-osx-font-smoothing: grayscale;
-}
-
-a.forum_link {
-    color: black;
-}
-
-a.forum_link:hover {
-    color: darkmagenta;
-}
-
-a.forum_link:visited {
-    color: darkviolet;
-}
-
 #wholeWindow {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(128, 128, 128, 0.5);
-    backdrop-filter: blur(10px);
-    color: black;
+    --rin-bg: #20252a; --rin-row: #282e34; --rin-line: #414b54;
+    --rin-muted: #a0aeb9; --rin-text: #e4e9ed; --rin-accent: #9dbfd6;
+    position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center;
+    padding: 24px; box-sizing: border-box; background: rgb(5 8 11 / 78%);
+    color: var(--rin-text); font: 12px/1.5 Tahoma, Verdana, sans-serif; text-align: left; color-scheme: dark;
 }
-
-#configWindow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    padding: 5px;
-    transform: translate(-50%, -50%);
-    background-color: darkgray;
-    border: solid 1px black;
-    border-radius: 5px;
+#wholeWindow[hidden], #wholeWindow [hidden], #configButton[hidden], .rin-forum-button[hidden] { display: none !important; }
+#wholeWindow *, #wholeWindow *::before, #wholeWindow *::after { box-sizing: border-box; }
+#wholeWindow #configWindow {
+    display: flex; flex-direction: column; width: min(900px, 100%); max-height: min(840px, calc(100dvh - 48px));
+    margin: 0; padding: 0; overflow: hidden; border: 1px solid #687984; border-radius: 3px;
+    background: var(--rin-bg); box-shadow: 0 22px 90px #0009, 0 0 0 4px #080c1055; outline: none;
 }
-
-fieldset {
-    padding: 2px;
-    border-radius: 5px;
+#wholeWindow .rin-settings-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 22px 15px; border-bottom: 1px solid #53616b; background: linear-gradient(#384650, #2b353d); }
+#wholeWindow .rin-settings-brand { color: #cedae2; font: bold 12px/1.4 Verdana, sans-serif; letter-spacing: .055em; }
+#wholeWindow .rin-settings-brand span { margin-left: 7px; color: #9fb1bf; font-size: 10px; letter-spacing: .12em; }
+#wholeWindow h1 { margin: 5px 0 0; color: #fff; font: normal 23px/1.2 Tahoma, Verdana, sans-serif; }
+#wholeWindow .rin-masterbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 12px 22px; background: #242c32; border-bottom: 1px solid var(--rin-line); }
+#wholeWindow .rin-master-switch, #wholeWindow .rin-language { display: flex; align-items: center; gap: 9px; }
+#wholeWindow .rin-master-switch { font-weight: bold; cursor: pointer; }
+#wholeWindow .rin-language { color: var(--rin-muted); font-size: 11px; }
+#wholeWindow .rin-language select { min-width: 155px; max-width: 220px; }
+#wholeWindow .rin-settings-nav { display: flex; flex-shrink: 0; gap: 2px; padding: 0 15px; overflow-x: auto; border-bottom: 1px solid #5c7181; background: #1b2227; scrollbar-width: thin; }
+#wholeWindow .rin-settings-nav button { display: flex; align-items: center; justify-content: center; gap: 7px; flex: 1 0 auto; min-height: 45px; padding: 11px 13px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; color: #b2c0cb; font-size: 12px; white-space: nowrap; }
+#wholeWindow .rin-settings-nav button:hover { background: #303b44; color: #fff; }
+#wholeWindow .rin-settings-nav button[aria-selected="true"] { border-bottom-color: #a8c4d9; background: #34424d; color: #fff; }
+#wholeWindow .rin-tab-number { font: 10px/1 Consolas, monospace; opacity: .55; }
+#wholeWindow #rin-config-form { min-height: 0; overflow-y: auto; scrollbar-color: #586773 #20252a; scrollbar-width: thin; }
+#wholeWindow #config { min-width: 0; margin: 0; padding: 0; border: 0; }
+#wholeWindow .rin-settings-panel { padding: 17px 22px 23px; }
+#wholeWindow .rin-section-heading { margin-bottom: 10px; }
+#wholeWindow h2 { margin: 0; color: #cfdee8; font-size: 12px; line-height: 1.5; font-weight: bold; }
+#wholeWindow .rin-section-heading p { margin: 3px 0 0; color: var(--rin-muted); font-size: 11px; }
+#wholeWindow .rin-setting { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px 22px; min-height: 43px; margin: 0; padding: 10px 12px; border: 1px solid var(--rin-line); border-bottom-width: 0; background: var(--rin-row); color: var(--rin-text); font-weight: normal; }
+#wholeWindow .rin-setting:last-child { border-bottom-width: 1px; }
+#wholeWindow .rin-setting:nth-of-type(even) { background: #252b31; }
+#wholeWindow label.rin-setting { flex-wrap: nowrap; cursor: pointer; }
+#wholeWindow label.rin-setting:hover { background: #303a42; }
+#wholeWindow .rin-setting > span, #wholeWindow .rin-setting > label { flex: 1; min-width: 0; }
+#wholeWindow .rin-setting small { display: block; margin-top: 3px; color: var(--rin-muted); font-size: 10px; font-weight: normal; line-height: 1.5; }
+#wholeWindow .rin-setting > small { flex-basis: 100%; margin-top: 0; }
+#wholeWindow .rin-setting:has(#dynamic_content) > span { padding-left: 13px; border-left: 2px solid #566774; }
+#wholeWindow .rin-setting[data-rin-disabled="true"] { opacity: .53; }
+#wholeWindow .rin-setting-stack { display: flex; align-items: stretch; flex-direction: column; gap: 6px; }
+#wholeWindow .rin-setting-stack > input { width: 100%; }
+#wholeWindow input, #wholeWindow select, #wholeWindow button { font: inherit; }
+#wholeWindow input[type="text"], #wholeWindow input[type="number"], #wholeWindow select { min-width: 0; min-height: 31px; margin: 0; padding: 5px 8px; border: 1px solid #63727e; border-radius: 2px; background: #171e24; color: #eef3f7; line-height: 1.4; }
+#wholeWindow .rin-setting > select { width: 43%; max-width: 340px; }
+#wholeWindow input[type="checkbox"] { flex: 0 0 auto; width: 16px; height: 16px; margin: 0; accent-color: #9cbdd3; cursor: pointer; }
+#wholeWindow input[type="number"] { width: 78px; }
+#wholeWindow input:disabled, #wholeWindow select:disabled { cursor: not-allowed; }
+#wholeWindow #mentioning, #wholeWindow #title_format { font: 12px/1.6 Consolas, "Liberation Mono", monospace; }
+#wholeWindow .rin-notice { padding: 8px 22px; border-bottom: 1px solid #665a36; background: #363323; color: #d7cca4; font-size: 11px; }
+#wholeWindow .rin-config-status { flex-shrink: 0; min-height: 32px; padding: 7px 22px; border-top: 1px solid var(--rin-line); background: #1c2329; color: var(--rin-muted); font-size: 11px; }
+#wholeWindow .rin-config-status[data-state="changed"] { color: #d9cca3; }
+#wholeWindow .rin-config-status[data-state="error"] { color: #ffc0b8; }
+#wholeWindow .rin-settings-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; flex-shrink: 0; padding: 12px 22px; border-top: 1px solid #39434c; background: #2b353d; }
+#wholeWindow .rin-footer-actions { display: flex; gap: 8px; margin-left: auto; }
+#wholeWindow button, #wholeWindow .rin-help-link { -webkit-tap-highlight-color: transparent; }
+#wholeWindow button { min-height: 32px; padding: 6px 13px; border: 1px solid #718491; border-radius: 2px; background: linear-gradient(#3c4c58, #2a3741); color: #e6edf2; cursor: pointer; font-weight: normal; line-height: 1.4; }
+#wholeWindow button:hover { background: #435663; border-color: #a6becf; color: #fff; }
+#wholeWindow button:disabled { border-color: #4d5a63; background: #303b43; color: #84929d; cursor: default; }
+#wholeWindow .rin-primary-button:not(:disabled) { border-color: #a8c2d3; background: linear-gradient(#93afc2, #7894a8); color: #101d27; font-weight: bold; text-shadow: 0 1px #ffffff24; }
+#wholeWindow .rin-primary-button:not(:disabled):hover { background: #b0cadb; }
+#wholeWindow .rin-help-link { display: inline-flex; align-items: center; gap: 6px; color: #b3ccdf; text-decoration: none; font-size: 11px; }
+#wholeWindow .rin-help-link:hover { color: #fff; text-decoration: underline; }
+#wholeWindow svg, #configButton svg, .rin-forum-button svg { display: block; flex: 0 0 auto; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+#wholeWindow .rin-help-link svg { width: 17px; height: 17px; }
+#wholeWindow .rin-icon-button { display: grid; place-items: center; width: 32px; height: 32px; padding: 4px; border-color: #637582; background: #25323b; }
+#wholeWindow #rin-preview-badge { padding: 2px 5px; border: 1px solid #566571; color: #a5b5c1; font: 9px/1.5 Verdana, sans-serif; }
+#wholeWindow :is(button, a, input, select):focus-visible, #configButton:focus-visible, .rin-forum-button:focus-visible { outline: 2px solid #c1def1; outline-offset: 3px; }
+#wholeWindow[data-rin-preview="true"] { background: #171d22; background-image: linear-gradient(#ffffff03 1px, transparent 1px); background-size: 100% 4px; }
+#configButton, .rin-forum-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 40px; min-height: 38px; padding: 8px 10px; border: 1px solid #718491; border-radius: 3px; background: linear-gradient(#3b4b57, #26333d); color: #d8e7f1; box-shadow: 0 2px 8px #0006; font: 12px/1.3 Tahoma, Verdana, sans-serif; cursor: pointer; text-decoration: none; }
+#configButton { position: fixed; right: 16px; bottom: 16px; z-index: 2147482000; }
+#configButton:hover, .rin-forum-button:hover { border-color: #b6d1e3; background: #425867; color: #fff; }
+.rin-toolbar { position: fixed; right: 16px; bottom: 16px; z-index: 2147482000; display: flex; align-items: flex-end; gap: 7px; }
+.rin-toolbar #configButton, .rin-toolbar #rin-chat-toggle { position: static; margin: 0; }
+.rin-toolbar .rin-forum-button[aria-expanded="true"] { border-color: #c6dfef; background: #4d6678; }
+@media (max-width: 640px) {
+    #wholeWindow { padding: 8px; }
+    #wholeWindow #configWindow { max-height: calc(100dvh - 16px); }
+    #wholeWindow .rin-settings-header { padding: 14px; }
+    #wholeWindow .rin-masterbar, #wholeWindow .rin-settings-footer { padding: 11px 14px; }
+    #wholeWindow .rin-settings-panel { padding: 13px 10px 17px; }
+    #wholeWindow .rin-settings-nav { padding: 0 4px; }
+    #wholeWindow .rin-settings-nav button { gap: 0; padding: 10px; font-size: 11px; }
+    #wholeWindow .rin-tab-number { display: none; }
+    #wholeWindow .rin-setting { gap: 5px 12px; padding: 10px; }
+    #wholeWindow .rin-setting > select { width: 46%; font-size: 11px; }
+    #wholeWindow .rin-config-status { padding: 7px 14px; }
+    #wholeWindow #rin-preview-badge { display: none; }
 }
-
-#messages {
-    padding: 2px;
-    border: 0.1px solid white;
-    border-radius: 5px;
-    margin-top: 2px;
-    text-align: center;
-    display: none;
-}
-
-.message {
-    color: darkred;
-    border: 0.1px solid white;
-    border-radius: 5px;
-}
-
-.buttons {
-    margin-top: 5px;
-    width: 100%;
-}
-
-.buttons tr td:first-child {
-    text-align: left;
-}
-
-.buttons tr td:last-child {
-    text-align: right;
-}
-
-#configButton {
-    position: fixed;
-    top: 5px;
-    right: 5px;
-    cursor: pointer;
-}
-
-#warning {
-    display: none;
-    color: red;
+@media (max-width: 390px) {
+    #wholeWindow .rin-setting:has(> select) { align-items: stretch; flex-direction: column; gap: 7px; }
+    #wholeWindow .rin-setting > select { width: 100%; max-width: none; }
+    #wholeWindow .rin-help-link span { display: none; }
+    #wholeWindow .rin-language { width: 100%; justify-content: space-between; }
 }

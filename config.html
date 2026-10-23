@@ -1,274 +1,73 @@
-<script src="https://cs.rin.ru/forum/assets/javascript/jquery-3.7.1.min.js" type="text/javascript"></script>
-<div id="wholeWindow">
-    <div id="configWindow">
-        <fieldset>
-            <legend>CS.RIN.RU Enhanced Configuration</legend>
-            <table>
-                <tr colspan="2">
-                    <td>
-                        <input data-originalValue="" id="script_enabled" onclick="enableScript();" type="checkbox">
-                        <label for="script_enabled">Enable script</label>
-                    </td>
-                </tr>
-            </table>
-            <fieldset id="config">
-                <table>
-                    <tr>
-                        <td>
-                            <input data-originalValue="" id="infinite_scrolling" type="checkbox">
-                            <label for="infinite_scrolling">Infinite scrolling</label>
-                        </td>
-                        <td title="0=nothing, 1=the author, 2=author and the post">
-                            <label for="mentioning">Mentioning</label>
-                            <select data-originalValue="" id="mentioning">
-                                <option value="0">Nothing</option>
-                                <option value="1">Mentions the author</option>
-                                <option value="2">Mention author and post</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input data-originalValue="" id="steam_db_link" type="checkbox">
-                            <label for="steam_db_link">SteamDB Link</label>
-                        </td>
-                        <td>
-                            <input data-originalValue="" id="copy_link_button" type="checkbox">
-                            <label for="copy_link_button">Copy link button</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td
-                            title="Many things will be dynamic on the page, meaning that you don't need to reload the page for them to update, as they're updated every minute.&#10;- The messages you receive.&#10;- Online users.&#10;- Current time">
-                            <input data-originalValue="" id="dynamic_function" need-connected="true" type="checkbox">
-                            <label for="dynamic_function">Dynamic functions</label>
-                        </td>
-                        <td title="Add a button to access your profile">
-                            <input data-originalValue="" id="add_profile_button" need-connected="true" type="checkbox">
-                            <label for="add_profile_button">Profile button</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td title="Activate to change the color of messages (if any) to red">
-                            <input data-originalValue="" id="colorize_new_messages" need-connected="true"
-                                   type="checkbox">
-                            <label for="colorize_new_messages">Colorize new messages received in red</label>
-                        </td>
-                        <td title="Activate to add a bit of color to the page">
-                            <input data-originalValue="" id="colorize_the_page" type="checkbox">
-                            <label for="colorize_the_page">Add a bit of color to the page</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input data-originalValue="" id="display_ajax_loader" type="checkbox">
-                            <label for="display_ajax_loader">Display Ajax loader</label>
-                        </td>
-                        <td>
-                            <input data-originalValue="" id="custom_tags" type="checkbox">
-                            <label for="custom_tags">Custom tags</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input data-originalValue="" id="add_small_shoutbox" need-connected="true" type="checkbox">
-                            <label for="add_small_shoutbox">Add small shoutbox</label>
-                        </td>
-                        <td>
-                            <input data-originalValue="" id="add_users_tag" type="checkbox">
-                            <label for="add_users_tag">Add users tag</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input data-originalValue="" id="show_all_spoilers" type="checkbox">
-                            <label for="show_all_spoilers">Show all spoilers</label>
-                        </td>
-                        <td>
-                            <input data-originalValue="" id="add_link_quote" need-connected="true" type="checkbox">
-                            <label for="add_link_quote">Add link when quote</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td title="Enable `Display quick reply panel at topic view` under display options in board preferences. Preview your reply to access the full editor.">
-                            <input data-originalValue="" id="quick_reply" type="checkbox">
-                            <label for="quick_reply">Floating Quick Reply panel</label>
-                        </td>
-                        <td>
-                            <input data-originalValue="", id="collapse_quotes" type="checkbox">
-                            <label for="collapse_quotes">Enable collapsing quotes</label>
-                        </td>
-                    </tr>
-                    <tr title="0=nothing, 1=your in red, 2=your friends in pink, 3=both">
-                        <td>
-                            <label for="colorize_friends_me">Colorize friends</label>
-                            <select data-originalValue="" id="colorize_friends_me" need-connected="true">
-                                <option value="0">Nothing</option>
-                                <option value="1">Me</option>
-                                <option value="2">My friends</option>
-                                <option value="3">Me and my friends</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr title="Change topic link behavior when clicking on a topic title.">
-                        <td>
-                            <label for="change_topic_link">Change topic link</label>
-                            <select data-originalValue="" id="change_topic_link">
-                                <option value="0">First post</option>
-                                <option value="1">Unread post</option>
-                                <option value="2">Last post</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr title="Display a topic's posts on mouse hover after a specified delay in seconds.">
-                        <td>
-                            <input data-originalValue="" id="topic_preview" type="checkbox">
-                            <label for="topic_preview">Show</label>
-                            <select data-originalValue="" id="topic_preview_option">
-                                <option value="0">First post</option>
-                                <option value="1">Unread post</option>
-                                <option value="2">Last post</option>
-                            </select>
-                            <label for="topic_preview_timeout"> preview on mouse hover after</label>
-                            <input data-originalValue="" id="topic_preview_timeout" maxlength="2" min="1" max="99"
-                                   size="3" type="number" value="5" style="width: 50px;"/>
-                            <span>seconds</span>
-                        </td>
-                    </tr>
-                    <tr title="Display a post's preview using the same delay as the topic preview.">
-                        <td>
-                            <input data-originalValue="" id="post_preview" type="checkbox">
-                            <label for="post_preview">Show post preview</label>
-                        </td>
-                    </tr>
-                    <tr title="Display a profile's preview using the same delay as the topic preview.">
-                        <td>
-                            <input data-originalValue="" id="profile_preview" type="checkbox">
-                            <label for="profile_preview">Show profile preview</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <input data-originalvalue="" id="special_search" name="special_search" type="checkbox">
-                            <label for="special_search">Activate the special search bar</label>
-
-                            <button id="toggleParams" onclick="toggleParams()">Show/Hide Parameters</button>
-                            <div id="params" style="display: none;">
-                                <fieldset>
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="searchTermsSpecificity">Search for:</label>
-                                        <select data-originalvalue="" id="searchTermsSpecificity"
-                                                name="searchTermsSpecificity">
-                                            <option value="any">Any term</option>
-                                            <option value="all">All terms</option>
-                                        </select>
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="searchSubforums">Search subforums:</label>
-                                        <input data-originalvalue="" id="searchSubforums" name="searchSubforums"
-                                               type="checkbox">
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="sortResultsBy">Sort results by:</label>
-                                        <select data-originalvalue="" id="sortResultsBy" name="sortResultsBy">
-                                            <option value="a">Author</option>
-                                            <option value="t">Post Time</option>
-                                            <option value="f">Forum</option>
-                                            <option value="i">Topic title</option>
-                                            <option value="s">Post subject</option>
-                                        </select>
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="sortOrderBy">Sort order by:</label>
-                                        <select data-originalvalue="" id="sortOrderBy" name="sortOrderBy">
-                                            <option value="a">Ascending</option>
-                                            <option value="d">Descending</option>
-                                        </select>
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="searchTopicLocation">Search within:</label>
-                                        <select data-originalvalue="" id="searchTopicLocation"
-                                                name="searchTopicLocation">
-                                            <option value="all">Post subjects and message text</option>
-                                            <option value="msgonly">Message text only</option>
-                                            <option value="titleonly">Topic titles only</option>
-                                            <option value="firstpost">First post of topics only</option>
-                                        </select>
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="showResultsAsPosts">Show as posts:</label>
-                                        <input data-originalvalue="" id="showResultsAsPosts" name="showResultsAsPosts"
-                                               type="checkbox">
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="limitToPrevious">Limit to previous days:</label>
-                                        <input data-originalvalue="" type="number" id="limitToPrevious"
-                                               name="limitToPrevious">
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="returnFirst">Return first characters of posts:</label>
-                                        <input data-originalvalue="" type="number" id="returnFirst" name="returnFirst"
-                                               title="Write -1 to return all characters in the post">
-                                    </div>
-
-                                    <div style="padding-bottom: 5px;">
-                                        <label for="showFriends">Display your friends list in author search:</label>
-                                        <input data-originalvalue="" id="showFriends" name="showFriends"
-                                               need-connected="true" type="checkbox">
-                                    </div>
-                                </fieldset>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr
-                        title="• Green means that all games in the respective topic are available for download&#10;• Yellow means that some, but not all titles (of a series) are available for download&#10;• Red means that no game is available for download.">
-                        <td>
-                            <label for="hide_scs">Hide SCS</label>
-                            <select data-originalValue="" id="hide_scs">
-                                <option value="0">not hide</option>
-                                <option value="1">hide all</option>
-                                <option value="2">hide only green</option>
-                                <option value="3">show only red</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input data-originalValue="" id="apply_in_scs" type="checkbox">
-                            <label for="apply_in_scs">Apply also in SCS</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <label for="title_format">Window/tab title for topic pages</label>
-                            <input data-originalValue="" id="title_format"
-                                   title="Default value is: '%F • View topic - %T'&#10;Supported placeholders:&#10; %C - standard forum name (CS.RIN.RU - Steam Underground Community •)&#10; %S - Section title&#10; %T - Page title &#10;%RT - Page title without tags"
-                                   type="text" value="%C %S - %T">
-                        </td>
-                    </tr>
-                </table>
-            </fieldset>
-        </fieldset>
-        <div id="messages">
-        </div>
-        <table class="buttons">
-            <tr>
-                <td>
-                    <button class="material-icons" onclick="openForum();">help</button>
-                </td>
-                <td>
-                    <button onclick="sendConfig();">OK</button>
-                    <button onclick="configWindowClose();">Cancel</button>
-                </td>
-            </tr>
-        </table>
-    </div>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CS.RIN.RU Enhanced · Settings</title><link rel="stylesheet" href="./config.css"><script src="./config.js" defer></script></head>
+<body>
+<div id="wholeWindow" hidden>
+<section id="configWindow" role="dialog" aria-modal="true" aria-labelledby="rin-settings-title" tabindex="-1">
+<header class="rin-settings-header"><div><div class="rin-settings-brand">CS.RIN.RU <span>ENHANCED</span></div><h1 id="rin-settings-title" data-i18n="settings">Settings</h1></div><button id="rin-config-close" class="rin-icon-button" type="button" data-i18n-title="close" data-i18n-aria="close" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+<div class="rin-masterbar"><label class="rin-master-switch" for="script_enabled"><input id="script_enabled" data-option type="checkbox" data-originalValue=""><span data-i18n="script_enabled">Enable enhancements</span></label><div class="rin-language"><label for="ui_language" data-i18n="ui_language">Language</label><select id="ui_language" data-option data-originalValue=""><option value="auto" data-i18n="language_auto">Forum language</option><option value="en">English</option><option value="ru">Русский</option></select></div></div>
+<div id="rin-login-note" class="rin-notice" hidden data-i18n="login_note">Sign in to the forum to use account features.</div>
+<nav class="rin-settings-nav" role="tablist" aria-label="Settings sections" data-i18n-aria="sections">
+<button type="button" role="tab" id="rin-tab-general" aria-controls="rin-panel-general" aria-selected="true" data-panel="general"><span class="rin-tab-number">01</span><span data-i18n="general">General</span></button>
+<button type="button" role="tab" id="rin-tab-reading" aria-controls="rin-panel-reading" aria-selected="false" tabindex="-1" data-panel="reading"><span class="rin-tab-number">02</span><span data-i18n="reading">Reading</span></button>
+<button type="button" role="tab" id="rin-tab-replies" aria-controls="rin-panel-replies" aria-selected="false" tabindex="-1" data-panel="replies"><span class="rin-tab-number">03</span><span data-i18n="replies">Replies</span></button>
+<button type="button" role="tab" id="rin-tab-community" aria-controls="rin-panel-community" aria-selected="false" tabindex="-1" data-panel="community"><span class="rin-tab-number">04</span><span data-i18n="community">Community</span></button>
+<button type="button" role="tab" id="rin-tab-search" aria-controls="rin-panel-search" aria-selected="false" tabindex="-1" data-panel="search"><span class="rin-tab-number">05</span><span data-i18n="search">Search</span></button>
+</nav>
+<form id="rin-config-form" novalidate><fieldset id="config">
+<section class="rin-settings-panel" id="rin-panel-general" role="tabpanel" aria-labelledby="rin-tab-general"><div class="rin-section-heading"><h2 data-i18n="general_heading">Browsing &amp; updates</h2><p data-i18n="general_intro">Keep the familiar forum, with a few useful improvements.</p></div>
+<label class="rin-setting" for="infinite_scrolling"><span><span data-i18n="infinite_scrolling">Infinite scrolling</span><small id="infinite_scrolling_help" data-i18n="infinite_scrolling_help">Load the next page as you reach the bottom.</small></span><input id="infinite_scrolling" data-option data-originalValue="" aria-describedby="infinite_scrolling_help" type="checkbox"></label>
+<label class="rin-setting" for="dynamic_function"><span><span data-i18n="dynamic_function">Live forum updates</span><small id="dynamic_function_help" data-i18n="dynamic_function_help">Refresh messages, online users and forum time every minute.</small></span><input id="dynamic_function" data-option data-originalValue="" need-connected="true" aria-describedby="dynamic_function_help" type="checkbox"></label>
+<label class="rin-setting" for="dynamic_content"><span><span data-i18n="dynamic_content">Live topic content</span><small id="dynamic_content_help" data-i18n="dynamic_content_help">Refresh topic content while live forum updates are enabled.</small></span><input id="dynamic_content" data-option data-originalValue="" need-connected="true" aria-describedby="dynamic_content_help" type="checkbox"></label>
+<label class="rin-setting" for="colorize_the_page"><span><span data-i18n="colorize_the_page">Add color to forum elements</span></span><input id="colorize_the_page" data-option data-originalValue="" type="checkbox"></label>
+<label class="rin-setting" for="custom_tags"><span><span data-i18n="custom_tags">Color topic tags</span></span><input id="custom_tags" data-option data-originalValue="" type="checkbox"></label>
+<label class="rin-setting" for="display_ajax_loader"><span><span data-i18n="display_ajax_loader">Show loading indicators</span></span><input id="display_ajax_loader" data-option data-originalValue="" type="checkbox"></label>
+<div class="rin-setting rin-setting-stack"><label for="title_format" data-i18n="title_format">Browser tab title</label><input id="title_format" data-option data-originalValue="" aria-describedby="title_format_help" type="text" spellcheck="false"><small id="title_format_help" data-i18n="title_format_help">%C forum · %S section · %T topic title · %RT title without tags</small></div>
+</section>
+<section class="rin-settings-panel" id="rin-panel-reading" role="tabpanel" aria-labelledby="rin-tab-reading" hidden><div class="rin-section-heading"><h2 data-i18n="reading_heading">Topics &amp; links</h2><p data-i18n="reading_intro">Choose where links lead and how posts are displayed.</p></div>
+<div class="rin-setting"><label for="change_topic_link" data-i18n="change_topic_link">Open topic titles at</label><select id="change_topic_link" data-option data-originalValue="" data-value-type="number"><option value="0" data-i18n="change_topic_link_0">First post</option><option value="1" data-i18n="change_topic_link_1">First unread post</option><option value="2" data-i18n="change_topic_link_2">Last post</option></select></div>
+<label class="rin-setting" for="steam_db_link"><span><span data-i18n="steam_db_link">Add missing SteamDB links</span><small id="steam_db_link_help" data-i18n="steam_db_link_help">Keep links already provided by the forum.</small></span><input id="steam_db_link" data-option data-originalValue="" aria-describedby="steam_db_link_help" type="checkbox"></label>
+<label class="rin-setting" for="copy_link_button"><span><span data-i18n="copy_link_button">Copy post link button</span></span><input id="copy_link_button" data-option data-originalValue="" type="checkbox"></label>
+<label class="rin-setting" for="full_path_post_links"><span><span data-i18n="full_path_post_links">Include forum and topic in post links</span><small id="full_path_post_links_help" data-i18n="full_path_post_links_help">Keep the topic context when sharing a post.</small></span><input id="full_path_post_links" data-option data-originalValue="" aria-describedby="full_path_post_links_help" type="checkbox"></label>
+<label class="rin-setting" for="collapse_quotes"><span><span data-i18n="collapse_quotes">Collapse quotes by default</span></span><input id="collapse_quotes" data-option data-originalValue="" type="checkbox"></label>
+<label class="rin-setting" for="show_all_spoilers"><span><span data-i18n="show_all_spoilers">Open all spoilers</span></span><input id="show_all_spoilers" data-option data-originalValue="" type="checkbox"></label>
+<label class="rin-setting" for="topic_preview"><span><span data-i18n="topic_preview">Preview topics on hover</span></span><input id="topic_preview" data-option data-originalValue="" type="checkbox"></label>
+<div class="rin-setting"><label for="topic_preview_option" data-i18n="topic_preview_option">Topic preview opens at</label><select id="topic_preview_option" data-option data-originalValue="" data-value-type="number"><option value="0" data-i18n="topic_preview_option_0">First post</option><option value="1" data-i18n="topic_preview_option_1">First unread post</option><option value="2" data-i18n="topic_preview_option_2">Last post</option></select></div>
+<label class="rin-setting" for="post_preview"><span><span data-i18n="post_preview">Preview individual posts</span></span><input id="post_preview" data-option data-originalValue="" type="checkbox"></label>
+<label class="rin-setting" for="profile_preview"><span><span data-i18n="profile_preview">Preview user profiles</span></span><input id="profile_preview" data-option data-originalValue="" type="checkbox"></label>
+<div class="rin-setting"><label for="topic_preview_timeout" data-i18n="topic_preview_timeout">Preview delay (seconds)</label><input id="topic_preview_timeout" data-option data-originalValue="" aria-describedby="topic_preview_timeout_help" type="number" min="1" max="99"><small id="topic_preview_timeout_help" data-i18n="topic_preview_timeout_help">Applies to topic, post and profile previews.</small></div>
+<div class="rin-setting"><label for="hide_scs" data-i18n="hide_scs">SCS topic filter</label><select id="hide_scs" data-option data-originalValue="" data-value-type="number"><option value="0" data-i18n="hide_scs_0">Show all topics</option><option value="1" data-i18n="hide_scs_1">Hide all marked topics</option><option value="2" data-i18n="hide_scs_2">Hide green topics</option><option value="3" data-i18n="hide_scs_3">Show only red topics</option></select></div>
+<label class="rin-setting" for="apply_in_scs"><span><span data-i18n="apply_in_scs">Also filter inside Steam Content Sharing</span></span><input id="apply_in_scs" data-option data-originalValue="" type="checkbox"></label>
+</section>
+<section class="rin-settings-panel" id="rin-panel-replies" role="tabpanel" aria-labelledby="rin-tab-replies" hidden><div class="rin-section-heading"><h2 data-i18n="replies_heading">Writing replies</h2><p data-i18n="replies_intro">Useful shortcuts that keep standard forum formatting.</p></div>
+<div class="rin-setting rin-setting-stack"><label for="mentioning" data-i18n="mentioning">Mentioning</label><input id="mentioning" data-option data-originalValue="" aria-describedby="mentioning_help" type="text" spellcheck="false"><small id="mentioning_help" data-i18n="mentioning_help">BBCode supported. %m = username, %u = profile URL, %p = post URL. Leave empty to disable mentions.</small></div>
+<label class="rin-setting" for="add_link_quote"><span><span data-i18n="add_link_quote">Link quote authors to their posts</span><small id="add_link_quote_help" data-i18n="add_link_quote_help">Include a source link in valid quote BBCode.</small></span><input id="add_link_quote" data-option data-originalValue="" need-connected="true" aria-describedby="add_link_quote_help" type="checkbox"></label>
+<label class="rin-setting" for="quick_reply"><span><span data-i18n="quick_reply">Floating quick reply panel</span><small id="quick_reply_help" data-i18n="quick_reply_help">Requires quick reply to be enabled in your forum preferences.</small></span><input id="quick_reply" data-option data-originalValue="" aria-describedby="quick_reply_help" type="checkbox"></label>
+</section>
+<section class="rin-settings-panel" id="rin-panel-community" role="tabpanel" aria-labelledby="rin-tab-community" hidden><div class="rin-section-heading"><h2 data-i18n="community_heading">People &amp; messages</h2><p data-i18n="community_intro">Account features are available while you are signed in.</p></div>
+<label class="rin-setting" for="friend_buttons"><span><span data-i18n="friend_buttons">Friend buttons beside usernames</span></span><input id="friend_buttons" data-option data-originalValue="" need-connected="true" type="checkbox"></label>
+<div class="rin-setting"><label for="colorize_friends_me" data-i18n="colorize_friends_me">Highlight usernames</label><select id="colorize_friends_me" data-option data-originalValue="" need-connected="true" data-value-type="number"><option value="0" data-i18n="colorize_friends_me_0">No highlighting</option><option value="1" data-i18n="colorize_friends_me_1">My username</option><option value="2" data-i18n="colorize_friends_me_2">My friends</option><option value="3" data-i18n="colorize_friends_me_3">My username and friends</option></select></div>
+<label class="rin-setting" for="add_profile_button"><span><span data-i18n="add_profile_button">Shortcut to my profile</span></span><input id="add_profile_button" data-option data-originalValue="" need-connected="true" type="checkbox"></label>
+<label class="rin-setting" for="colorize_new_messages"><span><span data-i18n="colorize_new_messages">Highlight new private messages</span></span><input id="colorize_new_messages" data-option data-originalValue="" need-connected="true" type="checkbox"></label>
+<label class="rin-setting" for="add_small_shoutbox"><span><span data-i18n="add_small_shoutbox">Compact chat panel</span></span><input id="add_small_shoutbox" data-option data-originalValue="" need-connected="true" type="checkbox"></label>
+<label class="rin-setting" for="add_users_tag"><span><span data-i18n="add_users_tag">Show Steam user tags</span></span><input id="add_users_tag" data-option data-originalValue="" type="checkbox"></label>
+</section>
+<section class="rin-settings-panel" id="rin-panel-search" role="tabpanel" aria-labelledby="rin-tab-search" hidden><div class="rin-section-heading"><h2 data-i18n="search_heading">Search defaults</h2><p data-i18n="search_intro">Set the starting options for the enhanced search bar.</p></div>
+<label class="rin-setting" for="special_search"><span><span data-i18n="special_search">Enable enhanced search</span></span><input id="special_search" data-option data-originalValue="" type="checkbox"></label>
+<div class="rin-setting"><label for="searchTermsSpecificity" data-i18n="searchTermsSpecificity">Match search terms</label><select id="searchTermsSpecificity" data-search-option data-originalValue=""><option value="any" data-i18n="searchTermsSpecificity_any">Any term</option><option value="all" data-i18n="searchTermsSpecificity_all">All terms</option></select></div>
+<label class="rin-setting" for="searchSubforums"><span><span data-i18n="searchSubforums">Include subforums</span></span><input id="searchSubforums" data-search-option data-originalValue="" type="checkbox"></label>
+<div class="rin-setting"><label for="searchTopicLocation" data-i18n="searchTopicLocation">Search within</label><select id="searchTopicLocation" data-search-option data-originalValue=""><option value="all" data-i18n="searchTopicLocation_all">Subjects and message text</option><option value="msgonly" data-i18n="searchTopicLocation_msgonly">Message text only</option><option value="titleonly" data-i18n="searchTopicLocation_titleonly">Topic titles only</option><option value="firstpost" data-i18n="searchTopicLocation_firstpost">First posts only</option></select></div>
+<div class="rin-setting"><label for="sortResultsBy" data-i18n="sortResultsBy">Sort results by</label><select id="sortResultsBy" data-search-option data-originalValue=""><option value="a" data-i18n="sortResultsBy_a">Author</option><option value="t" data-i18n="sortResultsBy_t">Post time</option><option value="f" data-i18n="sortResultsBy_f">Forum</option><option value="i" data-i18n="sortResultsBy_i">Topic title</option><option value="s" data-i18n="sortResultsBy_s">Post subject</option></select></div>
+<div class="rin-setting"><label for="sortOrderBy" data-i18n="sortOrderBy">Sort order</label><select id="sortOrderBy" data-search-option data-originalValue=""><option value="a" data-i18n="sortOrderBy_a">Ascending</option><option value="d" data-i18n="sortOrderBy_d">Descending</option></select></div>
+<label class="rin-setting" for="showResultsAsPosts"><span><span data-i18n="showResultsAsPosts">Display results as posts</span></span><input id="showResultsAsPosts" data-search-option data-originalValue="" type="checkbox"></label>
+<div class="rin-setting"><label for="limitToPrevious" data-i18n="limitToPrevious">Only the last (days)</label><input id="limitToPrevious" data-search-option data-originalValue="" aria-describedby="limitToPrevious_help" type="number" min="0"><small id="limitToPrevious_help" data-i18n="limitToPrevious_help">0 = no time limit</small></div>
+<div class="rin-setting"><label for="returnFirst" data-i18n="returnFirst">Post excerpt length (characters)</label><input id="returnFirst" data-search-option data-originalValue="" aria-describedby="returnFirst_help" type="number" min="-1"><small id="returnFirst_help" data-i18n="returnFirst_help">−1 = complete post</small></div>
+<label class="rin-setting" for="showFriends"><span><span data-i18n="showFriends">Suggest friends in author search</span></span><input id="showFriends" data-search-option data-originalValue="" need-connected="true" type="checkbox"></label>
+</section>
+</fieldset></form>
+<div id="messages" class="rin-config-status" role="status" aria-live="polite"></div>
+<footer class="rin-settings-footer"><a class="rin-help-link" href="https://cs.rin.ru/forum/viewtopic.php?f=14&amp;t=75717" target="_blank" rel="noopener noreferrer" data-i18n-title="help_title"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.4 9a2.7 2.7 0 0 1 5.2 1c0 2-2.6 2-2.6 4m0 2.5v.1"/></svg><span data-i18n="help">Help &amp; discussion</span></a><span id="rin-preview-badge" hidden data-i18n="preview_badge">Local preview</span><div class="rin-footer-actions"><button id="rin-config-cancel" type="button" data-i18n="cancel">Cancel</button><button id="rin-config-save" class="rin-primary-button" type="submit" form="rin-config-form" disabled data-i18n="save">Save changes</button></div></footer>
+</section>
 </div>
-<div id="configButton">
-    <span class="material-icons" onclick="showConfigPage();" title="CS.RIN.RU Enhanced configuration">settings</span>
-</div>
+<button id="configButton" class="rin-forum-button" type="button" aria-controls="configWindow" aria-expanded="false" title="Enhanced settings" aria-label="Enhanced settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 3-.6 2a7 7 0 0 0-1.4.8L5.4 5.3 3 9.5 4.5 11a7 7 0 0 0 0 2L3 14.5l2.4 4.2 2.1-.5a7 7 0 0 0 1.4.8l.6 2h5l.6-2a7 7 0 0 0 1.4-.8l2.1.5 2.4-4.2-1.5-1.5a7 7 0 0 0 0-2L21 9.5l-2.4-4.2-2.1.5a7 7 0 0 0-1.4-.8l-.6-2Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+</body></html>
