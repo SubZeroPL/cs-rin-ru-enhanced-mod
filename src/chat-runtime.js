@@ -43,13 +43,13 @@ function parseChatReply(text) {
     const body = parseForumDocument(text).body;
     const elements = Array.from(body.children);
     const framing = Array.from(body.childNodes, node => node.nodeType === 1 ? '\uFFFC' : node.nodeType === 3 ? node.textContent : '').join('');
-    const match = framing.match(/^([\s\uFFFC]*)---\s*(\d+)\s*(?:---([\s\uFFFC]*)---\s*(\d+)\s*---\s*(\d+)\s*---\s*(\d+)\s*)?$/);
+    const match = framing.match(/^([\s\uFFFC]*)---\s*(\d+)\s*(?:---([\s\uFFFC]*)---\s*(\d+)\s*---\s*(\d+)\s*---\s*(\d*)\s*)?$/);
     if (!match) throw new Error('Unexpected chat response');
     const messageCount = match[1].split('\uFFFC').length - 1;
     if (elements.slice(0, messageCount).some(node => !/^p\d+$/.test(node.id))) throw new Error('Unexpected chat messages');
     return { html: elements.slice(0, messageCount).map(node => node.outerHTML).join(''), lastId: match[2],
         online: match[3] === undefined ? undefined : elements.slice(messageCount).map(node => node.outerHTML).join(''), lastTime: match[4],
-        delay: match[5] === undefined ? undefined : Number(match[5]) * 1000, postTime: match[6] };
+        delay: match[5] === undefined ? undefined : Number(match[5]) * 1000, postTime: match[6] || undefined };
 }
 
 function scheduleChatRead(state) {
@@ -69,17 +69,19 @@ function chatFailure(state, message) {
 
 async function startInlineChat(container, url) {
     stopInlineChat(container);
-    const header = document.createElement('div'); header.className = 'rin-chat-header';
+    const actions = document.createElement('div'); actions.className = 'rin-chat-actions';
     const link = document.createElement('a');
     link.href = url.href; link.target = '_blank'; link.rel = 'noopener';
-    link.textContent = rinText('Open full chat');
+    link.title = rinText('Open full chat'); link.setAttribute('aria-label', link.title);
+    link.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M11 3h6v6M17 3l-9 9M8 4H4v12h12v-4"/></svg>';
     const retry = document.createElement('button'); retry.type = 'button'; retry.hidden = true;
-    retry.textContent = rinText('Retry');
-    header.append(link, retry);
+    retry.title = rinText('Retry'); retry.setAttribute('aria-label', retry.title);
+    retry.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 8a6 6 0 1 0 0 5M16 3v5h-5"/></svg>';
+    actions.append(retry, link);
     const status = document.createElement('p'); status.className = 'rin-chat-status';
     status.setAttribute('role', 'status'); status.textContent = rinText('Loading...');
     const content = document.createElement('div'); content.className = 'rin-chat-content';
-    container.replaceChildren(header, status, content);
+    container.replaceChildren(actions, status, content);
     const state = { container, url, status, retry, content, closed: false, pending: false,
         timer: null, controller: new AbortController(), delay: 15000, failed: false };
     container.rinChatState = state;
@@ -161,7 +163,8 @@ function updateChatMessages(state, reply) {
             prepareChatFragment(online.body, state.url);
             state.online.replaceChildren(...Array.from(online.body.childNodes, node => document.importNode(node, true)));
         }
-        state.lastTime = reply.lastTime; state.postTime = reply.postTime;
+        state.lastTime = reply.lastTime;
+        if (reply.postTime !== undefined) state.postTime = reply.postTime;
         state.delay = Math.max(15000, reply.delay);
         const seconds = state.content.querySelector('#rin-chat-update_seconds');
         if (seconds) seconds.textContent = String(state.delay / 1000);
@@ -194,7 +197,9 @@ async function requestChat(state, mode, messageId) {
             // Native deletion returns an empty body. A login/error page must never hide a message.
             if (text.trim()) throw new Error('Unexpected deletion response');
             Array.from(state.messages.children).find(node => node.dataset.rinChatId === messageId)?.remove();
-        } else {
+        } else if (mode !== 'read' || text.trim()) {
+            // Native reads can return an empty body when nothing has changed.
+            // Only add responses need a parsed acknowledgement before clearing the draft.
             updateChatMessages(state, parseChatReply(text));
             if (mode === 'add' && state.editor.value === draft) state.editor.value = '';
         }

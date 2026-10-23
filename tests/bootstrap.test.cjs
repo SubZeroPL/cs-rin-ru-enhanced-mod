@@ -162,7 +162,7 @@ test('complete bootstrap chat uses the native DOM without an iframe and preserve
     assert.ok(ctx.document.querySelector('#chatDiv #rin-chat-chat'));
     const request = ctx.fetches.find(item => item.url.pathname === '/forum/chat.php');
     assert.equal(request.url.searchParams.get('lang'), 'ru');
-    assert.equal(ctx.document.querySelector('#chatDiv .rin-chat-header a').textContent, 'Открыть полный чат');
+    assert.equal(ctx.document.querySelector('#chatDiv .rin-chat-actions a').getAttribute('aria-label'), 'Открыть полный чат');
     assert.equal(button.textContent, 'Скрыть чат');
     assert.equal(ctx.storage.get('chatActive'), true);
     button.click();

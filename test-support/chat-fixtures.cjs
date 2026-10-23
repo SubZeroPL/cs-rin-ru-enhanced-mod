@@ -12,6 +12,6 @@ function handle_send(mode, f) { throw new Error('Downloaded code must never exec
 <input type="submit" name="submit" value="Submit"></form></td><td>Online</td></tr>
 <tr><td><div class="shouts"><div id="chat">${row(10)}</div></div></td>
 <td><div class="shouts"><div id="whois_online"><a href="./memberlist.php?mode=viewprofile&amp;u=8">Alice</a></div></div></td></tr>
-<tr><td><span id="update_seconds">15</span><img id="act_indicator" src="./images/loading.gif"></td></tr>
+<tr style="display: none;"><td><span id="update_seconds">15</span><img id="act_indicator" src="./images/loading.gif"></td></tr>
 </tbody></table></div></div></body></html>`;
 module.exports = { row, chatPage };

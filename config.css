@@ -76,20 +76,21 @@
 .rin-toolbar #rin-chat-toggle { position: static; margin: 0; }
 .rin-toolbar .rin-forum-button[aria-expanded="true"] { border-color: #aaa; background: #444; }
 #chatDiv.rin-chat-panel { display: flex; flex-direction: column; width: min(460px, calc(100vw - 24px)); height: auto; max-height: min(75dvh, calc(100dvh - 70px)); overflow: hidden; border: 1px solid #666; background: #1e1e1e; color: #ccc; font: 11px/1.45 Verdana, Tahoma, sans-serif; }
-#chatDiv .rin-chat-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 10px; min-height: 32px; padding: 5px 8px; border-bottom: 1px solid #454545; background: #282828; }
-#chatDiv .rin-chat-header a { color: #ccc; font-size: 11px; text-decoration: none; }
-#chatDiv .rin-chat-header a:hover { color: #eee; text-decoration: underline; }
-#chatDiv .rin-chat-header button { padding: 3px 7px; border: 1px solid #666; border-radius: 0; background: #333; color: #ccc; font: inherit; cursor: pointer; }
-#chatDiv .rin-chat-header button:hover { border-color: #999; background: #404040; }
-#chatDiv .rin-chat-header button:focus-visible { outline: 2px solid #ccc; outline-offset: 2px; }
+#chatDiv .rin-chat-actions { position: absolute; top: 3px; right: 4px; display: flex; gap: 3px; z-index: 1; }
+#chatDiv .rin-chat-actions a, #chatDiv .rin-chat-actions button { display: grid; place-items: center; width: 20px; height: 20px; min-height: 0; box-sizing: border-box; margin: 0; padding: 2px; border: 1px solid transparent; border-radius: 0; background: #282828; color: #aaa; cursor: pointer; text-decoration: none; }
+#chatDiv .rin-chat-actions a:hover, #chatDiv .rin-chat-actions button:hover { border-color: #777; background: #333; color: #eee; }
+#chatDiv .rin-chat-actions :focus-visible { outline: 2px solid #ccc; outline-offset: 1px; }
+#chatDiv .rin-chat-actions svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 #chatDiv .rin-chat-content { min-height: 0; overflow: auto; scrollbar-color: #666 #222; scrollbar-width: thin; }
 #chatDiv .rin-chat-content table { width: 100%; }
+#chatDiv .rin-chat-content > table { margin: 0; }
+#chatDiv .rin-chat-content > table > tbody > tr:first-child > th { padding-right: 28px; }
 #chatDiv .rin-chat-content td, #chatDiv .rin-chat-content th { box-sizing: border-box; }
-#chatDiv .shouts { height: min(45dvh, 400px) !important; max-height: 45dvh; overflow: auto; }
+#chatDiv .shouts { height: min(210px, 35dvh) !important; max-height: 35dvh; overflow: auto; }
 #chatDiv .postbody { overflow-wrap: anywhere; }
 #chatDiv form { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin: 0; }
 #chatDiv form [name="message"] { flex: 1 1 200px; min-width: 0; max-width: 100%; box-sizing: border-box; }
-#chatDiv .rin-chat-status { flex-shrink: 0; margin: 0; padding: 8px; color: #c5b98d; background: #26251f; font-size: 11px; }
+#chatDiv .rin-chat-status { flex-shrink: 0; min-height: 26px; box-sizing: border-box; margin: 0; padding: 6px 55px 6px 8px; color: #c5b98d; background: #26251f; font-size: 11px; }
 #chatDiv [hidden] { display: none !important; }
 @media (max-width: 640px) {
     #wholeWindow { padding: 8px; }

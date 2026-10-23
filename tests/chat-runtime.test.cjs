@@ -54,7 +54,7 @@ test('chat imports native markup without iframe, executing scripts, global IDs o
     assert.equal(document.querySelector('#postform textarea').value, 'Forum draft');
     assert.equal(container.querySelector('[name="form_token"]').value, 'native-token');
     assert.equal(ctx.reads[0].url, ctx.url.href);
-    assert.equal(container.querySelector('.rin-chat-header a').href, ctx.url.href);
+    assert.equal(container.querySelector('.rin-chat-actions a').href, ctx.url.href);
     assert.equal(ctx.timers.size, 1);
     assert.equal([...ctx.timers.values()][0].delay, 15000);
     assert.equal(container.querySelector('.rin-chat-status').hidden, true);
@@ -83,6 +83,44 @@ test('chat polling uses native metadata, prepends messages once and updates onli
     assert.equal(ctx.container.querySelectorAll('[data-rin-chat-id]').length, 2);
 });
 
+test('idle reads with empty or whitespace bodies keep polling and preserve cursors before the next message', async t => {
+    const ctx = setup(t); await ctx.open();
+    ctx.replies.push(`${row(11, 'Before idle')}---11---<div>Alice</div>---20---30---1240`);
+    await ctx.tick();
+    const state = ctx.container.rinChatState;
+    const previousMessage = state.messages.firstElementChild;
+    const scroller = state.messages.parentElement;
+    state.editor.value = 'Unsent draft'; scroller.scrollTop = 40;
+    for (const empty of ['', ' \t\r\n\t ']) {
+        ctx.replies.push(empty); await ctx.tick();
+        assert.equal(state.failed, false, 'a successful idle read is not an error');
+        assert.equal(state.status.hidden, true);
+        assert.equal(state.retry.hidden, true);
+        assert.equal(ctx.timers.size, 1, 'polling continues after an empty native read');
+        assert.equal([...ctx.timers.values()][0].delay, 30000);
+        assert.equal(state.lastId, '11');
+        assert.equal(state.lastTime, '20');
+        assert.equal(state.postTime, '1240');
+        assert.equal(state.messages.firstElementChild, previousMessage, 'existing message nodes are untouched');
+        assert.equal(state.messages.children.length, 2);
+        assert.equal(state.editor.value, 'Unsent draft');
+        assert.equal(scroller.scrollTop, 40);
+    }
+    ctx.replies.push(`${row(12, 'After idle')}---12---<div>Alice and Bob</div>---25---45---1248`);
+    await ctx.tick();
+    assert.equal(state.lastId, '12'); assert.equal(state.lastTime, '25'); assert.equal(state.postTime, '1248');
+    assert.deepEqual([...state.messages.children].map(node => node.dataset.rinChatId), ['12', '11', '10']);
+    assert.equal(state.online.textContent, 'Alice and Bob');
+    assert.equal([...ctx.timers.values()][0].delay, 45000);
+    assert.equal(ctx.calls.length, 4);
+    for (const call of ctx.calls.slice(1)) {
+        assert.equal(call.init.body.get('mode'), 'read');
+        assert.equal(call.init.body.get('last_id'), '11');
+        assert.equal(call.init.body.get('last_time'), '20');
+        assert.equal(call.init.body.get('last_post'), '1240');
+    }
+});
+
 test('native response whitespace and numeric separators inside messages cannot corrupt metadata', async t => {
     const ctx = setup(t); await ctx.open();
     ctx.replies.push(`${row(11, 'literal ---123--- text')}---11\n\t---\n<div>Alice ---999--- Bob</div>---20\n---30\n---1240\n`);
@@ -92,6 +130,24 @@ test('native response whitespace and numeric separators inside messages cannot c
     assert.equal(state.delay, 30000);
     assert.match(state.messages.textContent, /literal ---123--- text/);
     assert.equal(state.online.textContent, 'Alice ---999--- Bob');
+    assert.equal(state.failed, false);
+});
+
+test('a native update with an empty LAST_POST field preserves the previous cursor while updating presence', async t => {
+    const ctx = setup(t); await ctx.open();
+    ctx.replies.push(`${row(11, 'Updated')}---11\n---<div>Alice online</div>---20---30---\n\t `);
+    await ctx.tick();
+    const state = ctx.container.rinChatState;
+    assert.equal(state.failed, false);
+    assert.equal(state.lastId, '11');
+    assert.equal(state.lastTime, '20');
+    assert.equal(state.postTime, '1234', 'an omitted timestamp does not erase the previous cursor');
+    assert.equal(state.online.textContent, 'Alice online');
+    assert.equal(state.messages.firstElementChild.dataset.rinChatId, '11');
+    assert.equal([...ctx.timers.values()][0].delay, 30000);
+    ctx.replies.push(''); await ctx.tick();
+    assert.equal(ctx.calls.at(-1).init.body.get('last_post'), '1234');
+    assert.equal(ctx.calls.at(-1).init.body.get('last_time'), '20');
     assert.equal(state.failed, false);
 });
 
@@ -127,6 +183,26 @@ test('mocked chat submission preserves native tokens and forum draft, blocks dou
     assert.equal(ctx.document.querySelector('#postform textarea').value, 'Forum draft');
 });
 
+for (const [label, body] of [['empty', ''], ['whitespace', ' \n\t\r\n']]) {
+    test(`a successful HTTP response containing only ${label} content never confirms a submitted message`, async t => {
+        const ctx = setup(t); await ctx.open();
+        const state = ctx.container.rinChatState;
+        state.editor.value = 'Preserve this unconfirmed message';
+        ctx.replies.push(body);
+        state.form.dispatchEvent(new ctx.window.Event('submit', { bubbles: true, cancelable: true }));
+        await ctx.flush();
+        assert.equal(state.editor.value, 'Preserve this unconfirmed message');
+        assert.equal(state.failed, true);
+        assert.equal(state.status.hidden, false);
+        assert.equal(state.retry.hidden, false);
+        assert.equal(state.messages.children.length, 1);
+        assert.equal(state.lastId, '10');
+        assert.equal(ctx.timers.size, 0);
+        assert.equal(ctx.calls.length, 1, 'an uncertain submission is never resent automatically');
+        assert.equal(ctx.calls[0].init.body.get('mode'), 'add');
+    });
+}
+
 test('request failure preserves chat draft, stops polling and offers manual retry and native chat', async t => {
     const ctx = setup(t); await ctx.open();
     const editor = ctx.container.querySelector('[name="message"]'); editor.value = 'Keep me';
@@ -135,11 +211,31 @@ test('request failure preserves chat draft, stops polling and offers manual retr
     assert.equal(editor.value, 'Keep me');
     assert.equal(ctx.timers.size, 0);
     assert.match(ctx.container.querySelector('.rin-chat-status').textContent, /Check the full chat/);
-    const retry = ctx.container.querySelector('.rin-chat-header button'); assert.equal(retry.hidden, false);
-    ctx.replies.push('---10'); retry.click(); await ctx.flush();
+    const retry = ctx.container.querySelector('.rin-chat-actions button'); assert.equal(retry.hidden, false);
+    ctx.replies.push(''); retry.click(); await ctx.flush();
     assert.equal(ctx.calls.at(-1).init.body.get('mode'), 'read', 'retry never resends the previous message');
     assert.equal(ctx.timers.size, 1);
     assert.equal(editor.value, 'Keep me');
+    assert.equal(ctx.container.rinChatState.failed, false, 'an idle read restores a failed connection');
+    assert.equal(ctx.container.querySelector('.rin-chat-status').hidden, true);
+    assert.equal(retry.hidden, true);
+});
+
+test('a login page returned by a later read remains an error and never replaces the existing chat', async t => {
+    const ctx = setup(t); await ctx.open();
+    const state = ctx.container.rinChatState;
+    const previousMessage = state.messages.firstElementChild;
+    state.editor.value = 'Unsent message';
+    ctx.replies.push('<!doctype html><html><body><form action="./ucp.php?mode=login"><input name="username"><input type="password" name="password"></form></body></html>');
+    await ctx.tick();
+    assert.equal(state.failed, true);
+    assert.equal(state.status.hidden, false);
+    assert.equal(state.retry.hidden, false);
+    assert.equal(ctx.timers.size, 0, 'authentication failures do not retry indefinitely');
+    assert.equal(state.messages.firstElementChild, previousMessage);
+    assert.equal(state.lastId, '10');
+    assert.equal(state.editor.value, 'Unsent message');
+    assert.equal(ctx.container.querySelector('[name="username"], [type="password"]'), null);
 });
 
 test('visibility pauses polling and closing aborts requests, removes timers and preserves unsent draft on reopen', async t => {
@@ -162,7 +258,7 @@ test('login pages and HTTP error responses show recovery instead of an empty or 
     await ctx.open();
     assert.equal(ctx.container.querySelector('iframe, form'), null);
     assert.match(ctx.container.querySelector('.rin-chat-status').textContent, /sign in/);
-    assert.equal(ctx.container.querySelector('.rin-chat-header button').hidden, false);
+    assert.equal(ctx.container.querySelector('.rin-chat-actions button').hidden, false);
     assert.equal(ctx.timers.size, 0);
 });
 
