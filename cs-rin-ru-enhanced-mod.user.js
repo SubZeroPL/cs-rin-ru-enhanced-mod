@@ -4,7 +4,7 @@
 // @name:pt         CS.RIN.RU Melhorado
 // @name:ru         CS.RIN.RU Улучшенный
 // @namespace       Royalgamer06
-// @version         2.0.0-beta.3
+// @version         2.0.0-beta.4
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -671,16 +671,18 @@ function contentItemKey(item) {
 
 let rinPaginationState = null;
 function setupInfiniteScroll() {
-    if (!options.infinite_scrolling) return;
+    if (!options.infinite_scrolling || rinPaginationState) return;
     const pagination = getPagination();
     const items = getContentItems();
     if (!pagination || !items.length) return;
-    const sticky = document.createElement('div');
-    sticky.setAttribute('name', 'page_nav');
-    sticky.className = 'gensmall rin-page-nav';
-    sticky.innerHTML = pagination.element.innerHTML;
-    const first = items[0].closest('#pagecontent') || items[0].closest('form') || items[0];
-    first.before(sticky);
+    // Keep the native table/cells intact instead of copying a row into a div.
+    let navigationElement = pagination.element;
+    const navigationTable = navigationElement.closest('table');
+    let sticky = navigationTable && !navigationTable.querySelector('.topictitle, .postbody, form')
+        ? navigationTable : navigationElement;
+    sticky.classList.add('rin-page-nav');
+    sticky.style.backgroundColor = getComputedStyle(document.body).backgroundColor;
+    sticky.dataset.page = String(pagination.current);
     items.forEach(item => { item.dataset.rinPage = String(pagination.current); });
     const state = {
         pages: new Map([[pagination.current, { items, doc: document, url: window.location.href, pagination }]]),
@@ -751,7 +753,14 @@ function setupInfiniteScroll() {
             .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
         const page = visible && state.pages.get(Number(visible.dataset.rinPage));
         if (page && sticky.dataset.page !== String(page.pagination.current)) {
-            sticky.innerHTML = page.pagination.element.innerHTML;
+            const replacement = document.importNode(page.pagination.element, true);
+            navigationElement.replaceWith(replacement);
+            if (sticky === navigationElement) {
+                replacement.classList.add('rin-page-nav');
+                replacement.style.backgroundColor = sticky.style.backgroundColor;
+                sticky = replacement;
+            }
+            navigationElement = replacement;
             sticky.dataset.page = String(page.pagination.current);
         }
         if (window.innerHeight + window.scrollY + 1000 >= document.documentElement.scrollHeight) void loadPage(1);
@@ -1455,7 +1464,7 @@ if (options.script_enabled) {
         .rin-loading { position:fixed;left:50%;top:15%;z-index:10002;color:#a9bdd8;pointer-events:none; }
         .rin-loading svg { animation:rin-spin 1s linear infinite; }
         @keyframes rin-spin { to { transform:rotate(360deg); } }
-        .rin-page-nav { position:sticky;top:0;z-index:900;background:Canvas;color:CanvasText;padding:.3em;font-size:1em; }
+        .rin-page-nav { position:sticky;top:0;z-index:900; }
         .rin-mention-link,.rin-copy-link { display:inline-block;margin-left:4px;vertical-align:middle; }
         .rin-action-feedback { background:#202832;color:#fff;padding:3px 6px;border-radius:3px; }
         .rin-preview { background:Canvas;color:CanvasText;border:1px solid #777;box-shadow:0 4px 20px #0008; }
