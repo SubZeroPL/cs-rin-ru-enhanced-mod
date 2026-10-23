@@ -24,12 +24,14 @@ function addFriendButtons(root = document) {
         if (!name || cleanName(name) === cleanName(USERNAME)) continue;
         const post = author.closest('table.tablebg, .post');
         if (!post) continue;
-        const profile = Array.from(post.querySelectorAll('a[href]')).find(link => {
-            if (link.closest('.postbody, .quotecontent, .signature')) return false;
+        const profiles = Array.from(post.querySelectorAll('a[href]')).filter(link => {
+            if (link.closest('.postbody, .quotecontent, .signature') ||
+                link.contains(author) || author.contains(link) || link.parentElement.contains(author)) return false;
             const url = rinLiveNativeUrl(link.getAttribute('href'), 'memberlist.php');
             return url?.searchParams.get('mode') === 'viewprofile' &&
                 /^[1-9]\d*$/.test(url.searchParams.get('u')) && url.searchParams.get('u') !== '1';
         });
+        const profile = profiles.find(link => link.querySelector('img[src*="icon_user_profile"]')) || profiles[0];
         if (!profile) continue;
         const profileUrl = rinLiveNativeUrl(profile.getAttribute('href'), 'memberlist.php');
         const userId = profileUrl.searchParams.get('u');
@@ -45,18 +47,24 @@ function addFriendButtons(root = document) {
         }
         // Preserve SID-based sessions without copying unrelated profile parameters.
         if (profileUrl.searchParams.has('sid')) url.searchParams.set('sid', profileUrl.searchParams.get('sid'));
-        let button = author.parentElement.querySelector('.rin-friend-button');
+        let button = post.querySelector('.rin-friend-button');
         if (!button) {
             button = author.ownerDocument.createElement('a');
-            button.className = 'rin-friend-button gensmall';
-            button.style.marginLeft = '0.5em';
+            button.className = 'rin-friend-button';
             button.target = '_blank';
             button.rel = 'noopener';
-            author.after(button);
         }
+        // rinDark groups Profile/PM in the left-hand footer div, separate from moderation actions.
+        const contacts = profile.closest('div.gensmall');
+        if (contacts && post.contains(contacts) && !contacts.contains(author)) contacts.append(button);
+        else profile.after(button);
+        button.style.removeProperty('margin-left');
         button.href = url.href;
-        button.textContent = rinText(isFriend ? 'Remove friend' : 'Add friend');
+        button.title = rinText(isFriend ? 'Remove friend' : 'Add friend');
         button.setAttribute('aria-label', rinText(isFriend ? 'Remove {name} from friends' : 'Add {name} as a friend', { name }));
+        button.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">' +
+            '<circle cx="8" cy="7" r="3"/><path d="M2 20v-2a6 6 0 0 1 12 0v2M16 11h6' +
+            (isFriend ? '' : 'm-3-3v6') + '"/></svg>';
     }
 }
 

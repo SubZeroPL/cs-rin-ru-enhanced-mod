@@ -10,8 +10,13 @@ const base = 'https://cs.rin.ru/forum/';
 const header = (topic = true, id = 42) => `<div id="pageheader"><a class="titles" href="./${topic ? 'viewtopic.php?t' : 'viewforum.php?f'}=${id}">Example</a></div>`;
 const post = (id, author = 'Alice', userId = 10, body = 'Original message') =>
     `<table class="tablebg" data-post="${id}"><tbody><tr><td><a name="p${id}"></a><b class="postauthor">${author}</b></td>` +
-    `<td><a href="./memberlist.php?mode=viewprofile&u=${userId}"><img alt="Профиль"></a></td></tr>` +
-    `<tr><td colspan="2"><div class="postbody">${body}</div></td></tr></tbody></table>`;
+    '<td class="gensmall">Posted today</td></tr>' +
+    `<tr><td class="profile">Member</td><td><div class="postbody">${body}</div></td></tr>` +
+    '<tr class="row1"><td class="profile"><a href="#wrapheader">Top</a></td><td>' +
+    `<div class="gensmall" data-contacts="${id}" style="float: left"><a href="./memberlist.php?mode=viewprofile&u=${userId}">` +
+    '<img src="./styles/rinDark/imageset/ru/icon_user_profile.gif" width="72" height="20" alt="Профиль"></a> ' +
+    `<a href="./ucp.php?i=pm&mode=compose&u=${userId}"><img src="./styles/rinDark/imageset/ru/icon_contact_pm.gif" alt="Личное сообщение"></a></div>` +
+    '<div class="gensmall" style="float: right"><a href="./mcp.php">Moderation</a></div></td></tr></tbody></table>';
 const topic = (ids, extra = '', id = 42) => header(true, id) + `<div id="pagecontent">${ids.map(value => post(value)).join('')}${extra}</div>`;
 const row = id => `<tr data-topic="${id}"><td class="row4"><img src="topic_read.gif"></td><td><a class="topictitle" href="./viewtopic.php?f=14&t=${id}">Topic ${id}</a></td></tr>`;
 const forum = (ids, extra = '', id = 14) => header(false, id) + `<div id="pagecontent"><table class="tablebg"><tbody>` +
@@ -26,6 +31,7 @@ function setup(t, html, settings = {}) {
     const enhanced = [];
     const translations = {
         'Add friend': 'Добавить в друзья', 'Remove friend': 'Удалить из друзей',
+        'Add {name} as a friend': 'Добавить {name} в друзья', 'Remove {name} from friends': 'Удалить {name} из друзей',
         'More posts are available on the next page.': 'Новые сообщения доступны на следующей странице.',
     };
     let requests = 0;
@@ -70,8 +76,14 @@ test('friend links use native confirmation routes, encode names and never make r
     assert.equal(add.searchParams.get('add'), 'Алиса & Bob + 50%');
     assert.equal(remove.searchParams.get('remove'), '1');
     assert.equal(remove.searchParams.get('usernames[]'), '22');
-    assert.equal(links[0].textContent, 'Add friend');
-    assert.equal(links[1].textContent, 'Remove friend');
+    assert.equal(links[0].title, 'Add friend');
+    assert.equal(links[1].title, 'Remove friend');
+    assert.equal(links[0].getAttribute('aria-label'), 'Add Алиса & Bob + 50% as a friend');
+    assert.equal(links[1].getAttribute('aria-label'), 'Remove Friend from friends');
+    for (const link of links) {
+        assert.equal(link.textContent.trim(), '', 'the compact control has no visible label');
+        assert.ok(link.querySelector('svg'), 'the control has an icon');
+    }
     assert.equal(links[0].target, '_blank');
     assert.equal(ctx.requestCount(), 0);
 });
@@ -92,11 +104,65 @@ test('friend actions are idempotent, translate and work on a preview root', t =>
     const ctx = setup(t, `<div id="topic_preview">${post(1, 'Алиса', 11)}</div>`, { russian: true });
     const root = ctx.document.getElementById('topic_preview');
     ctx.addFriendButtons(root);
+    const button = root.querySelector('.rin-friend-button');
+    assert.equal(button.title, 'Добавить в друзья');
     ctx.FRIENDS_LIST.push('Алиса');
     ctx.addFriendButtons(root);
     assert.equal(root.querySelectorAll('.rin-friend-button').length, 1);
-    assert.equal(root.querySelector('.rin-friend-button').textContent, 'Удалить из друзей');
-    assert.equal(new URL(root.querySelector('.rin-friend-button').href).searchParams.get('usernames[]'), '11');
+    assert.equal(root.querySelector('.rin-friend-button'), button, 'refresh reuses the existing action');
+    assert.equal(button.title, 'Удалить из друзей');
+    assert.equal(button.getAttribute('aria-label'), 'Удалить Алиса из друзей');
+    assert.equal(new URL(button.href).searchParams.get('usernames[]'), '11');
+    assert.equal(button.parentElement, root.querySelector('[data-contacts="1"]'));
+});
+
+test('friend icon joins the native contact actions without moving or replacing native controls', t => {
+    const ctx = setup(t, post(1));
+    const postElement = ctx.document.querySelector('table.tablebg');
+    const author = postElement.querySelector('.postauthor');
+    const contacts = postElement.querySelector('[data-contacts="1"]');
+    const nativeLinks = [...contacts.querySelectorAll('a')];
+    const moderation = postElement.querySelector('a[href="./mcp.php"]');
+    ctx.addFriendButtons();
+    ctx.addFriendButtons();
+    const button = postElement.querySelector('.rin-friend-button');
+    assert.equal(button.parentElement, contacts);
+    assert.equal(contacts.lastElementChild, button);
+    assert.equal(author.parentElement.querySelector('.rin-friend-button'), null);
+    assert.equal(contacts.querySelectorAll('.rin-friend-button').length, 1);
+    assert.deepEqual([...contacts.querySelectorAll('a')].slice(0, 2), nativeLinks);
+    assert.equal(postElement.querySelector('a[href="./mcp.php"]'), moderation);
+    assert.equal(moderation.parentElement.querySelector('.rin-friend-button'), null);
+});
+
+test('a linked username does not become the insertion point instead of the native footer', t => {
+    const ctx = setup(t, post(1));
+    const author = ctx.document.querySelector('.postauthor');
+    author.innerHTML = '<a href="./memberlist.php?mode=viewprofile&u=10">Alice</a>';
+    ctx.addFriendButtons();
+    const button = ctx.document.querySelector('.rin-friend-button');
+    assert.equal(button.parentElement, ctx.document.querySelector('[data-contacts="1"]'));
+    assert.equal(author.parentElement.querySelector('.rin-friend-button'), null);
+    assert.equal(new URL(button.href).searchParams.get('add'), 'Alice');
+});
+
+test('incomplete post markup uses a separate profile link and never the username as its fallback', t => {
+    const ctx = setup(t, '<table class="tablebg"><tr><td><b class="postauthor">Alice</b></td></tr>' +
+        '<tr><td><div class="postbody">Message</div></td></tr>' +
+        '<tr><td id="fallback"><a href="./memberlist.php?mode=viewprofile&u=10">Profile</a></td></tr></table>');
+    ctx.addFriendButtons();
+    const button = ctx.document.querySelector('.rin-friend-button');
+    assert.equal(button?.parentElement, ctx.document.getElementById('fallback'));
+    assert.equal(button.previousElementSibling.textContent, 'Profile');
+    assert.equal(ctx.document.querySelector('.postauthor').parentElement.querySelector('.rin-friend-button'), null);
+});
+
+test('a post with only its linked username has no safe contact-bar insertion point', t => {
+    const ctx = setup(t, '<table class="tablebg"><tr><td><b class="postauthor">' +
+        '<a href="./memberlist.php?mode=viewprofile&u=10">Alice</a></b></td></tr>' +
+        '<tr><td><div class="postbody">Message</div></td></tr></table>');
+    ctx.addFriendButtons();
+    assert.equal(ctx.document.querySelector('.rin-friend-button'), null);
 });
 
 test('topic refresh appends only new posts while preserving old nodes, listeners, drafts and spoiler state', t => {
