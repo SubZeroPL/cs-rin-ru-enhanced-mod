@@ -3,7 +3,7 @@
 
 Enhance your experience at CS.RIN.RU
 
-**v2.0 test branch:** this is `2.0.0-beta.5`. Install this branch using the link below; its automatic updates follow `v2.0`.
+**v2.0 test branch:** this is `2.0.0-beta.6`. Install this branch using the link below; its automatic updates follow `v2.0`.
 
 Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 

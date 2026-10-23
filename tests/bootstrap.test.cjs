@@ -130,8 +130,13 @@ test('complete Russian connected bootstrap loads bundled settings, icons, transl
     assert.equal(doc.querySelectorAll('#wholeWindow').length, 1);
     assert.equal(doc.querySelectorAll('#configButton').length, 1);
     assert.equal(doc.querySelector('#actions .rin-mention-link img').title, 'Ответить с упоминанием');
-    assert.match(doc.querySelector('#actions .rin-copy-link img').src, /^data:image\/svg\+xml,/);
-    assert.match(doc.querySelector('#actions .rin-mention-link img').src, /^data:image\/svg\+xml,/);
+    for (const [selector, file] of [['.rin-copy-link', 'link-image.png'], ['.rin-mention-link', 'mention-image.png']]) {
+        const icon = doc.querySelector(`#actions ${selector} img`);
+        assert.equal(icon.src, `data:image/png;base64,${fs.readFileSync(path.join(__dirname, '..', file)).toString('base64')}`,
+            'the original artwork is bundled without modification');
+        assert.equal(icon.width, 90);
+        assert.equal(icon.height, 20);
+    }
     assert.equal(doc.querySelector('.rin-friend-button').title, 'Удалить из друзей');
     assert.equal(doc.querySelector('.rin-friend-button').textContent.trim(), '');
     assert.equal(doc.querySelector('.rin-friend-button').getAttribute('aria-label'), 'Удалить Алиса из друзей');

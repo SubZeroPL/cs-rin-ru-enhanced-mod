@@ -77,6 +77,29 @@ function setup(t, html = '', settings = {}) {
     return ctx;
 }
 
+test('quick reply toggle remains independent of the chat toolbar and preserves the reply draft', t => {
+    const ctx = setup(t, '<div id="rin-toolbar"><button>Chat</button></div><form id="postform"><textarea name="message">Draft</textarea></form>',
+        { options: { quick_reply: true, ui_language: 'en' } });
+    loadFunctions(ctx, ['setupQuickReplyPanel']);
+    ctx.setupQuickReplyPanel();
+    ctx.setupQuickReplyPanel();
+    const button = ctx.document.getElementById('rin-quick-reply-toggle');
+    const panel = ctx.document.getElementById('postform');
+    assert.equal(ctx.document.querySelectorAll('#rin-quick-reply-toggle').length, 1);
+    assert.equal(button.parentElement, ctx.document.body);
+    assert.equal(ctx.document.querySelector('#rin-toolbar').children.length, 1);
+    assert.equal(button.getAttribute('aria-expanded'), 'false');
+    button.click();
+    assert.equal(button.getAttribute('aria-expanded'), 'true');
+    assert.equal(button.textContent, 'Hide Quick Reply Panel');
+    assert.equal(panel.classList.contains('rin-quick-reply-open'), true);
+    button.click();
+    assert.equal(button.getAttribute('aria-expanded'), 'false');
+    assert.equal(button.textContent, 'Show Quick Reply Panel');
+    assert.equal(panel.classList.contains('rin-quick-reply-open'), false);
+    assert.equal(panel.querySelector('textarea').value, 'Draft');
+});
+
 test('Russian and English logout labels preserve the entire bracketed username; guests need no menu', t => {
     for (const prefix of ['Выход', 'Logout']) {
         const ctx = setup(t, '<div id="menubar"><a href="./ucp.php?mode=logout&amp;sid=test">' +

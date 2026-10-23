@@ -135,7 +135,7 @@ function setupPrivateMessageQuotes(root = document) {
         if (!author || !raw.textContent.trim()) return;
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'rin-forum-button rin-pm-quote';
+        button.className = 'rin-pm-quote';
         button.textContent = rinText('Add quote to reply');
         button.addEventListener('click', () => {
             const selected = selectedQuoteText(raw.previousElementSibling);

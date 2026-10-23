@@ -21,7 +21,7 @@ function setup(t, html, path = 'viewtopic.php?p=123', parameters = {}) {
     const location = { href: url.href, search: url.search, pathname: url.pathname, origin: url.origin };
     const notifications = [];
     const ctx = { document: dom.window.document, window: { location }, location, URL, URLSearchParams,
-        FORUM_BASE_URL: base, FRIENDS_LIST: [], retrievesFriendsLists: async () => {},
+        FORUM_BASE_URL: base, FRIENDS_LIST: [], CONNECTED: false, retrievesFriendsLists: async () => {},
         GM_notification: (...args) => notifications.push(args), notifications,
         options: { special_search: true, special_search_parameter: { searchSubforums: true, searchTopicLocation: 'all',
             sortResultsBy: 't', sortOrderBy: 'd', limitToPrevious: 0, returnFirst: 300,
@@ -152,4 +152,39 @@ test('button and Enter use fresh context; missing selected scopes notify without
         assert.equal(ctx.window.location.href, before);
         assert.equal(ctx.notifications.length, 1);
     }
+});
+
+test('friend suggestions remain selectable by click and keyboard in the restored list', async t => {
+    const ctx = setup(t, menu + title(), 'viewtopic.php?p=123', { showFriends: true });
+    ctx.CONNECTED = true;
+    ctx.FRIENDS_LIST.push('Alice & Bob', 'Иван');
+    await ctx.specialSearch();
+    await ctx.specialSearch();
+    assert.equal(ctx.document.querySelectorAll('#searchBar').length, 1);
+    const panel = ctx.document.getElementById('searchOptions');
+    const author = ctx.document.getElementById('searchAuthor');
+    const list = ctx.document.getElementById('friends-lists-search');
+    const items = [...list.querySelectorAll('ul > li')];
+    assert.deepEqual(items.map(item => item.textContent), ['Alice & Bob', 'Иван']);
+    ctx.document.getElementById('searchBar').focus();
+    assert.equal(panel.hidden, false);
+    for (const [index, key] of [[0, null], [1, 'Enter'], [0, ' ']]) {
+        author.click();
+        assert.equal(list.hidden, false);
+        assert.equal(items[index].tabIndex, 0);
+        items[index].focus();
+        if (key) items[index].dispatchEvent(new ctx.document.defaultView.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+        else items[index].click();
+        assert.equal(author.value, ctx.FRIENDS_LIST[index]);
+        assert.equal(list.hidden, true);
+        assert.equal(panel.hidden, false);
+        assert.equal(ctx.document.activeElement, author);
+    }
+    ctx.document.getElementById('searchScope').value = 'thisTopic';
+    ctx.document.getElementById('searchButton').click();
+    const params = new URL(ctx.window.location.href).searchParams;
+    assert.equal(params.get('author'), 'Alice & Bob');
+    assert.equal(params.get('t'), '42');
+    ctx.document.dispatchEvent(new ctx.document.defaultView.KeyboardEvent('keydown', { key: 'Escape' }));
+    assert.equal(panel.hidden, true);
 });
