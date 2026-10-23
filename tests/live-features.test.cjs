@@ -11,7 +11,10 @@ const header = (topic = true, id = 42) => `<div id="pageheader"><a class="titles
 const post = (id, author = 'Alice', userId = 10, body = 'Original message') =>
     `<table class="tablebg" data-post="${id}"><tbody><tr><td><a name="p${id}"></a><b class="postauthor">${author}</b></td>` +
     '<td class="gensmall">Posted today</td></tr>' +
-    `<tr><td class="profile">Member</td><td><div class="postbody">${body}</div></td></tr>` +
+    `<tr><td class="profile" data-author-info="${id}" valign="top"><table><tbody><tr><td>Member<br>` +
+    '<img class="avatar" src="./avatars/example.png" alt="User avatar"></td></tr></tbody></table>' +
+    '<span class="postdetails">Joined: 1 Jan 2020<br>Posts: 42<br>Location: Paris</span></td>' +
+    `<td><table><tbody><tr><td><div class="postbody">${body}</div></td></tr></tbody></table></td></tr>` +
     '<tr class="row1"><td class="profile"><a href="#wrapheader">Top</a></td><td>' +
     `<div class="gensmall" data-contacts="${id}" style="float: left"><a href="./memberlist.php?mode=viewprofile&u=${userId}">` +
     '<img src="./styles/rinDark/imageset/ru/icon_user_profile.gif" width="72" height="20" alt="Профиль"></a> ' +
@@ -80,9 +83,11 @@ test('friend links use native confirmation routes, encode names and never make r
     assert.equal(links[1].title, 'Remove friend');
     assert.equal(links[0].getAttribute('aria-label'), 'Add Алиса & Bob + 50% as a friend');
     assert.equal(links[1].getAttribute('aria-label'), 'Remove Friend from friends');
+    assert.equal(links[0].textContent, 'Add friend');
+    assert.equal(links[1].textContent, 'Remove friend');
     for (const link of links) {
-        assert.equal(link.textContent.trim(), '', 'the compact control has no visible label');
-        assert.ok(link.querySelector('svg'), 'the control has an icon');
+        assert.equal(link.querySelector('svg'), null, 'the native-style action uses a text label');
+        assert.equal(link.classList.contains('btnlite'), true);
     }
     assert.equal(links[0].target, '_blank');
     assert.equal(ctx.requestCount(), 0);
@@ -106,63 +111,123 @@ test('friend actions are idempotent, translate and work on a preview root', t =>
     ctx.addFriendButtons(root);
     const button = root.querySelector('.rin-friend-button');
     assert.equal(button.title, 'Добавить в друзья');
+    assert.equal(button.textContent, 'Добавить в друзья');
     ctx.FRIENDS_LIST.push('Алиса');
     ctx.addFriendButtons(root);
     assert.equal(root.querySelectorAll('.rin-friend-button').length, 1);
     assert.equal(root.querySelector('.rin-friend-button'), button, 'refresh reuses the existing action');
     assert.equal(button.title, 'Удалить из друзей');
+    assert.equal(button.textContent, 'Удалить из друзей');
     assert.equal(button.getAttribute('aria-label'), 'Удалить Алиса из друзей');
     assert.equal(new URL(button.href).searchParams.get('usernames[]'), '11');
-    assert.equal(button.parentElement, root.querySelector('[data-contacts="1"]'));
+    assert.equal(button.parentElement.className, 'rin-friend-action');
+    assert.equal(button.parentElement.parentElement, root.querySelector('[data-author-info="1"]'));
+    assert.equal(root.querySelectorAll('.rin-friend-action').length, 1);
+    ctx.FRIENDS_LIST.length = 0;
+    ctx.addFriendButtons(root);
+    assert.equal(button.textContent, 'Добавить в друзья');
+    assert.equal(new URL(button.href).searchParams.get('add'), 'Алиса');
+    assert.equal(new URL(button.href).searchParams.has('remove'), false);
 });
 
-test('friend icon joins the native contact actions without moving or replacing native controls', t => {
+test('friend button follows author information and leaves the native footer controls unchanged', t => {
     const ctx = setup(t, post(1));
     const postElement = ctx.document.querySelector('table.tablebg');
     const author = postElement.querySelector('.postauthor');
     const contacts = postElement.querySelector('[data-contacts="1"]');
+    const authorInfo = postElement.querySelector('[data-author-info="1"]');
+    const avatar = authorInfo.querySelector('.avatar');
+    const details = authorInfo.querySelector('.postdetails');
     const nativeLinks = [...contacts.querySelectorAll('a')];
     const moderation = postElement.querySelector('a[href="./mcp.php"]');
     ctx.addFriendButtons();
     ctx.addFriendButtons();
     const button = postElement.querySelector('.rin-friend-button');
-    assert.equal(button.parentElement, contacts);
-    assert.equal(contacts.lastElementChild, button);
+    assert.equal(button.parentElement.className, 'rin-friend-action');
+    assert.equal(button.parentElement.parentElement, authorInfo);
+    assert.equal(authorInfo.lastElementChild, button.parentElement);
+    assert.equal(button.parentElement.previousElementSibling, details);
+    assert.equal(authorInfo.querySelector('.avatar'), avatar);
+    assert.equal(authorInfo.querySelector('.postdetails'), details);
     assert.equal(author.parentElement.querySelector('.rin-friend-button'), null);
-    assert.equal(contacts.querySelectorAll('.rin-friend-button').length, 1);
-    assert.deepEqual([...contacts.querySelectorAll('a')].slice(0, 2), nativeLinks);
+    assert.equal(contacts.querySelector('.rin-friend-button'), null);
+    assert.equal(postElement.querySelectorAll('.rin-friend-action').length, 1);
+    assert.deepEqual([...contacts.querySelectorAll('a')], nativeLinks);
+    assert.equal(postElement.querySelector('a[href="#wrapheader"]').parentElement.querySelector('.rin-friend-button'), null);
     assert.equal(postElement.querySelector('a[href="./mcp.php"]'), moderation);
     assert.equal(moderation.parentElement.querySelector('.rin-friend-button'), null);
 });
 
-test('a linked username does not become the insertion point instead of the native footer', t => {
+test('a linked username still places the action below the author details', t => {
     const ctx = setup(t, post(1));
     const author = ctx.document.querySelector('.postauthor');
     author.innerHTML = '<a href="./memberlist.php?mode=viewprofile&u=10">Alice</a>';
     ctx.addFriendButtons();
     const button = ctx.document.querySelector('.rin-friend-button');
-    assert.equal(button.parentElement, ctx.document.querySelector('[data-contacts="1"]'));
+    assert.equal(button.closest('td.profile'), ctx.document.querySelector('[data-author-info="1"]'));
     assert.equal(author.parentElement.querySelector('.rin-friend-button'), null);
     assert.equal(new URL(button.href).searchParams.get('add'), 'Alice');
 });
 
-test('incomplete post markup uses a separate profile link and never the username as its fallback', t => {
+test('a linked username can provide identity when its author column exists without a footer profile link', t => {
+    const ctx = setup(t, post(1));
+    const author = ctx.document.querySelector('.postauthor');
+    author.innerHTML = '<a href="./memberlist.php?mode=viewprofile&u=10">Alice</a>';
+    ctx.document.querySelector('[data-contacts="1"] a').remove();
+    ctx.addFriendButtons();
+    const button = ctx.document.querySelector('.rin-friend-button');
+    assert.equal(button?.closest('td.profile'), ctx.document.querySelector('[data-author-info="1"]'));
+    assert.equal(author.parentElement.querySelector('.rin-friend-button'), null);
+    assert.equal(new URL(button.href).searchParams.get('add'), 'Alice');
+});
+
+test('incomplete post markup without an author column does not put the button in the footer', t => {
     const ctx = setup(t, '<table class="tablebg"><tr><td><b class="postauthor">Alice</b></td></tr>' +
         '<tr><td><div class="postbody">Message</div></td></tr>' +
         '<tr><td id="fallback"><a href="./memberlist.php?mode=viewprofile&u=10">Profile</a></td></tr></table>');
     ctx.addFriendButtons();
-    const button = ctx.document.querySelector('.rin-friend-button');
-    assert.equal(button?.parentElement, ctx.document.getElementById('fallback'));
-    assert.equal(button.previousElementSibling.textContent, 'Profile');
-    assert.equal(ctx.document.querySelector('.postauthor').parentElement.querySelector('.rin-friend-button'), null);
+    assert.equal(ctx.document.querySelector('.rin-friend-button'), null);
+    assert.equal(ctx.document.querySelector('.rin-friend-action'), null);
 });
 
-test('a post with only its linked username has no safe contact-bar insertion point', t => {
+test('a post with only its linked username has no safe author-column insertion point', t => {
     const ctx = setup(t, '<table class="tablebg"><tr><td><b class="postauthor">' +
         '<a href="./memberlist.php?mode=viewprofile&u=10">Alice</a></b></td></tr>' +
         '<tr><td><div class="postbody">Message</div></td></tr></table>');
     ctx.addFriendButtons();
     assert.equal(ctx.document.querySelector('.rin-friend-button'), null);
+});
+
+test('author details without an avatar still receive the button below the information', t => {
+    const ctx = setup(t, post(1));
+    const authorInfo = ctx.document.querySelector('[data-author-info="1"]');
+    authorInfo.querySelector('.avatar').remove();
+    ctx.addFriendButtons();
+    const action = authorInfo.querySelector('.rin-friend-action');
+    assert.ok(action?.querySelector('.rin-friend-button'));
+    assert.equal(authorInfo.lastElementChild, action);
+    assert.equal(action.previousElementSibling, authorInfo.querySelector('.postdetails'));
+});
+
+test('a shared table with several authors is skipped when their profile association is ambiguous', t => {
+    const ctx = setup(t, post(1, 'Alice', 10) + post(2, 'Bob', 20));
+    const [first, second] = ctx.document.querySelectorAll('table.tablebg');
+    first.tBodies[0].append(...second.tBodies[0].children);
+    second.remove();
+    ctx.addFriendButtons();
+    assert.equal(ctx.document.querySelector('.rin-friend-button'), null);
+    assert.equal(ctx.document.querySelector('.rin-friend-action'), null);
+});
+
+test('friend confirmation keeps a profile SID without unrelated profile parameters', t => {
+    const ctx = setup(t, post(1));
+    ctx.document.querySelector('[data-contacts="1"] a').setAttribute('href',
+        './memberlist.php?mode=viewprofile&u=10&sid=test-session&unrelated=value');
+    ctx.addFriendButtons();
+    const url = new URL(ctx.document.querySelector('.rin-friend-button').href);
+    assert.equal(url.searchParams.get('sid'), 'test-session');
+    assert.equal(url.searchParams.get('add'), 'Alice');
+    assert.equal(url.searchParams.has('unrelated'), false);
 });
 
 test('topic refresh appends only new posts while preserving old nodes, listeners, drafts and spoiler state', t => {

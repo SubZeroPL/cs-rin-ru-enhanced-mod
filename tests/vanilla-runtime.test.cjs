@@ -144,7 +144,8 @@ test('title formatting keeps Russian section text and complete hyphenated topic 
 });
 
 test('profile insertion requires the exact username and a numeric native profile, including search fallback', async t => {
-    const menu = '<div id="menubar"><a href="./ucp.php">Личный раздел</a></div>';
+    const menu = '<div id="menubar"><a id="native-ucp" href="./ucp.php"><img src="./styles/rinDark/theme/images/icon_mini_profile.gif" alt="*">Личный раздел</a>' +
+        ' &nbsp;:: &nbsp;<a id="native-inbox" href="./ucp.php?i=pm&folder=inbox">Личные сообщения</a></div>';
     const decoys = '<a href="./memberlist.php?mode=viewprofile&amp;u=2">Анна Мария</a>' +
         '<a href="https://example.org/forum/memberlist.php?mode=viewprofile&amp;u=3">Анна</a>' +
         '<a href="./memberlist.php?mode=searchuser&amp;u=4">Анна</a>' +
@@ -160,9 +161,83 @@ test('profile insertion requires the exact username and a numeric native profile
     assert.equal(requests.length, 1);
     assert.equal(new URL(requests[0]).searchParams.get('username'), 'Анна');
     assert.equal(new URL(ctx.document.getElementById('profile_link').href).searchParams.get('u'), '55');
+    const profile = ctx.document.getElementById('profile_link');
+    assert.equal(profile.previousElementSibling.id, 'native-ucp');
+    assert.equal(profile.nextElementSibling.id, 'native-inbox');
+    assert.equal(profile.querySelector('img').src, ctx.document.querySelector('#native-ucp img').src);
+    assert.notEqual(profile.querySelector('img'), ctx.document.querySelector('#native-ucp img'));
+    assert.equal(profile.querySelector('img').width, 12);
+    assert.equal(profile.querySelector('img').height, 13);
+    assert.equal(profile.nextSibling.textContent, ' \u00a0:: \u00a0');
     await ctx.addProfileButton();
     assert.equal(requests.length, 1, 'a verified exact-match profile is reused');
     assert.equal(ctx.document.querySelectorAll('#profile_link').length, 1);
+});
+
+test('menu colors recognize native rules and FAQ icons without overwriting unread private messages', t => {
+    const ctx = setup(t, '<div id="logodesc"><h1>CS RIN</h1></div><div id="menubar">' +
+        '<a id="rules" href="./viewtopic.php?f=10&t=44034"><img src="./styles/rinDark/theme/images/icon_mini_rules.gif">Правила</a>' +
+        '<a id="faq" href="./viewtopic.php?f=10&t=98158"><img src="./styles/rinDark/theme/images/icon_mini_faq.gif">Вопросы</a>' +
+        '<a id="ucp" href="./ucp.php">Личный раздел</a><a id="inbox" style="color:red" href="./ucp.php?i=pm&folder=inbox">1 сообщение</a>' +
+        '<a id="login" href="./ucp.php?mode=login">Вход</a><a id="search" href="./search.php">Поиск</a>' +
+        '<a id="foreign" href="https://example.org/search.php">External</a></div>',
+    { options: { colorize_the_page: true }, globals: { Math: Object.assign(Object.create(Math), { random: () => 0.25 }) } });
+    loadFunctions(ctx, ['colorizeThePages']);
+    ctx.colorizeThePages();
+    const colorOf = id => ctx.document.getElementById(id).style.color;
+    assert.equal(colorOf('rules'), 'rgb(255, 160, 122)');
+    assert.equal(colorOf('faq'), 'rgb(144, 238, 144)');
+    assert.equal(colorOf('ucp'), 'rgb(135, 206, 235)');
+    assert.equal(colorOf('inbox'), 'red');
+    assert.equal(colorOf('login'), 'rgb(255, 0, 0)');
+    assert.equal(colorOf('search'), 'rgb(135, 206, 250)');
+    assert.equal(colorOf('foreign'), '');
+    assert.equal(ctx.document.querySelector('#logodesc h1').style.color, 'rgb(63, 255, 255)');
+});
+
+test('topic tags retain their original colors and bracket sizing without rebuilding native icons', t => {
+    const ctx = setup(t, '<div style="background:rgb(30,30,30)"><a class="topictitle" href="./viewtopic.php?t=42">' +
+        '<img src="./icon.gif">[Steam] Game [GOG]</a></div>', { options: { custom_tags: true } });
+    loadFunctions(ctx, ['tagify', 'colorize']);
+    const title = ctx.document.querySelector('.topictitle');
+    const icon = title.querySelector('img');
+    ctx.tagify();
+    const tags = [...title.children].filter(node => node.tagName === 'SPAN');
+    assert.equal(title.querySelector('img'), icon);
+    assert.equal(title.textContent, '[Steam] Game [GOG]');
+    assert.equal(tags.length, 2);
+    assert.deepEqual(tags.map(node => node.style.fontSize), ['', '']);
+    assert.deepEqual(tags.map(node => node.querySelector('span').textContent), ['Steam', 'GOG']);
+    assert.deepEqual(tags.map(node => node.querySelector('span').style.fontSize), ['0.9em', '0.9em']);
+    for (const [tag, color] of [['[Steam]', '#d3dec6'], ['[GOG]', '#7bf98f'], ['[Linux]', '#fe5dc2'], ['[Info]', '#5b96bb']]) {
+        assert.equal(ctx.colorize(tag, title.parentElement), color);
+    }
+    assert.equal(ctx.colorize('', null), '#a9cfff', 'a zero hash and missing background cannot cause an infinite loop');
+    ctx.tagify();
+    assert.equal(title.querySelector('img'), icon);
+    assert.deepEqual([...title.children].filter(node => node.tagName === 'SPAN'), tags);
+});
+
+test('friends legend returns only to the native group legend on the board index', async t => {
+    const groups = '<span class="gensmall" id="groups">Группы: <a href="./memberlist.php?mode=group&g=5">Администраторы</a></span>';
+    const quoted = '<div class="postbody"><span class="gensmall"><a href="./memberlist.php?mode=group&g=4">Copied legend</a></span></div>';
+    for (const [path, html, expected] of [['index.php', quoted + groups, 1], ['', groups, 1],
+        ['viewforum.php?f=14', groups, 0], ['index.php', quoted, 0],
+        ['index.php', groups.replace('./memberlist.php', 'https://example.org/forum/memberlist.php'), 0]]) {
+        const ctx = setup(t, html, { path: path || './', options: { colorize_friends_me: 3, ui_language: 'ru' },
+            globals: { FRIENDS_LIST: ['Алиса'], USERNAME: 'Иван', retrievesFriendsLists: async () => {} } });
+        loadFunctions(ctx, ['colorizeFriendsMe']);
+        await ctx.colorizeFriendsMe();
+        await ctx.colorizeFriendsMe();
+        const legends = ctx.document.querySelectorAll('.rin-friends-legend');
+        assert.equal(legends.length, expected);
+        if (expected) {
+            assert.equal(legends[0].parentElement.id, 'groups');
+            assert.equal(legends[0].textContent, 'Друзья');
+            assert.equal(legends[0].style.color, 'rgb(244, 22, 155)');
+            assert.equal(new URL(legends[0].href).searchParams.get('mode'), 'friends');
+        }
+    }
 });
 
 test('pagination chooses the active numeric page without depending on English labels or fragments', t => {

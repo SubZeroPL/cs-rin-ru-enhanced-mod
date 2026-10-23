@@ -3,7 +3,9 @@
 
 Enhance your experience at CS.RIN.RU
 
-**v2.0 test branch:** this is `2.0.0-beta.6`. Install this branch using the link below; its automatic updates follow `v2.0`.
+**v2.0 test branch:** this is `2.0.0-beta.7`. Install this branch using the link below; its automatic updates follow `v2.0`.
+
+The visual redesign is limited to the chat and settings. Existing forum controls retain their original appearance; new friend actions use the forum's native button style below the author's details.
 
 Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 
@@ -37,7 +39,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - Goes to unread posts directly by clicking on a topic title (go_to_unread_posts).
 - Dynamically refresh: the current time, who is online, received messages (dynamic_function).
 - Add new posts on the last loaded topic page and new topics on the first loaded forum page using the same refresh request (dynamic_content). Existing posts, drafts and expanded spoilers are preserved. If posts move to a new page, a link is shown. Updates pause in hidden tabs; HTTP 429 stops automatic refresh until a later reload.
-- Compact add/remove friend icons beside Profile/PM below messages (friend_buttons), opening the forum's native confirmation screen.
+- Add/remove friend buttons below the author's details in the profile column (friend_buttons), using the forum's native button style and confirmation screen.
 - Colors messages in red if you have an unread message (colorize_new_messages).
 - Colorize several elements on the page (colorize_the_page).
 - Colorize your friends for easy recognition (colorize_friends_me).

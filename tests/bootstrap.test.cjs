@@ -25,10 +25,12 @@ const fixture = `<!doctype html><html lang="ru" xml:lang="ru"><head>
 <tr><td><a name="p123"></a><b class="postauthor">Алиса</b></td><td class="gensmall">
 <div><a id="permalink" href="./viewtopic.php?p=123#p123"><img src="./styles/rinDark/imageset/icon_post_target.gif" title="Сообщение"></a></div>
 <div id="actions"><a id="native-quote" href="./posting.php?lang=ru&amp;mode=quote&amp;f=10&amp;p=123"><img src="./styles/rinDark/imageset/ru/icon_post_quote.gif" title="Ответить с цитатой"></a></div></td></tr>
-<tr><td class="profile">Member</td>
-<td><div class="postbody">Первый абзац. Выбранный [literal] текст.<br>
+<tr><td class="profile" id="author-info" valign="top"><table><tbody><tr><td>Member<br>
+<img class="avatar" src="./avatars/example.png" alt="Аватар"></td></tr></tbody></table>
+<span class="postdetails">Зарегистрирован: 1 янв 2020<br>Сообщений: 42<br>Откуда: Paris</span></td>
+<td><table><tbody><tr><td><div class="postbody">Первый абзац. Выбранный [literal] текст.<br>
 <div class="quotetitle">Боб писал(а):</div><div class="quotecontent"><a class="postlink-local" href="./viewtopic.php?p=99#p99">Source</a><br>Quoted earlier text.</div>
-</div></td></tr><tr class="row1"><td class="profile"><a href="#wrapheader">Top</a></td><td>
+</div></td></tr></tbody></table></td></tr><tr class="row1"><td class="profile"><a href="#wrapheader">Top</a></td><td>
 <div class="gensmall" id="contacts" style="float: left"><a href="./memberlist.php?mode=viewprofile&amp;u=9"><img src="./styles/rinDark/imageset/ru/icon_user_profile.gif" width="72" height="20" title="Профиль"></a>
 <a href="./ucp.php?i=pm&amp;mode=compose&amp;u=9"><img src="./styles/rinDark/imageset/ru/icon_contact_pm.gif" title="Личное сообщение"></a></div>
 <div class="gensmall" style="float: right"></div></td></tr></tbody></table></div>
@@ -138,10 +140,13 @@ test('complete Russian connected bootstrap loads bundled settings, icons, transl
         assert.equal(icon.height, 20);
     }
     assert.equal(doc.querySelector('.rin-friend-button').title, 'Удалить из друзей');
-    assert.equal(doc.querySelector('.rin-friend-button').textContent.trim(), '');
+    assert.equal(doc.querySelector('.rin-friend-button').textContent, 'Удалить из друзей');
     assert.equal(doc.querySelector('.rin-friend-button').getAttribute('aria-label'), 'Удалить Алиса из друзей');
-    assert.ok(doc.querySelector('.rin-friend-button svg'));
-    assert.equal(doc.querySelector('.rin-friend-button').parentElement, doc.getElementById('contacts'));
+    assert.equal(doc.querySelector('.rin-friend-button svg'), null);
+    assert.equal(doc.querySelector('.rin-friend-button').parentElement.className, 'rin-friend-action');
+    assert.equal(doc.querySelector('.rin-friend-button').parentElement.parentElement, doc.getElementById('author-info'));
+    assert.equal(doc.getElementById('author-info').lastElementChild, doc.querySelector('.rin-friend-action'));
+    assert.equal(doc.getElementById('contacts').querySelector('.rin-friend-button'), null);
     assert.equal(doc.querySelector('.postauthor').parentElement.querySelector('.rin-friend-button'), null);
     assert.equal(new URL(doc.getElementById('profile_link').href).searchParams.get('u'), '7', 'full bracketed username matches the native profile');
     const permalink = new URL(doc.getElementById('permalink').href);
