@@ -72,21 +72,21 @@
 #configButton, .rin-forum-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 30px; min-height: 28px; padding: 5px 8px; border: 1px solid #666; border-radius: 0; background: #303030; color: #ccc; font: 11px/1.3 Verdana, Tahoma, sans-serif; cursor: pointer; text-decoration: none; }
 #configButton { position: fixed; top: 5px; right: 5px; bottom: auto; z-index: 2147482000; padding: 5px; }
 #configButton:hover, .rin-forum-button:hover { border-color: #aaa; background: #3c3c3c; color: #eee; }
-.rin-toolbar { position: fixed; right: 16px; bottom: 16px; z-index: 2147482000; display: flex; align-items: flex-end; gap: 7px; }
-.rin-toolbar #rin-chat-toggle { position: static; margin: 0; }
+.rin-toolbar { position: fixed; right: 0; bottom: 0; z-index: 2147482000; display: flex; align-items: flex-end; gap: 7px; }
+.rin-toolbar #rin-chat-toggle { position: static; margin: 0; min-width: 50px; min-height: 40px; width: 5vw; height: 3vh; }
 .rin-toolbar .rin-forum-button[aria-expanded="true"] { border-color: #aaa; background: #444; }
-#chatDiv.rin-chat-panel { display: flex; flex-direction: column; width: min(460px, calc(100vw - 24px)); height: auto; max-height: min(75dvh, calc(100dvh - 70px)); overflow: hidden; border: 1px solid #666; background: #1e1e1e; color: #ccc; font: 11px/1.45 Verdana, Tahoma, sans-serif; }
+#chatDiv.rin-chat-panel { display: flex; flex-direction: column; width: 25%; min-width: min(425px, calc(100vw - 1em)); height: 70%; overflow: hidden; border: .5em solid black; background: #1c1c1c; }
 #chatDiv .rin-chat-actions { position: absolute; top: 3px; right: 4px; display: flex; gap: 3px; z-index: 1; }
 #chatDiv .rin-chat-actions a, #chatDiv .rin-chat-actions button { display: grid; place-items: center; width: 20px; height: 20px; min-height: 0; box-sizing: border-box; margin: 0; padding: 2px; border: 1px solid transparent; border-radius: 0; background: #282828; color: #aaa; cursor: pointer; text-decoration: none; }
 #chatDiv .rin-chat-actions a:hover, #chatDiv .rin-chat-actions button:hover { border-color: #777; background: #333; color: #eee; }
 #chatDiv .rin-chat-actions :focus-visible { outline: 2px solid #ccc; outline-offset: 1px; }
 #chatDiv .rin-chat-actions svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-#chatDiv .rin-chat-content { min-height: 0; overflow: auto; scrollbar-color: #666 #222; scrollbar-width: thin; }
+#chatDiv .rin-chat-content { flex: 1; min-height: 0; overflow-y: scroll; }
 #chatDiv .rin-chat-content table { width: 100%; }
 #chatDiv .rin-chat-content > table { margin: 0; }
 #chatDiv .rin-chat-content > table > tbody > tr:first-child > th { padding-right: 28px; }
 #chatDiv .rin-chat-content td, #chatDiv .rin-chat-content th { box-sizing: border-box; }
-#chatDiv .shouts { height: min(210px, 35dvh) !important; max-height: 35dvh; overflow: auto; }
+#chatDiv .shouts { width: 100%; overflow: auto; overflow-x: hidden; }
 #chatDiv .postbody { overflow-wrap: anywhere; }
 #chatDiv form { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin: 0; }
 #chatDiv form [name="message"] { flex: 1 1 200px; min-width: 0; max-width: 100%; box-sizing: border-box; }

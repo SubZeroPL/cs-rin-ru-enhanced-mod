@@ -1,6 +1,6 @@
 {
     "name": "cs-rin-ru-enhanced-mod",
-    "version": "2.0.0-beta.7",
+    "version": "2.0.0-beta.8",
     "description": "Enhance your experience at CS.RIN.RU",
     "main": "cs-rin-ru-enhanced-mod.user.js",
     "scripts": {
