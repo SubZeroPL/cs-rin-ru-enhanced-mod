@@ -4,7 +4,7 @@
 // @name:pt         CS.RIN.RU Melhorado
 // @name:ru         CS.RIN.RU Улучшенный
 // @namespace       Royalgamer06
-// @version         2.0.0-beta.10
+// @version         2.0.0-beta.11
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -667,6 +667,48 @@ function getPrivateMessageId(row) {
     return marked?.value || null;
 }
 
+function getSearchPostRows(page) {
+    const results = [];
+    for (const table of page.querySelectorAll('#wrapcentre > form > table.tablebg')) {
+        const rows = Array.from(table.tBodies).flatMap(body => Array.from(body.rows));
+        // Native post-search results are four sibling rows: topic, author,
+        // message and spacer. Keep that structure, including ignored results.
+        if (!rows.some(row => row.matches('.row2') && row.cells.length === 1)) continue;
+        const groups = [];
+        let group = null;
+        for (const row of rows) {
+            if (row.querySelector(':scope > .cat, :scope > th')) { group = null; continue; }
+            if (row.matches('.row2') && row.cells.length === 1) {
+                group = [];
+                groups.push(group);
+            }
+            if (group) group.push(row);
+        }
+        const source = new URL(page.rinSourceUrl || page.rinRequestUrl || window.location.href, FORUM_BASE_URL);
+        groups.forEach((groupRows, groupIndex) => {
+            let id = getPostId(groupRows[0]);
+            if (!id) {
+                for (const row of groupRows) {
+                    const link = Array.from(row.querySelectorAll('a[href]')).find(anchor => {
+                        if (anchor.closest('.postbody, .quotecontent, .signature')) return false;
+                        const url = forumLink(anchor.getAttribute('href'), 'viewtopic.php') || forumLink(anchor.getAttribute('href'), 'search.php');
+                        return /^[1-9]\d*$/.test(url?.searchParams.get('p'));
+                    });
+                    if (link) { id = new URL(link.getAttribute('href'), FORUM_BASE_URL).searchParams.get('p'); break; }
+                }
+            }
+            // Some ignored-post placeholders expose no post link at all.
+            const key = id || groupRows[0].dataset.rinSearchPost || `ignored:${source.searchParams.get('start') || '0'}:${groupIndex}`;
+            groupRows.forEach((row, part) => {
+                row.dataset.rinSearchPost = key;
+                row.dataset.rinSearchPart = String(part);
+                results.push(row);
+            });
+        });
+    }
+    return results;
+}
+
 function getContentItems(page = document) {
     const path = window.location.pathname;
     if (path.endsWith('/viewtopic.php')) {
@@ -681,6 +723,10 @@ function getContentItems(page = document) {
         return Array.from(page.querySelectorAll('#pagecontent > form > table.tablebg > tbody > tr'))
             .filter(row => !row.closest('.postbody, #topic_preview') && getPrivateMessageId(row));
     }
+    if (path.endsWith('/search.php')) {
+        const posts = getSearchPostRows(page);
+        if (posts.length) return posts;
+    }
     const candidates = page.querySelectorAll('#pagecontent table.tablebg > tbody > tr, #wrapcentre > form > table.tablebg > tbody > tr, #pagecontent > form > table.tablebg > tbody > tr');
     return Array.from(candidates).filter(row => {
         if (row.closest('.postbody, #topic_preview') || row.querySelector(':scope > .cat, :scope > th')) return false;
@@ -692,6 +738,9 @@ function getContentItems(page = document) {
 }
 
 function contentItemKey(item) {
+    if (window.location.pathname.endsWith('/search.php') && item.dataset.rinSearchPost) {
+        return `search-post:${item.dataset.rinSearchPost}:${item.dataset.rinSearchPart}`;
+    }
     const messageId = getPrivateMessageId(item);
     if (messageId) return `pm:${messageId}`;
     const topic = item.querySelector('a.topictitle[href]');
@@ -941,6 +990,7 @@ function mentionify(root = document) {
         button.append(' ', createActionIcon('mention', 'Reply with mentioning'), ' ');
         bar.append(button);
         if (quickReplyPanel) button.addEventListener('click', event => {
+            if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
             const message = quickReplyPanel.querySelector('[name="message"]');
             if (!message) return;
             event.preventDefault();
@@ -1090,18 +1140,37 @@ function getTopicPreviewLink(topic) {
     url.searchParams.delete('p'); url.searchParams.delete('start'); url.searchParams.delete('view'); url.hash = '';
     if (options.topic_preview_option === 1) { url.searchParams.set('view', 'unread'); url.hash = 'unread'; }
     if (options.topic_preview_option === 2) {
-        const last = Array.from(topic.closest('tr')?.querySelectorAll('a[href]') || [])
-            .map(link => forumLink(link.getAttribute('href'), 'viewtopic.php')).filter(link => link?.searchParams.has('p')).at(-1);
+        // Only native topic-list rows provide trustworthy last-post metadata.
+        // A topic link in a message can share its row with unrelated post links.
+        const row = topic.matches('a.topictitle') && !topic.closest('.postbody, .quotecontent, .signature') ? topic.closest('tr') : null;
+        const last = Array.from(row?.querySelectorAll('a[href]') || []).filter(link => !link.closest('.postbody, .quotecontent, .signature'))
+            .map(link => forumLink(link.getAttribute('href'), 'viewtopic.php'))
+            .filter(link => link?.searchParams.has('p') && (!link.searchParams.has('t') || link.searchParams.get('t') === url.searchParams.get('t'))).at(-1);
         if (last) return last.href;
+        // Topic links inside messages have no last-post ID: ask phpBB to put
+        // the newest post first instead of borrowing another link's target.
+        url.searchParams.set('sk', 't'); url.searchParams.set('sd', 'd');
     }
     return url.href;
+}
+
+function getTopicPreviewIndex(posts, link) {
+    const url = forumLink(link, 'viewtopic.php');
+    const postId = url?.searchParams.get('p');
+    if (postId) return posts.findIndex(post => getPostId(post) === postId);
+    if (options.topic_preview_option === 1) {
+        const unread = posts.findIndex(post => Array.from(post.querySelectorAll('a[name="unread"], #unread'))
+            .some(marker => !marker.closest('.postbody, .quotecontent, .signature')));
+        if (unread >= 0) return unread;
+    }
+    return options.topic_preview_option === 2 && url?.searchParams.get('sd') !== 'd' ? posts.length - 1 : 0;
 }
 
 function setupTopicPreview(root = document) {
     if (!options.topic_preview) return;
     root.querySelectorAll('a.topictitle').forEach(topic => {
         const link = getTopicPreviewLink(topic);
-        if (link) previewElement(topic, link, posts => options.topic_preview_option === 2 ? posts.length - 1 : 0);
+        if (link) previewElement(topic, link, getTopicPreviewIndex);
     });
 }
 
@@ -1114,7 +1183,7 @@ function setupPostPreview(root = document) {
         if (/^\d+$/.test(postId)) previewElement(post, url.href, posts => posts.findIndex(item => getPostId(item) === postId));
         else if (url.searchParams.has('t') && options.topic_preview) {
             const link = getTopicPreviewLink(post);
-            if (link) previewElement(post, link, posts => options.topic_preview_option === 2 ? posts.length - 1 : 0);
+            if (link) previewElement(post, link, getTopicPreviewIndex);
         }
     });
 }

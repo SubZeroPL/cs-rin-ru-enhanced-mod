@@ -157,6 +157,42 @@ test('quick reply appends the same format only to its own textarea without dupli
     }
 });
 
+test('modified mention clicks preserve native navigation without changing the quick-reply draft', t => {
+    for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
+        const ctx = forum(t, {}, true);
+        ctx.mentionify();
+        const button = ctx.document.querySelector('.rin-mention-link');
+        const href = button.href;
+        let preventedByMention;
+        let changes = 0;
+        ctx.quickReplyPanel.addEventListener('input', () => changes++);
+        ctx.document.body.addEventListener('click', event => {
+            preventedByMention = event.defaultPrevented;
+            event.preventDefault(); // JSDOM cannot perform the browser's native navigation.
+        });
+        button.dispatchEvent(new ctx.window.MouseEvent('click', {
+            bubbles: true, cancelable: true, [modifier]: true,
+        }));
+        assert.equal(preventedByMention, false, modifier);
+        assert.equal(ctx.quickReplyPanel.querySelector('textarea').value, 'Draft ', modifier);
+        assert.equal(changes, 0, modifier);
+        assert.equal(ctx.document.querySelector('.rin-action-feedback'), null, modifier);
+        assert.equal(button.href, href, modifier);
+        assert.equal(new URL(href).searchParams.get('do'), 'mention');
+    }
+});
+
+test('a previously cancelled mention click does not append to the quick-reply draft', t => {
+    const ctx = forum(t, {}, true);
+    ctx.mentionify();
+    ctx.document.addEventListener('click', event => event.preventDefault(), true);
+    ctx.document.querySelector('.rin-mention-link').dispatchEvent(new ctx.window.MouseEvent('click', {
+        bubbles: true, cancelable: true,
+    }));
+    assert.equal(ctx.quickReplyPanel.querySelector('textarea').value, 'Draft ');
+    assert.equal(ctx.document.querySelector('.rin-action-feedback'), null);
+});
+
 test('empty or whitespace templates, locked topics and missing metadata add no buttons', t => {
     for (const ctx of [forum(t, { mentioning: '' }), forum(t, { mentioning: ' \n ' }), forum(t, {}, false, true)]) {
         assert.doesNotThrow(() => ctx.mentionify());
