@@ -4,7 +4,7 @@
 // @name:pt         CS.RIN.RU Melhorado
 // @name:ru         CS.RIN.RU Улучшенный
 // @namespace       Royalgamer06
-// @version         2.0.0-beta.9
+// @version         2.0.0-beta.10
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -659,24 +659,41 @@ function getPagination(page = document, url = window.location.href) {
     return pagination;
 }
 
+function getPrivateMessageId(row) {
+    const marked = Array.from(row.querySelectorAll('input[type="checkbox"][name="marked_msg_id[]"]'))
+        .find(input => input.closest('tr') === row && !input.closest('.postbody, .quotecontent, .signature') && /^[1-9]\d*$/.test(input.value));
+    // The native selection control also identifies unavailable messages, which
+    // can have no view link (or only a reply link).
+    return marked?.value || null;
+}
+
 function getContentItems(page = document) {
     const path = window.location.pathname;
     if (path.endsWith('/viewtopic.php')) {
         // Ignored-user placeholders occupy a post slot even without a visible .postbody.
         return Array.from(page.querySelectorAll('#pagecontent > table.tablebg')).filter(post => getPostId(post));
     }
+    if (path.endsWith('/ucp.php')) {
+        const current = new URL(window.location.href);
+        if (current.searchParams.get('i') !== 'pm' || current.searchParams.get('mode') === 'compose' || current.searchParams.has('p')) return [];
+        // Folder navigation also uses mode=view. Only message rows in the
+        // native bulk-action form may serve as infinite-scroll insertion anchors.
+        return Array.from(page.querySelectorAll('#pagecontent > form > table.tablebg > tbody > tr'))
+            .filter(row => !row.closest('.postbody, #topic_preview') && getPrivateMessageId(row));
+    }
     const candidates = page.querySelectorAll('#pagecontent table.tablebg > tbody > tr, #wrapcentre > form > table.tablebg > tbody > tr, #pagecontent > form > table.tablebg > tbody > tr');
     return Array.from(candidates).filter(row => {
         if (row.closest('.postbody, #topic_preview') || row.querySelector(':scope > .cat, :scope > th')) return false;
         if (path.endsWith('/viewforum.php')) return Boolean(row.querySelector('a.topictitle'));
         if (path.endsWith('/memberlist.php')) return Boolean(findForumLink(row, 'memberlist.php', { mode: 'viewprofile' }));
-        if (path.endsWith('/ucp.php')) return Array.from(row.querySelectorAll('a[href]')).some(link => forumLink(link.getAttribute('href'), 'ucp.php', { mode: 'view' }));
         if (path.endsWith('/search.php')) return Boolean(row.querySelector('a.topictitle, .postbody, a[href*="viewtopic.php"]'));
         return false;
     });
 }
 
 function contentItemKey(item) {
+    const messageId = getPrivateMessageId(item);
+    if (messageId) return `pm:${messageId}`;
     const topic = item.querySelector('a.topictitle[href]');
     if (topic && !item.querySelector('.postbody')) {
         const url = forumLink(topic.getAttribute('href'), 'viewtopic.php');
@@ -686,8 +703,6 @@ function contentItemKey(item) {
     if (postId) return `post:${postId}`;
     const profile = findForumLink(item, 'memberlist.php', { mode: 'viewprofile' });
     if (profile && window.location.pathname.endsWith('/memberlist.php')) return `user:${new URL(profile.href).searchParams.get('u')}`;
-    const message = findForumLink(item, 'ucp.php', { mode: 'view' });
-    if (message) return `pm:${new URL(message.href).searchParams.get('p')}`;
     return item.textContent.trim().slice(0, 500);
 }
 
