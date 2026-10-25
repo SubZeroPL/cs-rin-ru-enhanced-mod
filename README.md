@@ -3,7 +3,7 @@
 
 Enhance your experience at CS.RIN.RU
 
-**v2.0 test branch:** this is `2.0.0-beta.11`. Install this branch using the link below; its automatic updates follow `v2.0`.
+**v2.0 test branch:** this is `2.0.0-beta.12`. Install this branch using the link below; its automatic updates follow `v2.0`.
 
 The visual redesign is limited to the chat and settings. Existing forum controls retain their original appearance; new friend actions use the forum's native button style below the author's details.
 
@@ -23,7 +23,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - Filtering also in SCS section (apply_in_scs).
 - Compact forum-styled configuration window with reading, reply, community and search tabs. Open it with the gear icon at the top right, in its original position.
 - English and Russian interface (`ui_language`): follow the forum language automatically or choose one in settings. Forum controls are identified by URLs and markup rather than translated labels.
-- Option to enable/disable whole script (script_enabled).
+- Option to enable/disable whole script (script_enabled). Click Save changes to apply the switch and reload the forum page. Settings remain accessible while enhancements are disabled, so the script can be enabled again.
 - Option for custom title formatting (title_format).
 - One custom mention format (mentioning), used in both the quick reply panel and the full editor. Use `%m` for the username, `%u` for the profile URL and `%p` for the post URL. The default is `[b][url=%u]%m[/url][/b], [url=%p]post[/url]`: a bold, clickable name followed by a link to the post. Edit the template to choose what is included, or leave the field empty to disable mentions.
 - Topic preview. When checked displays preview of first post from topic that mouse cursor points to with configurable delay (topic_preview).

@@ -42,8 +42,12 @@ const fixture = `<!doctype html><html lang="ru" xml:lang="ru"><head>
 async function boot(t, settings = {}) {
     const browserErrors = [];
     const resources = [];
+    let reloads = 0;
     const virtualConsole = new VirtualConsole();
-    virtualConsole.on('jsdomError', error => browserErrors.push(error));
+    virtualConsole.on('jsdomError', error => {
+        if (settings.allowReload && error.message === 'Not implemented: navigation (except hash changes)') reloads++;
+        else browserErrors.push(error);
+    });
     const loader = new class extends ResourceLoader {
         fetch(url) { resources.push(url); return null; }
     }();
@@ -61,7 +65,7 @@ async function boot(t, settings = {}) {
     const timers = new Map();
     const intervals = new Map();
     const copied = [];
-    const storage = new Map([['options', settings.options || {}]]);
+    const storage = settings.storage || new Map([['options', settings.options || {}]]);
     let timerId = 0;
     window.name = settings.name || '';
     window.addEventListener('error', event => browserErrors.push(event.error || event.message));
@@ -103,6 +107,8 @@ async function boot(t, settings = {}) {
     window.cancelAnimationFrame = id => window.clearTimeout(id);
     window.scrollBy = () => {};
     Object.defineProperty(window.navigator, 'clipboard', { value: { writeText: async text => copied.push(text) } });
+    // The bundled settings must work even if page-to-sandbox messages are lost.
+    if (settings.dropMessages) window.postMessage = () => {};
     const flush = async () => {
         await new Promise(resolve => setImmediate(resolve));
         await new Promise(resolve => setImmediate(resolve));
@@ -110,16 +116,152 @@ async function boot(t, settings = {}) {
     assert.equal(window.$, undefined);
     assert.doesNotThrow(() => window.eval(source), 'the complete generated userscript must initialize without TDZ errors');
     await flush();
-    const verifyClean = () => {
+    const verifyClean = (expectedWarnings = []) => {
         assert.deepEqual(browserErrors.map(error => String(error)), [], 'no browser errors');
-        assert.deepEqual(logs, [], 'no caught runtime/config errors');
+        assert.deepEqual(logs.map(entry => entry[0]), expectedWarnings, 'only expected runtime warnings');
         assert.deepEqual(external, [], 'bundled config and local icons do not call GM_xmlhttpRequest');
         assert.equal([...resources, ...fetches.map(item => item.url.href)].some(url => /(?:raw\.)?github(?:usercontent)?\.com/.test(url)), false);
         assert.equal(window.$, undefined);
         assert.equal(window.jQuery, undefined);
     };
     return { window, document: window.document, fetches, external, resources, notices, writes, storage,
-        timers, intervals, copied, flush, verifyClean };
+        timers, intervals, copied, flush, verifyClean, get reloads() { return reloads; } };
+}
+
+function changeMasterSwitch(ctx, enabled) {
+    const field = ctx.document.getElementById('script_enabled');
+    field.checked = enabled;
+    field.dispatchEvent(new ctx.window.Event('change', { bubbles: true }));
+}
+
+test('the master switch saves directly, disables after reload and can re-enable all enhancements', async t => {
+    const storage = new Map([['options', { mentioning: 'Custom %m', special_search_parameter: { sortOrderBy: 'a' } }]]);
+    const active = await boot(t, { storage, dropMessages: true, allowReload: true });
+    active.document.getElementById('configButton').click();
+    changeMasterSwitch(active, false);
+    active.document.getElementById('rin-config-save').click();
+    await active.flush();
+    assert.equal(storage.get('options').script_enabled, false);
+    assert.equal(storage.get('options').mentioning, 'Custom %m');
+    assert.equal(storage.get('options').special_search_parameter.sortOrderBy, 'a');
+    assert.equal(active.reloads, 1);
+    active.verifyClean();
+
+    const disabled = await boot(t, { storage, dropMessages: true, allowReload: true });
+    assert.equal(disabled.document.getElementById('script_enabled').checked, false);
+    assert.equal(disabled.document.querySelector('.rin-mention-link, .rin-copy-link, .rin-friend-button, .rin-page-nav, #rin-chat-toggle, #searchBar, #rin-quick-reply-toggle'), null);
+    assert.equal(disabled.document.getElementById('permalink').getAttribute('href'), './viewtopic.php?p=123#p123');
+    assert.equal(disabled.fetches.length, 0);
+    assert.equal(disabled.intervals.size, 0);
+    assert.equal(disabled.timers.size, 0);
+    disabled.document.getElementById('configButton').click();
+    changeMasterSwitch(disabled, true);
+    disabled.document.getElementById('rin-config-save').click();
+    await disabled.flush();
+    assert.equal(storage.get('options').script_enabled, true);
+    assert.equal(disabled.reloads, 1);
+    disabled.verifyClean();
+
+    const resumed = await boot(t, { storage });
+    for (const selector of ['.rin-mention-link', '.rin-copy-link', '.rin-friend-button', '.rin-page-nav', '#rin-chat-toggle', '#searchBar', '#rin-quick-reply-toggle']) {
+        assert.ok(resumed.document.querySelector(selector), selector);
+    }
+    assert.equal(resumed.intervals.size, 1);
+    assert.equal(resumed.document.querySelector('#postform textarea').value, 'Мой черновик');
+    resumed.verifyClean();
+});
+
+test('canceling the master switch never writes settings or reloads', async t => {
+    const ctx = await boot(t, { dropMessages: true, allowReload: true });
+    ctx.document.getElementById('configButton').click();
+    changeMasterSwitch(ctx, false);
+    ctx.document.getElementById('rin-config-cancel').click();
+    await ctx.flush();
+    assert.equal(ctx.writes.filter(item => item.key === 'options').length, 0);
+    assert.equal(ctx.reloads, 0);
+    assert.equal(ctx.document.getElementById('script_enabled').checked, true);
+    assert.ok(ctx.document.getElementById('rin-chat-toggle'));
+    ctx.verifyClean();
+});
+
+test('a storage failure keeps settings open and unsaved, then allows retry', async t => {
+    const ctx = await boot(t, { dropMessages: true, allowReload: true });
+    const write = ctx.window.GM_setValue;
+    ctx.window.GM_setValue = () => { throw new Error('Storage unavailable'); };
+    ctx.document.getElementById('configButton').click();
+    changeMasterSwitch(ctx, false);
+    ctx.document.getElementById('rin-config-save').click();
+    await ctx.flush();
+    assert.equal(ctx.reloads, 0);
+    assert.equal(ctx.writes.filter(item => item.key === 'options').length, 0);
+    assert.equal(ctx.document.getElementById('wholeWindow').hidden, false);
+    assert.equal(ctx.document.getElementById('messages').dataset.state, 'error');
+    assert.equal(ctx.document.getElementById('rin-config-save').disabled, false);
+    assert.deepEqual(JSON.parse(JSON.stringify(ctx.window.RinEnhancedConfig.getChanges())), { script_enabled: false });
+    ctx.window.GM_setValue = write;
+    ctx.document.getElementById('rin-config-save').click();
+    await ctx.flush();
+    assert.equal(ctx.storage.get('options').script_enabled, false);
+    assert.equal(ctx.reloads, 1);
+    ctx.verifyClean();
+});
+
+test('an unavailable desktop notification cannot prevent saving and reloading', async t => {
+    const ctx = await boot(t, { dropMessages: true, allowReload: true });
+    ctx.window.postMessage = data => ctx.window.dispatchEvent(new ctx.window.MessageEvent('message', {
+        data, source: ctx.window, origin: ctx.window.location.origin,
+    }));
+    ctx.window.GM_notification = () => { throw new Error('Notifications unavailable'); };
+    ctx.document.getElementById('configButton').click();
+    changeMasterSwitch(ctx, false);
+    ctx.document.getElementById('rin-config-save').click();
+    await ctx.flush();
+    assert.equal(ctx.storage.get('options').script_enabled, false);
+    assert.equal(ctx.reloads, 1);
+    ctx.verifyClean(['CS.RIN.RU Enhanced: settings saved, notification unavailable']);
+});
+
+for (const outcome of ['resolve', 'reject']) {
+    test(`an asynchronous settings write must ${outcome} before the UI acknowledges it`, async t => {
+        const ctx = await boot(t, { dropMessages: true, allowReload: true });
+        const write = ctx.window.GM_setValue;
+        const pending = [];
+        ctx.window.GM_setValue = (key, value) => new Promise((resolve, reject) => {
+            pending.push({ resolve: () => { write(key, value); resolve(); }, reject });
+        });
+        ctx.document.getElementById('configButton').click();
+        changeMasterSwitch(ctx, false);
+        ctx.document.getElementById('rin-config-save').click();
+        await ctx.flush();
+        assert.equal(pending.length, 1);
+        assert.equal(ctx.reloads, 0);
+        assert.equal(ctx.storage.get('options').script_enabled, undefined);
+        assert.equal(ctx.document.getElementById('wholeWindow').hidden, false);
+        assert.equal(ctx.document.getElementById('rin-config-save').disabled, true);
+        ctx.document.getElementById('rin-config-form').dispatchEvent(new ctx.window.Event('submit', { bubbles: true, cancelable: true }));
+        assert.equal(pending.length, 1, 'repeated submit cannot start a second write');
+        if (outcome === 'resolve') {
+            pending[0].resolve();
+            await ctx.flush();
+            assert.equal(ctx.storage.get('options').script_enabled, false);
+            assert.equal(ctx.reloads, 1);
+            assert.equal(ctx.document.getElementById('wholeWindow').hidden, true);
+        } else {
+            pending[0].reject(new Error('Storage unavailable'));
+            await ctx.flush();
+            assert.equal(ctx.reloads, 0);
+            assert.equal(ctx.storage.get('options').script_enabled, undefined);
+            assert.equal(ctx.document.getElementById('wholeWindow').hidden, false);
+            assert.equal(ctx.document.getElementById('messages').dataset.state, 'error');
+            assert.equal(ctx.document.getElementById('rin-config-save').disabled, false);
+            ctx.window.GM_setValue = write;
+            ctx.document.getElementById('rin-config-save').click();
+            await ctx.flush();
+            assert.equal(ctx.reloads, 1);
+            assert.equal(ctx.storage.get('options').script_enabled, false);
+        }
+        ctx.verifyClean();
+    });
 }
 
 test('complete Russian connected bootstrap loads bundled settings, icons, translated controls and native context', async t => {

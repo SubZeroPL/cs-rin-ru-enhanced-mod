@@ -24,6 +24,7 @@
         "saving": "Saving settings…",
         "invalid": "Check the highlighted value before saving.",
         "storage_error": "This browser could not save the local preview.",
+        "save_error": "Settings could not be saved. Your changes are still here; try saving again.",
         "script_paused": "Enhancements will be paused after saving.",
         "signin_required": "Sign in to the forum to use this option.",
         "dynamic_required": "Enable live forum updates to use this option.",
@@ -143,6 +144,7 @@
         "saving": "Сохранение настроек…",
         "invalid": "Перед сохранением проверьте выделенное значение.",
         "storage_error": "Браузер не смог сохранить настройки локального просмотра.",
+        "save_error": "Не удалось сохранить настройки. Изменения сохранены в форме; повторите попытку.",
         "script_paused": "После сохранения улучшения будут приостановлены.",
         "signin_required": "Войдите на форум, чтобы использовать эту настройку.",
         "dynamic_required": "Сначала включите обновление данных форума.",
@@ -263,7 +265,7 @@
     };
     let root, dialog, trigger, controller, languageObserver, baseline, savedOptions;
     let preview = false, connected = false, opener = null, originalOverflow = '';
-    let statusKey = null;
+    let statusKey = null, saveHandler = null, saving = false;
 
     function control(id) { return root?.querySelector('#' + id); }
 
@@ -388,9 +390,9 @@
         if (!root || !baseline) return;
         const changed = Object.keys(getChanges()).length > 0;
         const message = control('messages');
-        message.dataset.state = statusKey === 'invalid' || statusKey === 'storage_error' ? 'error' : changed ? 'changed' : 'ready';
+        message.dataset.state = ['invalid', 'storage_error', 'save_error'].includes(statusKey) ? 'error' : changed ? 'changed' : 'ready';
         message.textContent = translate(statusKey || (changed ? preview ? 'preview_changed' : 'changed' : preview ? 'preview_ready' : 'ready'));
-        control('rin-config-save').disabled = !changed;
+        control('rin-config-save').disabled = saving || !changed;
     }
 
     function selectPanel(id, focus = false) {
@@ -457,8 +459,9 @@
         }
     }
 
-    function save(event) {
+    async function save(event) {
         event?.preventDefault();
+        if (saving) return;
         const invalid = Array.from(root.querySelectorAll('input[type="number"]')).find(input => !input.disabled && !input.checkValidity());
         if (invalid) {
             statusKey = 'invalid';
@@ -482,7 +485,21 @@
             statusKey = 'preview_saved';
             updateStatus();
         } else {
-            window.postMessage({ type: 'rin-enhanced:config', options: changes }, window.location.origin);
+            if (saveHandler) {
+                saving = true;
+                statusKey = 'saving';
+                updateStatus();
+                try { await saveHandler(changes); }
+                catch {
+                    statusKey = 'save_error';
+                    return;
+                } finally {
+                    saving = false;
+                    updateStatus();
+                }
+            } else {
+                window.postMessage({ type: 'rin-enhanced:config', options: changes }, window.location.origin);
+            }
             savedOptions = current;
             baseline = current;
             statusKey = 'saving';
@@ -491,7 +508,8 @@
         }
     }
 
-    function init(settings) {
+    function init(settings, callbacks) {
+        if (callbacks && Object.hasOwn(callbacks, 'onSave')) saveHandler = typeof callbacks.onSave === 'function' ? callbacks.onSave : null;
         const nextRoot = document.getElementById('wholeWindow');
         if (!nextRoot) return api;
         if (root === nextRoot && controller) {

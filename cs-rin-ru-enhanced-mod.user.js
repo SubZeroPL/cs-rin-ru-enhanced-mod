@@ -4,7 +4,7 @@
 // @name:pt         CS.RIN.RU Melhorado
 // @name:ru         CS.RIN.RU Улучшенный
 // @namespace       Royalgamer06
-// @version         2.0.0-beta.11
+// @version         2.0.0-beta.12
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -267,14 +267,26 @@ function receiveConfigMessage(event) {
     const typed = event.data.type === 'rin-enhanced:config';
     const incoming = typed ? event.data.options : event.data;
     if (!incoming || (!typed && incoming.script_enabled === undefined)) return;
+    return saveConfigChanges(incoming, typed);
+}
+
+function saveConfigChanges(incoming, typed = true) {
     const changes = Object.fromEntries(Object.entries(incoming).filter(([, value]) => value !== undefined));
     if (changes.special_search_parameter) changes.special_search_parameter = { ...options.special_search_parameter, ...changes.special_search_parameter };
     const input = document.querySelector('input#mentioning[type="text"]');
     if ((!typed || Object.hasOwn(changes, 'mentioning')) && typeof changes.mentioning !== 'string' && input) changes.mentioning = input.value;
-    options = normalizeMentionOptions({ ...options, ...changes });
-    GM_setValue('options', options);
-    notifyRin('Configuration saved');
-    if (typed) window.location.reload();
+    const nextOptions = normalizeMentionOptions({ ...options, ...changes });
+    const stored = GM_setValue('options', nextOptions);
+    const finish = () => {
+        options = nextOptions;
+        try { notifyRin('Configuration saved'); }
+        catch (error) { console.warn('CS.RIN.RU Enhanced: settings saved, notification unavailable', error); }
+        if (typed) window.location.reload();
+    };
+    // Some managers return a Promise even from their legacy GM storage API.
+    // Do not reload or acknowledge the save until persistence has succeeded.
+    if (stored && typeof stored.then === 'function') return stored.then(finish);
+    finish();
 }
 
 function initializeMentionTemplateField() {
@@ -314,7 +326,7 @@ function loadConfigButton() {
         GM_addStyle(css);
         initializeMentionTemplateField();
         initializeConfigUI();
-        window.RinEnhancedConfig.init(options);
+        window.RinEnhancedConfig.init(options, { onSave: saveConfigChanges });
         window.RinEnhancedConfig.setOptions(options);
     } catch (error) { console.warn('CS.RIN.RU Enhanced: configuration unavailable', error); notifyRin('Configuration could not be loaded.', 'Error'); }
 }
@@ -1688,6 +1700,7 @@ function initializeConfigUI() {
             "saving": "Saving settings…",
             "invalid": "Check the highlighted value before saving.",
             "storage_error": "This browser could not save the local preview.",
+            "save_error": "Settings could not be saved. Your changes are still here; try saving again.",
             "script_paused": "Enhancements will be paused after saving.",
             "signin_required": "Sign in to the forum to use this option.",
             "dynamic_required": "Enable live forum updates to use this option.",
@@ -1807,6 +1820,7 @@ function initializeConfigUI() {
             "saving": "Сохранение настроек…",
             "invalid": "Перед сохранением проверьте выделенное значение.",
             "storage_error": "Браузер не смог сохранить настройки локального просмотра.",
+            "save_error": "Не удалось сохранить настройки. Изменения сохранены в форме; повторите попытку.",
             "script_paused": "После сохранения улучшения будут приостановлены.",
             "signin_required": "Войдите на форум, чтобы использовать эту настройку.",
             "dynamic_required": "Сначала включите обновление данных форума.",
@@ -1927,7 +1941,7 @@ function initializeConfigUI() {
         };
         let root, dialog, trigger, controller, languageObserver, baseline, savedOptions;
         let preview = false, connected = false, opener = null, originalOverflow = '';
-        let statusKey = null;
+        let statusKey = null, saveHandler = null, saving = false;
 
         function control(id) { return root?.querySelector('#' + id); }
 
@@ -2052,9 +2066,9 @@ function initializeConfigUI() {
             if (!root || !baseline) return;
             const changed = Object.keys(getChanges()).length > 0;
             const message = control('messages');
-            message.dataset.state = statusKey === 'invalid' || statusKey === 'storage_error' ? 'error' : changed ? 'changed' : 'ready';
+            message.dataset.state = ['invalid', 'storage_error', 'save_error'].includes(statusKey) ? 'error' : changed ? 'changed' : 'ready';
             message.textContent = translate(statusKey || (changed ? preview ? 'preview_changed' : 'changed' : preview ? 'preview_ready' : 'ready'));
-            control('rin-config-save').disabled = !changed;
+            control('rin-config-save').disabled = saving || !changed;
         }
 
         function selectPanel(id, focus = false) {
@@ -2121,8 +2135,9 @@ function initializeConfigUI() {
             }
         }
 
-        function save(event) {
+        async function save(event) {
             event?.preventDefault();
+            if (saving) return;
             const invalid = Array.from(root.querySelectorAll('input[type="number"]')).find(input => !input.disabled && !input.checkValidity());
             if (invalid) {
                 statusKey = 'invalid';
@@ -2146,7 +2161,21 @@ function initializeConfigUI() {
                 statusKey = 'preview_saved';
                 updateStatus();
             } else {
-                window.postMessage({ type: 'rin-enhanced:config', options: changes }, window.location.origin);
+                if (saveHandler) {
+                    saving = true;
+                    statusKey = 'saving';
+                    updateStatus();
+                    try { await saveHandler(changes); }
+                    catch {
+                        statusKey = 'save_error';
+                        return;
+                    } finally {
+                        saving = false;
+                        updateStatus();
+                    }
+                } else {
+                    window.postMessage({ type: 'rin-enhanced:config', options: changes }, window.location.origin);
+                }
                 savedOptions = current;
                 baseline = current;
                 statusKey = 'saving';
@@ -2155,7 +2184,8 @@ function initializeConfigUI() {
             }
         }
 
-        function init(settings) {
+        function init(settings, callbacks) {
+            if (callbacks && Object.hasOwn(callbacks, 'onSave')) saveHandler = typeof callbacks.onSave === 'function' ? callbacks.onSave : null;
             const nextRoot = document.getElementById('wholeWindow');
             if (!nextRoot) return api;
             if (root === nextRoot && controller) {
