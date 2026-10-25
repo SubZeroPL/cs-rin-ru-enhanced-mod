@@ -81,12 +81,13 @@
 #chatDiv .rin-chat-actions a:hover, #chatDiv .rin-chat-actions button:hover { border-color: #777; background: #333; color: #eee; }
 #chatDiv .rin-chat-actions :focus-visible { outline: 2px solid #ccc; outline-offset: 1px; }
 #chatDiv .rin-chat-actions svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-#chatDiv .rin-chat-content { flex: 1; min-height: 0; overflow-y: scroll; }
+#chatDiv .rin-chat-content { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
 #chatDiv .rin-chat-content table { width: 100%; }
 #chatDiv .rin-chat-content > table { margin: 0; }
 #chatDiv .rin-chat-content > table > tbody > tr:first-child > th { padding-right: 28px; }
 #chatDiv .rin-chat-content td, #chatDiv .rin-chat-content th { box-sizing: border-box; }
-#chatDiv .shouts { width: 100%; overflow: auto; overflow-x: hidden; }
+/* Native chat columns have an inline fixed height; only the enclosing panel should scroll. */
+#chatDiv .shouts { width: 100%; height: auto !important; max-height: none; overflow: visible; }
 #chatDiv .postbody { overflow-wrap: anywhere; }
 #chatDiv form { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin: 0; }
 #chatDiv form [name="message"] { flex: 1 1 200px; min-width: 0; max-width: 100%; box-sizing: border-box; }

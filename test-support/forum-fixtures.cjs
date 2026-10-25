@@ -1,13 +1,17 @@
 // Minimal public phpBB/rinDark structure: controls occupy four separate table cells.
-function forumNavigation(current, total = 2) {
+function forumNavigation(current, total = 2, topic = false) {
+    const route = topic ? 'viewtopic.php?f=14&amp;t=42' : 'viewforum.php?f=14';
+    const href = number => `./${route}&amp;start=${(number - 1) * (topic ? 15 : 100)}`;
     const pages = Array.from({ length: total }, (_, index) => index + 1).map(number =>
         number === current ? `<strong>${number}</strong>` :
-            `<a href="./viewforum.php?f=14&amp;start=${(number - 1) * 100}">${number}</a>`).join(', ');
+            `<a href="${href(number)}">${number}</a>`).join(', ');
+    const previous = current > 1 ? `<a href="${href(current - 1)}">Previous</a> ` : '';
+    const next = current < total ? ` <a href="${href(current + 1)}">Next</a>` : '';
     return '<table class="forum-navigation" width="100%" cellspacing="1"><tbody><tr>' +
-        '<td align="left"><a href="./posting.php?mode=post&amp;f=14"><img src="button_topic_new.gif" alt="Post new topic"></a></td>' +
+        `<td align="left"><a href="./posting.php?mode=${topic ? 'reply&amp;t=42' : 'post'}&amp;f=14"><img src="button_topic_new.gif" alt="${topic ? 'Reply' : 'Post new topic'}"></a></td>` +
         `<td class="nav">Page <strong>${current}</strong> of <strong>${total}</strong><br></td>` +
         '<td class="gensmall">[ 200 topics ]</td>' +
-        `<td class="gensmall" width="100%" align="right"><b><a href="#" onclick="jumpto(); return false;">Go to page</a> ${pages}</b></td>` +
+        `<td class="gensmall" width="100%" align="right"><b><a href="#" onclick="jumpto(); return false;">Go to page</a> ${previous}${pages}${next}</b></td>` +
         '</tr></tbody></table>';
 }
 
@@ -27,4 +31,12 @@ function forumPage(current, ids) {
         '</div></div>';
 }
 
-module.exports = { forumPage };
+function topicPage(current, ids) {
+    const post = id => `<table class="tablebg" data-topic="${id}"><tbody><tr><td><a name="p${id}"></a>` +
+        `<div class="postbody">Message ${id}</div></td></tr></tbody></table>`;
+    return '<div id="wrapcentre"><div id="pageheader"><a class="titles" href="./viewtopic.php?f=14&amp;t=42">Topic</a></div>' +
+        forumNavigation(current, 2, true) + '<div id="pagecontent">' + ids.map(post).join('') +
+        '</div>' + forumNavigation(current, 2, true) + '</div>';
+}
+
+module.exports = { forumPage, topicPage };

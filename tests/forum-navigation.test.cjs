@@ -1,12 +1,14 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const vm = require('node:vm');
 const { JSDOM } = require('jsdom');
 const { loadFunctions } = require('../test-support/load-functions.cjs');
-const { forumPage } = require('../test-support/forum-fixtures.cjs');
+const { forumPage, topicPage } = require('../test-support/forum-fixtures.cjs');
 
-function setup(t, { enabled = true } = {}) {
-    const dom = new JSDOM(forumPage(1, [101, 102]), {
-        url: 'https://cs.rin.ru/forum/viewforum.php?f=14', pretendToBeVisual: true,
+function setup(t, { enabled = true, topic = false } = {}) {
+    const fixture = topic ? topicPage : forumPage;
+    const dom = new JSDOM(fixture(1, [101, 102]), {
+        url: `https://cs.rin.ru/forum/${topic ? 'viewtopic.php?t=42' : 'viewforum.php?f=14'}`, pretendToBeVisual: true,
     });
     t.after(() => dom.window.close());
     const { window } = dom;
@@ -33,7 +35,7 @@ function setup(t, { enabled = true } = {}) {
         functionsCalledByInfiniteScrolls: (page, node) => enhanced.push(node),
         fetchForumDocument: async href => {
             requests.push(href);
-            return new window.DOMParser().parseFromString(forumPage(2, [103, 104]), 'text/html');
+            return new window.DOMParser().parseFromString(fixture(2, [103, 104]), 'text/html');
         },
         notifyRin: () => assert.fail('No pagination error is expected'),
         console: { warn: () => assert.fail('No pagination warning is expected') },
@@ -64,11 +66,15 @@ function assertTopicRowsVisible(window, rows) {
     }
 }
 
-test('native forum navigation remains a table without duplicating new-topic controls or hiding topic rows', t => {
+test('compact forum pagination moves only page links and preserves native posting controls, counters and topic rows', t => {
     const { ctx, window, document } = setup(t);
     const links = newTopicLinks(document);
     const rows = Array.from(document.querySelectorAll('tr[data-topic]'));
     const subscribe = document.getElementById('forum-subscribe');
+    const topControls = document.querySelector('.forum-navigation');
+    const counters = Array.from(topControls.querySelectorAll('.nav, td:nth-child(3)'));
+    const pagers = document.querySelectorAll('[onclick*="jumpto"]').length;
+    ctx.setupInfiniteScroll();
     ctx.setupInfiniteScroll();
     const navigation = document.querySelector('.rin-page-nav');
     assert.ok(navigation);
@@ -76,9 +82,16 @@ test('native forum navigation remains a table without duplicating new-topic cont
     assert.equal(document.querySelectorAll('a.topictitle').length, 3);
     assertTopicRowsVisible(window, rows);
     assert.ok(subscribe.isConnected);
-    assert.equal(navigation.querySelector('div > td, div > tr'), null);
-    assert.equal(navigation.querySelectorAll('table tr > td').length, 4, 'preserve the four-cell native layout');
-    assert.match(navigation.textContent, /Page\s+1\s+of\s+2/);
+    assert.equal(navigation.querySelector('table, tr, td, th, img'), null);
+    assert.equal(topControls.querySelectorAll('tr > td').length, 4, 'preserve the four-cell native layout');
+    assert.equal(topControls.classList.contains('rin-page-nav'), false);
+    assert.deepEqual(Array.from(topControls.querySelectorAll('.nav, td:nth-child(3)')), counters);
+    assert.match(topControls.textContent, /Page\s+1\s+of\s+2/);
+    assert.equal(navigation.querySelector('strong').textContent, '1');
+    assert.match(navigation.textContent, /Go to page.*Next/);
+    assert.doesNotMatch(navigation.textContent, /Page\s+\d|topics/);
+    assert.equal(document.querySelectorAll('[onclick*="jumpto"]').length, pagers, 'moving the pager does not create another visible copy');
+    assert.equal(document.querySelectorAll('.rin-page-nav').length, 1, 'initialization is idempotent');
 });
 
 test('forum scrolling appends unique topics and updates the visible-page navigation without duplicating controls', async t => {
@@ -97,7 +110,8 @@ test('forum scrolling appends unique topics and updates the visible-page navigat
     positions.set('103', 20);
     positions.set('104', 70);
     await scroll();
-    assert.match(document.querySelector('.rin-page-nav').textContent, /Page\s+2\s+of\s+2/);
+    assert.equal(document.querySelector('.rin-page-nav strong').textContent, '2');
+    assert.match(document.querySelector('.rin-page-nav').textContent, /Go to page.*Previous/);
     assert.equal(newTopicLinks(document).length, nativeActionCount);
     assert.equal(document.querySelectorAll('.rin-page-nav').length, 1);
     assert.equal(document.querySelector('.rin-page-nav div > td, .rin-page-nav div > tr'), null);
@@ -106,9 +120,44 @@ test('forum scrolling appends unique topics and updates the visible-page navigat
     positions.set('10', 20);
     positions.set('103', 500);
     await scroll();
-    assert.match(document.querySelector('.rin-page-nav').textContent, /Page\s+1\s+of\s+2/);
+    assert.equal(document.querySelector('.rin-page-nav strong').textContent, '1');
     assert.equal(newTopicLinks(document).length, nativeActionCount);
     assertTopicRowsVisible(window, originalRows);
+});
+
+test('compact topic pagination preserves the native reply button and updates after a same-page refresh', async t => {
+    const { ctx, window, document, positions, requests, scroll } = setup(t, { topic: true });
+    const nativeButtons = Array.from(document.querySelectorAll('a[href*="posting.php"]'));
+    const controls = Array.from(document.querySelectorAll('.forum-navigation'));
+    const posts = Array.from(document.querySelectorAll('#pagecontent > table'));
+    ctx.setupInfiniteScroll();
+    window.scrollY = 1500;
+    await scroll();
+    assert.equal(requests.length, 1);
+    assert.equal(new URL(requests[0]).searchParams.get('start'), '15');
+    assertTopicRowsVisible(window, posts);
+    positions.set('101', -100); positions.set('102', -100);
+    positions.set('103', 20); positions.set('104', 70);
+    await scroll();
+    assert.equal(document.querySelector('.rin-page-nav strong').textContent, '2');
+    assert.deepEqual(Array.from(document.querySelectorAll('a[href*="posting.php"]')), nativeButtons);
+    assert.ok(controls.every(node => node.isConnected && !node.classList.contains('rin-page-nav')));
+    assert.equal(document.querySelector('.rin-page-nav table, .rin-page-nav td, .rin-page-nav img'), null);
+    assert.doesNotMatch(document.querySelector('.rin-page-nav').textContent, /Page\s+\d|topics/);
+
+    const refreshed = new window.DOMParser().parseFromString(topicPage(2, [103, 104]), 'text/html');
+    const refreshedPagination = ctx.getPagination(refreshed, 'https://cs.rin.ru/forum/viewtopic.php?t=42&start=15');
+    const previous = Array.from(refreshedPagination.element.querySelectorAll('a')).find(anchor => anchor.textContent === 'Previous');
+    previous.textContent = 'Предыдущая';
+    vm.runInContext('rinPaginationState', ctx).pages.get(2).pagination = refreshedPagination;
+    await scroll();
+    const pager = document.querySelector('.rin-page-nav');
+    assert.match(pager.textContent, /Предыдущая/);
+    const refreshedLink = pager.querySelector('a');
+    await scroll();
+    assert.equal(pager.querySelector('a'), refreshedLink, 'unchanged refreshes do not rebuild controls');
+    assert.equal(document.querySelectorAll('.rin-page-nav').length, 1);
+    assert.equal(document.querySelectorAll('[onclick*="jumpto"]').length, 2);
 });
 
 test('disabled infinite scrolling leaves native forum navigation and topic rows unchanged', t => {

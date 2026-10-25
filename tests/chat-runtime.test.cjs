@@ -83,13 +83,50 @@ test('chat polling uses native metadata, prepends messages once and updates onli
     assert.equal(ctx.container.querySelectorAll('[data-rin-chat-id]').length, 2);
 });
 
+for (const [position, scrollTop] of [['at the newest message', 0], ['reading older messages', 240]]) {
+    test(`chat polling preserves the shared content scroller ${position}, without duplicates or losing drafts`, async t => {
+        const ctx = setup(t); await ctx.open();
+        const state = ctx.container.rinChatState;
+        const scroller = state.content;
+        const nativeWrapper = state.messages.parentElement;
+        const originalMessage = state.messages.firstElementChild;
+        // JSDOM has no layout: model the height added by each prepended message.
+        Object.defineProperty(scroller, 'scrollHeight', { get: () => 400 + state.messages.children.length * 120 });
+        Object.defineProperty(nativeWrapper, 'scrollHeight', { get: () => 1000 + state.messages.children.length * 120 });
+        scroller.scrollTop = scrollTop;
+        nativeWrapper.scrollTop = 30;
+        state.editor.value = 'Unsent chat draft';
+
+        ctx.replies.push(`${row(11, 'New message')}${row(10)}---11`);
+        await ctx.tick();
+        const expectedTop = scrollTop === 0 ? 0 : scrollTop + 120;
+        assert.equal(scroller.scrollTop, expectedTop, 'keep the visible older message anchored, or remain at the top');
+        assert.equal(nativeWrapper.scrollTop, 30, 'the native wrapper is no longer a scroll container');
+        assert.equal(state.messages.lastElementChild, originalMessage);
+        assert.deepEqual([...state.messages.children].map(node => node.dataset.rinChatId), ['11', '10']);
+        assert.equal(state.editor.value, 'Unsent chat draft');
+        assert.equal(ctx.document.querySelector('#postform textarea').value, 'Forum draft');
+
+        const latestMessage = state.messages.firstElementChild;
+        ctx.replies.push(`${row(11, 'New message')}${row(10)}---11`);
+        await ctx.tick();
+        assert.equal(scroller.scrollTop, expectedTop, 'a repeated response must not move the reading position');
+        assert.equal(nativeWrapper.scrollTop, 30);
+        assert.equal(state.messages.children.length, 2);
+        assert.equal(state.messages.firstElementChild, latestMessage, 'existing message nodes are reused');
+        assert.equal(state.messages.lastElementChild, originalMessage);
+        assert.equal(state.editor.value, 'Unsent chat draft');
+        assert.equal(state.failed, false);
+    });
+}
+
 test('idle reads with empty or whitespace bodies keep polling and preserve cursors before the next message', async t => {
     const ctx = setup(t); await ctx.open();
     ctx.replies.push(`${row(11, 'Before idle')}---11---<div>Alice</div>---20---30---1240`);
     await ctx.tick();
     const state = ctx.container.rinChatState;
     const previousMessage = state.messages.firstElementChild;
-    const scroller = state.messages.parentElement;
+    const scroller = state.content;
     state.editor.value = 'Unsent draft'; scroller.scrollTop = 40;
     for (const empty of ['', ' \t\r\n\t ']) {
         ctx.replies.push(empty); await ctx.tick();

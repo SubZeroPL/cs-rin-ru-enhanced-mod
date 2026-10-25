@@ -151,7 +151,7 @@ function updateChatMessages(state, reply) {
     if (reply.html.trim() && !entries.length) throw new Error('Missing chat messages');
     const added = entries.filter(node => !Array.from(state.messages.children).some(existing => existing.dataset.rinChatId === node.id.slice(1)))
         .map(node => prepareChatFragment(document.importNode(node, true), state.url));
-    const scroller = state.messages.parentElement;
+    const scroller = state.content;
     const previousTop = scroller.scrollTop;
     const previousHeight = scroller.scrollHeight;
     state.messages.prepend(...added);
