@@ -389,3 +389,13 @@ test('native chat page never adds another compact chat toggle', async t => {
     assert.ok(ctx.document.getElementById('configButton'));
     ctx.verifyClean();
 });
+
+test('the AppID option starts independently of enhanced search and respects the master switch', async t => {
+    for (const enabled of [false, true]) {
+        const ctx = await boot(t, { options: { script_enabled: enabled, appid_search: true, special_search: false } });
+        assert.equal(Boolean(ctx.document.getElementById('rin-appid-search')), enabled);
+        assert.equal(ctx.document.getElementById('appid_search').checked, true);
+        assert.equal(ctx.document.getElementById('searchBar'), null);
+        ctx.verifyClean();
+    }
+});

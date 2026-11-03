@@ -44,7 +44,7 @@ test('settings are self-contained, vanilla and include one mention field plus al
     assert.doesNotMatch(html, /on(?:click|change|keydown)\s*=|<script[^>]+https?:/i);
     assert.doesNotMatch(css, /@font-face|url\(https?:/i);
     const ctx = setup(t);
-    for (const id of ['mentioning', 'ui_language', 'friend_buttons', 'dynamic_content']) {
+    for (const id of ['mentioning', 'ui_language', 'friend_buttons', 'dynamic_content', 'appid_search']) {
         assert.equal(ctx.document.querySelectorAll('#' + id).length, 1);
     }
     assert.equal(ctx.document.querySelector('#mentioning').type, 'text');
@@ -99,6 +99,30 @@ test('saving sends only changed values with the original types, once, and never 
     ctx.api.open();
     submit(ctx);
     assert.equal(ctx.messages.length, 1);
+});
+
+test('AppID search is opt-in, independent of enhanced search and login, and saves a boolean', t => {
+    const ctx = setup(t, { connected: false });
+    ctx.api.setOptions({ special_search: false });
+    const field = ctx.document.getElementById('appid_search');
+    assert.equal(field.checked, false);
+    assert.equal(field.disabled, false);
+    assert.equal(field.closest('[role="tabpanel"]').id, 'rin-panel-search');
+    ctx.api.open();
+    change(ctx, 'appid_search', true);
+    submit(ctx);
+    assert.deepEqual(JSON.parse(JSON.stringify(ctx.messages[0].data)), {
+        type: 'rin-enhanced:config', options: { appid_search: true },
+    });
+    ctx.api.setOptions({ special_search: false, appid_search: true });
+    assert.equal(field.checked, true);
+    assert.equal(ctx.document.getElementById('special_search').checked, false);
+    ctx.api.open();
+    change(ctx, 'appid_search', false);
+    submit(ctx);
+    assert.deepEqual(JSON.parse(JSON.stringify(ctx.messages[1].data)), {
+        type: 'rin-enhanced:config', options: { appid_search: false },
+    });
 });
 
 test('cancel and Escape restore fields, focus and the page scroll state', t => {
