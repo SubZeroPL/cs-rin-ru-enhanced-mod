@@ -11,7 +11,7 @@ function topicHtml({ forumId = '22', topicId = '42', appId = '690830', quoteAppI
     return `<!doctype html><html><body>
         <p class="breadcrumbs"><a href="./viewforum.php?f=${forumId}">Steam Content Sharing</a></p>
         <div id="pageheader"><a class="titles" href="./viewtopic.php?f=${forumId}&amp;t=${topicId}">SCS game</a></div>
-        <table><tbody><tr><td id="topic-actions"><a id="reply" href="./posting.php?mode=reply&amp;f=${forumId}&amp;t=${topicId}"><img src="./styles/rinDark/imageset/en/button_topic_reply.gif"></a></td></tr></tbody></table>
+        <table><tbody><tr><td id="topic-actions"><a id="reply" href="./posting.php?mode=reply&amp;f=${forumId}&amp;t=${topicId}"><img src="./styles/rinDark/imageset/en/button_topic_reply.gif"></a></td><td class="nav">Page 1 of 1</td><td id="topic-secondary-actions" class="gensmall" width="100%" align="right"></td></tr></tbody></table>
         <div id="pagecontent"><table class="tablebg"><tbody>
         <tr><td><a name="p100"></a></td></tr>
         <tr><td><div class="postbody">${quoted}${store}</div></td></tr>
@@ -59,7 +59,8 @@ test('SCS game topics receive one native button pointing to the site-root AppID 
     assert.equal(buttons[0].type, 'button');
     assert.ok(buttons[0].classList.contains('btnlite'));
     assert.equal(buttons[0].value, 'Main game topic');
-    assert.equal(buttons[0].previousElementSibling.id, 'reply');
+    assert.equal(buttons[0].parentElement.id, 'topic-secondary-actions');
+    assert.equal(ctx.document.getElementById('topic-actions').children.length, 1);
     buttons[0].click();
     assert.equal(ctx.window.location.href, 'https://cs.rin.ru/app/690830');
     assert.deepEqual(ctx.requests, []);
@@ -77,6 +78,14 @@ test('the button is opt-out and never appears outside SCS, outside topics or wit
         await ctx.setupScsMainTopicLink();
         assert.equal(ctx.document.querySelector('.rin-scs-main-topic'), null);
     }
+});
+
+test('unknown topic action layouts are left untouched instead of placing the button beside Reply', async t => {
+    const html = topicHtml().replace('<td id="topic-secondary-actions" class="gensmall" width="100%" align="right"></td>', '');
+    const ctx = setup(t, { html });
+    await ctx.setupScsMainTopicLink();
+    assert.equal(ctx.document.querySelector('.rin-scs-main-topic'), null);
+    assert.equal(ctx.document.getElementById('topic-actions').children.length, 1);
 });
 
 test('only the first post own Store link supplies the AppID, never a quoted game', async t => {

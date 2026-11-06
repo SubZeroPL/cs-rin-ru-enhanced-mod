@@ -4,7 +4,7 @@
 // @name:pt         CS.RIN.RU Melhorado
 // @name:ru         CS.RIN.RU Улучшенный
 // @namespace       Royalgamer06
-// @version         2.0.0-beta.15
+// @version         2.0.0-beta.16
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -470,6 +470,10 @@ async function setupScsMainTopicLink() {
     if (context.forumId !== '22' || !context.topicId) return;
     const reply = findForumLink(document, 'posting.php', { mode: 'reply' });
     if (!reply || reply.closest('.postbody, .signature')) return;
+    const actionRow = reply.closest('tr');
+    const actionCell = actionRow && Array.from(actionRow.cells).find(cell =>
+        cell !== reply.closest('td, th') && (cell.getAttribute('align') === 'right' || cell.getAttribute('width') === '100%'));
+    if (!actionCell) return;
 
     let source = document;
     const pagination = getPagination();
@@ -495,7 +499,7 @@ async function setupScsMainTopicLink() {
     button.addEventListener('click', () => {
         window.location.href = new URL(`/app/${appId}`, FORUM_BASE_URL).href;
     });
-    reply.after(document.createTextNode('\u00a0'), button);
+    actionCell.append(button);
 }
 
 function getSearchContext(page = document) {
