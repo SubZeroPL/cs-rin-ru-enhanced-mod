@@ -3,7 +3,7 @@
 
 Enhance your experience at CS.RIN.RU
 
-**v2.0 test branch:** this is `2.0.0-beta.13`. Install this branch using the link below; its automatic updates follow `v2.0`.
+**v2.0 test branch:** this is `2.0.0-beta.14`. Install this branch using the link below; its automatic updates follow `v2.0`.
 
 The visual redesign is limited to the chat and settings. Existing forum controls retain their original appearance; new friend actions use the forum's native button style below the author's details.
 
@@ -46,7 +46,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - Add a button to access your profile (add_profile_button).
 - Verification that the user is connected or not. If he is not, he disables the functions that need to be connected.
 - Adds a special search bar configurable in settings, with topic/forum searches available even when arriving through a direct post link (special_search)
-- Optional Steam AppID search beside the header search controls (appid_search, off by default). Enable Show Steam AppID search in Settings → Search, save, then enter a numeric AppID and press Enter or Search to open `/app/{appid}` on the current site. Works independently of enhanced search and uses native forum controls.
+- Optional Steam AppID field beside the header search controls (appid_search, off by default). Enable Show Steam AppID search in Settings → Search, save, then enter a numeric AppID and press Enter to open `/app/{appid}` on the current site. Works independently of enhanced search and uses the forum's native input style without adding another Search button.
 
 ## 🧑‍🤝‍🧑 Other related projects
 - [CS.RIN.RU-Enhanced-external](https://github.com/Altansar69/CS.RIN.RU-Enhanced-external) - Other script containing everything related to cs.rin.ru but acting on other sites (Steam, SteamDB etc...)

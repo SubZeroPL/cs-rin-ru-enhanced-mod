@@ -4,7 +4,7 @@
 // @name:pt         CS.RIN.RU Melhorado
 // @name:ru         CS.RIN.RU Улучшенный
 // @namespace       Royalgamer06
-// @version         2.0.0-beta.13
+// @version         2.0.0-beta.14
 // @description     Enhance your experience at CS.RIN.RU - Steam Underground Community.
 // @description:fr  Améliorez votre expérience sur CS.RIN.RU - Steam Underground Community.
 // @description:pt  Melhorar a sua experiência no CS.RIN.RU - Steam Underground Community.
@@ -1589,10 +1589,7 @@ function setupAppIdSearch() {
     input.addEventListener('keydown', event => {
         if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); searchAppId(); }
     });
-    const button = document.createElement('button');
-    button.type = 'button'; button.className = 'btnlite'; button.textContent = rinText('Search');
-    button.addEventListener('click', searchAppId);
-    container.append(input, document.createTextNode(' '), button);
+    container.append(input);
     const enhanced = cell.querySelector('.rin-special-search');
     if (enhanced) enhanced.after(document.createTextNode(' '), container);
     else cell.prepend(container);

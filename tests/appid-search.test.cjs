@@ -28,7 +28,7 @@ test('AppID search is optional, idempotent, independent of enhanced search and p
     assert.equal(native.getAttribute('href'), '/forum/search.php');
     assert.equal(native.parentElement.id, 'search-cell');
     assert.equal(ctx.input.className, 'post');
-    assert.equal(ctx.document.querySelector('#rin-appid-search button').className, 'btnlite');
+    assert.equal(ctx.document.querySelector('#rin-appid-search button'), null);
     assert.equal(ctx.document.querySelector('#searchBar'), null);
 });
 
@@ -38,34 +38,28 @@ test('AppID search is placed beside an existing enhanced search without replacin
     assert.equal(ctx.document.querySelector('.rin-special-search').nextElementSibling.id, 'rin-appid-search');
 });
 
-test('button and Enter open the AppID route, accepting pasted whitespace without carrying session parameters', t => {
-    for (const action of ['button', 'Enter']) {
-        const ctx = setup(t);
-        ctx.input.value = ' 000730 ';
-        if (action === 'button') ctx.document.querySelector('#rin-appid-search button').click();
-        else {
-            const event = new ctx.browser.KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
-            ctx.input.dispatchEvent(event);
-            assert.equal(event.defaultPrevented, true);
-        }
-        assert.equal(ctx.window.location.href, 'https://cs.rin.ru/app/730');
-    }
+test('Enter opens the AppID route, accepting pasted whitespace without carrying session parameters', t => {
+    const ctx = setup(t);
+    ctx.input.value = ' 000730 ';
+    const event = new ctx.browser.KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
+    ctx.input.dispatchEvent(event);
+    assert.equal(event.defaultPrevented, true);
+    assert.equal(ctx.window.location.href, 'https://cs.rin.ru/app/730');
 });
 
 test('invalid AppIDs never navigate and validation clears when the user corrects the value', t => {
     const ctx = setup(t);
     const original = ctx.window.location.href;
-    const button = ctx.document.querySelector('#rin-appid-search button');
     for (const value of ['', ' ', '0', '000', '-1', '1.2', '1e3', '730/../../', '730?x=1', 'https://store.steampowered.com/app/730/']) {
         ctx.input.value = value;
-        button.click();
+        ctx.input.dispatchEvent(new ctx.browser.KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
         assert.equal(ctx.window.location.href, original, value);
         assert.equal(ctx.input.validity.customError, true, value);
     }
     ctx.input.value = '1091500';
     ctx.input.dispatchEvent(new ctx.browser.Event('input'));
     assert.equal(ctx.input.validationMessage, '');
-    button.click();
+    ctx.input.dispatchEvent(new ctx.browser.KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
     assert.equal(ctx.window.location.href, 'https://cs.rin.ru/app/1091500');
 });
 
@@ -74,7 +68,7 @@ test('AppID navigation uses the site root and preserves the currently used mirro
         const ctx = setup(t, { url: `${origin}/forum/viewtopic.php?t=42` });
         assert.equal(ctx.getBaseUrl(), `${origin}/forum/`);
         ctx.input.value = '570';
-        ctx.document.querySelector('#rin-appid-search button').click();
+        ctx.input.dispatchEvent(new ctx.browser.KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
         assert.equal(ctx.window.location.href, `${origin}/app/570`);
     }
 });
@@ -82,12 +76,12 @@ test('AppID navigation uses the site root and preserves the currently used mirro
 test('AppID controls and errors follow the Russian interface and ignore composing Enter', t => {
     const ctx = setup(t, { language: 'ru' });
     assert.equal(ctx.input.getAttribute('aria-label'), 'Поиск по AppID Steam');
-    assert.equal(ctx.document.querySelector('#rin-appid-search button').textContent, 'Поиск');
+    assert.equal(ctx.document.querySelector('#rin-appid-search button'), null);
     const original = ctx.window.location.href;
     ctx.input.value = '730';
     ctx.input.dispatchEvent(new ctx.browser.KeyboardEvent('keydown', { key: 'Enter', isComposing: true }));
     assert.equal(ctx.window.location.href, original);
     ctx.input.value = 'bad';
-    ctx.document.querySelector('#rin-appid-search button').click();
+    ctx.input.dispatchEvent(new ctx.browser.KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
     assert.equal(ctx.input.validationMessage, 'Введите корректный числовой AppID Steam.');
 });
