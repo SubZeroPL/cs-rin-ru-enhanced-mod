@@ -44,7 +44,7 @@ test('settings are self-contained, vanilla and include one mention field plus al
     assert.doesNotMatch(html, /on(?:click|change|keydown)\s*=|<script[^>]+https?:/i);
     assert.doesNotMatch(css, /@font-face|url\(https?:/i);
     const ctx = setup(t);
-    for (const id of ['mentioning', 'ui_language', 'friend_buttons', 'dynamic_content', 'appid_search']) {
+    for (const id of ['mentioning', 'ui_language', 'friend_buttons', 'dynamic_content', 'appid_search', 'scs_main_topic_link']) {
         assert.equal(ctx.document.querySelectorAll('#' + id).length, 1);
     }
     assert.equal(ctx.document.querySelector('#mentioning').type, 'text');
@@ -122,6 +122,19 @@ test('AppID search is opt-in, independent of enhanced search and login, and save
     submit(ctx);
     assert.deepEqual(JSON.parse(JSON.stringify(ctx.messages[1].data)), {
         type: 'rin-enhanced:config', options: { appid_search: false },
+    });
+});
+
+test('the SCS main-topic button is enabled by default and can be disabled', t => {
+    const ctx = setup(t);
+    const field = ctx.document.getElementById('scs_main_topic_link');
+    assert.equal(field.checked, true);
+    assert.equal(field.closest('[role="tabpanel"]').id, 'rin-panel-reading');
+    ctx.api.open();
+    change(ctx, 'scs_main_topic_link', false);
+    submit(ctx);
+    assert.deepEqual(JSON.parse(JSON.stringify(ctx.messages[0].data)), {
+        type: 'rin-enhanced:config', options: { scs_main_topic_link: false },
     });
 });
 
