@@ -125,7 +125,7 @@ test('AppID search is opt-in, independent of enhanced search and login, and save
     });
 });
 
-test('the SCS main-topic button is enabled by default and can be disabled', t => {
+test('the SCS main-topic link is enabled by default and can be disabled', t => {
     const ctx = setup(t);
     const field = ctx.document.getElementById('scs_main_topic_link');
     assert.equal(field.checked, true);

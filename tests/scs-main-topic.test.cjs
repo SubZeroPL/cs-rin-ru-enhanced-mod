@@ -11,7 +11,8 @@ function topicHtml({ forumId = '22', topicId = '42', appId = '690830', quoteAppI
     return `<!doctype html><html><body>
         <p class="breadcrumbs"><a href="./viewforum.php?f=${forumId}">Steam Content Sharing</a></p>
         <div id="pageheader"><a class="titles" href="./viewtopic.php?f=${forumId}&amp;t=${topicId}">SCS game</a></div>
-        <table><tbody><tr><td id="topic-actions"><a id="reply" href="./posting.php?mode=reply&amp;f=${forumId}&amp;t=${topicId}"><img src="./styles/rinDark/imageset/en/button_topic_reply.gif"></a></td><td class="nav">Page 1 of 1</td><td id="topic-secondary-actions" class="gensmall" width="100%" align="right"></td></tr></tbody></table>
+        <table><tbody><tr><td id="topic-actions"><a id="reply" href="./posting.php?mode=reply&amp;f=${forumId}&amp;t=${topicId}"><img src="./styles/rinDark/imageset/en/button_topic_reply.gif"></a></td><td class="nav">Page 1 of 1</td><td class="gensmall" width="100%" align="right"></td></tr></tbody></table>
+        <table><tbody><tr><td id="topic-tools" class="nav" nowrap="nowrap">&nbsp;<a id="print-view" href="./viewtopic.php?f=${forumId}&amp;t=${topicId}&amp;view=print">Print view</a> | <a href="./memberlist.php?mode=email&amp;t=${topicId}">E-mail friend</a></td></tr></tbody></table>
         <div id="pagecontent"><table class="tablebg"><tbody>
         <tr><td><a name="p100"></a></td></tr>
         <tr><td><div class="postbody">${quoted}${store}</div></td></tr>
@@ -49,24 +50,22 @@ function setup(t, { html = topicHtml(), url = `${base}viewtopic.php?f=22&t=42`, 
     return { ...context, browser: dom.window, requests };
 }
 
-test('SCS game topics receive one native button pointing to the site-root AppID route', async t => {
+test('SCS game topics receive one native tools link pointing to the site-root AppID route', async t => {
     const ctx = setup(t);
     await ctx.setupScsMainTopicLink();
     await ctx.setupScsMainTopicLink();
-    const buttons = ctx.document.querySelectorAll('.rin-scs-main-topic');
-    assert.equal(buttons.length, 1);
-    assert.equal(buttons[0].tagName, 'INPUT');
-    assert.equal(buttons[0].type, 'button');
-    assert.ok(buttons[0].classList.contains('btnlite'));
-    assert.equal(buttons[0].value, 'Main game topic');
-    assert.equal(buttons[0].parentElement.id, 'topic-secondary-actions');
+    const links = ctx.document.querySelectorAll('.rin-scs-main-topic');
+    assert.equal(links.length, 1);
+    assert.equal(links[0].tagName, 'A');
+    assert.equal(links[0].textContent, 'Main game topic');
+    assert.equal(links[0].href, 'https://cs.rin.ru/app/690830');
+    assert.equal(links[0].parentElement.id, 'topic-tools');
+    assert.equal(links[0].nextElementSibling.id, 'print-view');
     assert.equal(ctx.document.getElementById('topic-actions').children.length, 1);
-    buttons[0].click();
-    assert.equal(ctx.window.location.href, 'https://cs.rin.ru/app/690830');
     assert.deepEqual(ctx.requests, []);
 });
 
-test('the button is opt-out and never appears outside SCS, outside topics or without a Steam AppID', async t => {
+test('the link is opt-out and never appears outside SCS, outside topics or without a Steam AppID', async t => {
     const cases = [
         { enabled: false },
         { html: topicHtml({ forumId: '14' }), url: `${base}viewtopic.php?f=14&t=42` },
@@ -80,8 +79,8 @@ test('the button is opt-out and never appears outside SCS, outside topics or wit
     }
 });
 
-test('unknown topic action layouts are left untouched instead of placing the button beside Reply', async t => {
-    const html = topicHtml().replace('<td id="topic-secondary-actions" class="gensmall" width="100%" align="right"></td>', '');
+test('unknown topic tool layouts are left untouched instead of placing the link beside Reply', async t => {
+    const html = topicHtml().replace('<td id="topic-tools" class="nav" nowrap="nowrap">&nbsp;<a id="print-view" href="./viewtopic.php?f=22&amp;t=42&amp;view=print">Print view</a> | <a href="./memberlist.php?mode=email&amp;t=42">E-mail friend</a></td>', '');
     const ctx = setup(t, { html });
     await ctx.setupScsMainTopicLink();
     assert.equal(ctx.document.querySelector('.rin-scs-main-topic'), null);
@@ -91,8 +90,7 @@ test('unknown topic action layouts are left untouched instead of placing the but
 test('only the first post own Store link supplies the AppID, never a quoted game', async t => {
     const ctx = setup(t, { html: topicHtml({ quoteAppId: '730', appId: '570' }) });
     await ctx.setupScsMainTopicLink();
-    ctx.document.querySelector('.rin-scs-main-topic').click();
-    assert.equal(ctx.window.location.href, 'https://cs.rin.ru/app/570');
+    assert.equal(ctx.document.querySelector('.rin-scs-main-topic').href, 'https://cs.rin.ru/app/570');
 });
 
 test('later pages fetch page one and preserve the active forum mirror', async t => {
@@ -106,16 +104,15 @@ test('later pages fetch page one and preserve the active forum mirror', async t 
     await ctx.setupScsMainTopicLink();
     assert.equal(ctx.requests.length, 1);
     assert.equal(ctx.requests[0], `${origin}/forum/viewtopic.php?f=22&t=42`);
-    ctx.document.querySelector('.rin-scs-main-topic').click();
-    assert.equal(ctx.window.location.href, `${origin}/app/1091500`);
+    assert.equal(ctx.document.querySelector('.rin-scs-main-topic').href, `${origin}/app/1091500`);
 });
 
 test('Russian labels are translated and a failed page-one request leaves the topic untouched', async t => {
     const russian = setup(t, { language: 'ru' });
     await russian.setupScsMainTopicLink();
     const button = russian.document.querySelector('.rin-scs-main-topic');
-    assert.equal(button.value, 'Основная тема игры');
-    assert.equal(button.getAttribute('aria-label'), 'Основная тема игры');
+    assert.equal(button.textContent, 'Основная тема игры');
+    assert.equal(button.title, 'Основная тема игры');
 
     const failed = setup(t, { html: topicHtml({ appId: null }), pagination: { current: 3 }, fetchedHtml: new Error('offline') });
     await failed.setupScsMainTopicLink();

@@ -3,7 +3,7 @@
 
 Enhance your experience at CS.RIN.RU
 
-**v2.0 test branch:** this is `2.0.0-beta.16`. Install this branch using the link below; its automatic updates follow `v2.0`.
+**v2.0 test branch:** this is `2.0.0-beta.17`. Install this branch using the link below; its automatic updates follow `v2.0`.
 
 The visual redesign is limited to the chat and settings. Existing forum controls retain their original appearance; new friend actions use the forum's native button style below the author's details.
 
@@ -28,7 +28,7 @@ Official forum topic: https://cs.rin.ru/forum/viewtopic.php?f=14&t=75717
 - One custom mention format (mentioning), used in both the quick reply panel and the full editor. Use `%m` for the username, `%u` for the profile URL and `%p` for the post URL. The default is `[b][url=%u]%m[/url][/b], [url=%p]post[/url]`: a bold, clickable name followed by a link to the post. Edit the template to choose what is included, or leave the field empty to disable mentions.
 - Topic preview. When checked displays preview of first post from topic that mouse cursor points to with configurable delay (topic_preview).
 - Add missing SteamDB links to older posts using the forum's `SteamDB Page:` label (steam_db_link). Existing SteamDB links are preserved without duplication.
-- Add a native Main game topic button to Steam Content Sharing topics, using the first post's Steam AppID and the forum's `/app/{appid}` route (scs_main_topic_link).
+- Add a native Main game topic link to the topic-tools row in Steam Content Sharing, using the first post's Steam AppID and the forum's `/app/{appid}` route (scs_main_topic_link).
 - Copy the link of a message (copy_link_button).
 - Include forum and topic IDs in native post links and copied post links (full_path_post_links, enabled by default), including on pages loaded by infinite scrolling and in previews. Links inside post text are left unchanged because they can refer to other topics.
 - Link quote headers to the original post (add_link_quote). Quotes use valid BBCode with a Source link; the script moves that link to the header for readers with this option enabled, including in previews and dynamically loaded posts. Other readers keep the Source link in the quote body.
